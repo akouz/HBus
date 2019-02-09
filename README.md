@@ -521,3 +521,54 @@ Reply from Node B to Node A
 <th>MsgID</th>
 <th>OkErr</th>
 </tbody></table>
+
+## [8] RD_DESCR
+
+Read text description of the target node, such as name, location, etc.
+
+Request from Node A to Node B
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x08</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>0</th>
+</tbody></table>
+  
+Reply from Node B to Node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8]</th>
+<th>[9:(9+N)]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x88</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>0</th>
+<th>N</th>
+<th>Text</th>
+</tbody></table>
+
+  * N - length of text, bytes 
+  * Text - node description, UTF-8
