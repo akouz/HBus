@@ -2,13 +2,18 @@
 
 ## Introduction
 
-HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transciever. Wiring made by Cat5/Cat6 cables. One twisted pair used for HBus communication, two twisted pairs distribute 12V power to HBus nodes, one pair left unused. 
+HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transciever. Wiring made by Cat5/Cat6 cables. Twisted pair used as follows:
+   * orange - HBus_H
+   * orange/white - HBus_L
+   * blue + blue/white - common
+   * brown + brown/white - supply +12V
+   * green + green/white - not used.
 
 ## Basic principles
 
   * UART with CAN transceivers, dominant/recessive states.
-  * Baud rate 19.2 kbps
-  * CSMA/CD or CSMA/CA, see description.
+  * Baud rate 19.2 kbps.
+  * CSMA/CD or CSMA/CA. CSMA/CD allowed for low-cost implementations. CSMA/CA recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
   * CRC-16-CCITT.
   * Flow control by byte-stuffing.
   * Two modes of operation:
