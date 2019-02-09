@@ -116,6 +116,11 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 <td>16</td> 	
 <td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE</td> 	
 </tr>
+<tr>
+<td>OkErr</td> 	
+<td>8</td> 	
+<td>OK = 0, any other value is an error code </td> 	
+</tr>
 </tbody></table>
 
 # HBus mode (config and control messages)
