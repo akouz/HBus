@@ -97,7 +97,7 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 <tr>
 <th>Name</th>
 <th>Bits</th>
-<th>Description/th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody> 
