@@ -197,6 +197,7 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 </tbody></table>
 
 ## [1] REV
+
 Request from node A to node B
 
 <table>
@@ -217,3 +218,38 @@ Request from node A to node B
 <th>0</th>
 </tbody></table>
  
+ Reply from B to A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8]</th>
+<th>[9]</th>
+<th>[10]</th>
+<th>[11]</th>
+<th>[12]</th>
+<th>[13]</th>
+<th>[14]</th>
+<th>[15]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x81</th>
+<th>nodeA_ID</th>
+<th>nodeB_ID</th>
+<th>MsgID</th>
+<th>OkErr</th>
+<th>DevType</th>
+<th>DevModel</th>
+<th>HwRevMaj</th>
+<th>HwRevMin</th>
+<th>BootRevMaj</th>
+<th>BootRevMin</th>
+<th>SwRevMaj</th>
+<th>SwRevMin</th>
+</tbody></table>
