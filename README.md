@@ -475,3 +475,49 @@ Reply from Node B to Node A
 After sending reply the addressed node resets and starts its bootloader.
 
 After receiving reply 0x86 other nodes must go into standby mode for Pause seconds. During that interval they should ignore all bus traffic and should not talk to the bus. 
+
+## [7] BEEP
+
+Request beep and LED flash to physically identify the node. 
+
+Request from Node A to Node B
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x07</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>Duration</th>
+</tbody></table>
+ 
+Duration specifies duration of the beep, sec.
+ 
+Reply from Node B to Node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x87</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>OkErr</th>
+</tbody></table>
