@@ -76,7 +76,7 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
 Prefix used to wake-up CAN receivers from standby mode. Also it is used for early collision detection. If echo does not match the sent byte then sender must switch off its transmitter and wait until bus is free. 
 
   * Sender can start transmission if for 2 ms or more there were no traffic on bus.
-  * Sender starts transmission with Sync byte. Its value depends on message priority:
+  * Sender starts transmission with Prefix byte. Its value depends on message priority:
     * 0xFF -	Low priority message
     * 0xFC -	Medium priority message 
     * 0xF0 -	High priority message
