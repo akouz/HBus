@@ -334,3 +334,99 @@ Request from node A to a Group
 <th>0</th>
 </tbody></table>
 
+## [4] PING
+
+Request from Node A to Node B
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x04</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>Param</th>
+</tbody></table>
+ 
+ Param - time interval, seconds. During that interval target node should not respond to the COLLECT command. 
+ 
+ Reply from Node B to Node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x84</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>OkErr</th>
+</tbody></table>
+
+## [5] SET_ID
+
+Node ID is used for point-to-point node addressing. Node ID is a 16-bit number.
+
+If a node does not have permanent ID, it assigns itself a random temporary ID of 0xFyyy, where y - a hex digit. During configuration stage permanent IDs should be assigned to all nodes. Permanent IDs start from any hex digit other than 0xF. 
+
+Request from Node A to Node B
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:9]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x05</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>0</th>
+<th>New_ID</th>
+</tbody></table>
+ 
+ New_ID - a new ID for node B.
+ 
+ Reply from Node B to Node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x85</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>OkErr</th>
+</tbody></table>
+
+If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID value.
+
