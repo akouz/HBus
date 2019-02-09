@@ -102,28 +102,10 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 <td>16</td> 	
 <td>ID of node B, it must be unique in current network </td> 	
 </tr>
- <tr>
-<td>Group</td> 	
-<td>8</td> 	
-<td>Group used for point-to-multipoint node addressing. Defined groups:
-1 - all nodes;
-2 - nodes with temporary S/N; 
-3- nodes with permanent S/N </td> 	
-</tr>
 <tr>
 <td>MsgID</td> 	
 <td>16</td> 	
 <td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE</td> 	
-</tr>
-<tr>
-<td>DevType</td> 	
-<td>8</td> 	
-<td>1 - HBus bridge; 2 - generic HBus node </td> 	
-</tr>
-<tr>
-<td>Format</td> 	
-<td>8</td> 	
-<td>1 - JSON; 2 - MessagePack </td> 	
 </tr>
 </tbody></table>
 
@@ -295,5 +277,38 @@ Request from node A to node B
 <th>nodeB_ID</th>
 <th>MsgID</th>
 <th>OkErr</th>
-<th>Content depends on DevType</th>
+<th>Content depends on DevType and DevModel</th>
 </tbody></table>
+
+## [3] COLLECT
+
+Request from node A to a Group
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3]</th>
+<th>[4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x03</th>
+<th>nodeA_ID</th>
+<th>Group</th>
+<th>Slots</th>
+<th>MsgID</th>
+<th>0</th>
+</tbody></table>
+ 
+  * Group - defines a group of nodes. The following groups defined so far:
+    1 - all nodes
+    2 - nodes with temporary ID
+    3 - nodes with permanent ID
+  * Slots - is number of 10ms time slots. Device should output its reply in a randomly selected time slot within specified number of slots. Number of slots must be in the range [4..63]
+
+ Reply from node B to node A
+
