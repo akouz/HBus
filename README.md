@@ -63,12 +63,16 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
 <td>2 bytes</td>
 <td>2 bytes</td>
 </tr>
-</tbody>
-<tbody>
 <tr>
 <td>priority</td>
 <td>0x1B-0x02</td>
-<td>message content</td>
+<td>HBus message content</td>
+<td>CRC</td>
+<td>0x1B-0x07</td>
+<tr>
+<td>priority</td>
+<td>0x1B-0x03</td>
+<td>MQTT message content</td>
 <td>CRC</td>
 <td>0x1B-0x07</td>
 </tr></tbody></table>
