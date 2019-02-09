@@ -40,3 +40,5 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
   * 0x1B-0x07 	- end of frame 
   * 0x1B-0x08 	- insert 0x1B into data flow
   * 0x1B-0x09 	- insert 0x1B, 0x1B into data flow
+
+## Frame structure
