@@ -572,3 +572,55 @@ Reply from Node B to Node A
 
   * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
+
+## [9] WR_DESCR
+
+Write text description to the target node.
+
+Request from Node A to Node B
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8]</th>
+<th>[9:(9+N)]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x09</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>0</th>
+<th>N</th>
+<th>Text</th>
+</tbody></table>
+
+  * N - length of text, typically up to 63 bytes 
+  * Text - node description, UTF-8
+
+Reply from Node B to Node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x89</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>OkErr</th>
+</tbody></table>
+
