@@ -91,7 +91,7 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 <th>Description/th>
 </tr>
 </thead>
-<tbody>
+<tbody> 
 <tr>
 <td>nodeA_ID</td> 	
 <td>16</td> 	
@@ -125,7 +125,73 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 <td>8</td> 	
 <td>1 - JSON; 2 - MessagePack </td> 	
 </tr>
+</tbody></table>
 
+# HBus mode (config and control messages)
 
- </tbody></table>
- 
+## List of HBus commands
+
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Name</th>
+<th>Target</th>
+<th>Description/th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td> 	
+<td>REV</td> 	
+<td>Node</td> 	
+<td>Read node description, hardware and software revisions </td> 	
+</tr>
+<tr>
+<td>2</td> 	
+<td>STATUS</td> 	
+<td>Node</td> 	
+<td>Read node status</td> 	
+</tr>
+<tr>
+<td>3</td> 	
+<td>COLLECT</td> 	
+<td>Group</td> 	
+<td>A group of nodes must reply within specified time window, each node selects a random time slot </td> 	
+</tr>
+<td>4</td> 	
+<td>PING</td> 	
+<td>Node</td> 	
+<td>Request node acknowledge</td> 	
+</tr>
+<tr>
+<td>5</td> 	
+<td>SET_ID</td> 	
+<td>Node</td> 	
+<td>Set permanent node ID</td> 	
+</tr>
+<tr>
+<td>6</td> 	
+<td>BOOT</td> 	
+<td>All nodes</td> 	
+<td>Reset selected node and put it into boot mode, other nodes go into standby mode</td> 	
+</tr>
+<tr>
+<td>7</td> 	
+<td>BEEP</td> 	
+<td>Node</td> 	
+<td>Beep and LED flash to identify the node</td> 	
+</tr>
+<tr>
+<td>8</td> 	
+<td>RD_DESCR</td> 	
+<td>Node</td> 	
+<td>Read node description </td> 	
+</tr>
+<tr>
+<td>9</td> 	
+<td>WR_DESCR</td> 	
+<td>Node</td> 	
+<td>Write node description</td> 	
+</tr>
+</tbody></table>
