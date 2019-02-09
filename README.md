@@ -305,10 +305,10 @@ Request from node A to a Group
 </tbody></table>
  
   * Group - defines a group of nodes. The following groups defined so far:
-    1 - all nodes
-    2 - nodes with temporary ID
-    3 - nodes with permanent ID
+    * 1 - all nodes
+    * 2 - nodes with temporary ID
+    * 3 - nodes with permanent ID
   * Slots - is number of 10ms time slots. Device should output its reply in a randomly selected time slot within specified number of slots. Number of slots must be in the range [4..63]
 
- Reply from node B to node A
+ Reply from a Group member to node A
 
