@@ -202,11 +202,11 @@ Request from node A to node B
 <table>
 <thead>
 <tr>
-<th>[0]/th>
-<th>[1:2]/th>
-<th>[3:4]/th>
-<th>[5:6]/th>
-<th>[7]/th>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
 </tr>
 </thead>
 <tbody>
