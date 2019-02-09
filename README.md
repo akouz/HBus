@@ -218,7 +218,7 @@ Request from node A to node B
 <th>0</th>
 </tbody></table>
  
- Reply from B to A
+ Reply from node B to node A
 
 <table>
 <thead>
@@ -252,4 +252,48 @@ Request from node A to node B
 <th>BootRevMin</th>
 <th>SwRevMaj</th>
 <th>SwRevMin</th>
+</tbody></table>
+
+## [2] STATUS
+
+Request from node A to node B
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x02</th>
+<th>nodeA_ID</th>
+<th>nodeB_ID</th>
+<th>MsgID</th>
+<th>0</th>
+</tbody></table>
+ 
+ Reply from node B to node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:N]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x82</th>
+<th>nodeA_ID</th>
+<th>nodeB_ID</th>
+<th>MsgID</th>
+<th>OkErr</th>
+<th>Content depends on DevType</th>
 </tbody></table>
