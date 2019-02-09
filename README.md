@@ -18,6 +18,7 @@ HBus is a wired home automation interface. Nodes made as simple and as cheap as 
 ## CAN driver restrictions
 
 Many CAN drivers has embedded mechanism to prevent long dominant state. If dominant state lasts longer than a pre-defined time-out, driver automatically goes into recessive state. Bit interval is 52.08 us at baud rate of 19.2 kbps. Start bit and a data byte of 0x00 produce dominant state for 9 bit-intervals, or for 0.47 ms. The following CAN transceivers are suitable for HBus: 
+
   * MCP2542 -	dominant state 0.8 ms min
   * TJA1057 -	dominant state 0.8 ms min
   * NCV7342 - dominant state 1.3 ms min
@@ -29,16 +30,45 @@ Many CAN drivers has embedded mechanism to prevent long dominant state. If domin
   * SN65HVD230 - no limit, slope control
   * L9615 - no limit, slope control
   * PCA82C250 - no limit, slope control
+
 Transcevers with slope control produce less noise on the bus, ie offer metter EMI.
 
 ## Byte-stuffing
 
 Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The following byte pairs are defined: 
 
-  * 0x1B-0x02 	- start of HBus frame 
-  * 0x1B-0x03 	- start of MQTT-SN frame
-  * 0x1B-0x07 	- end of frame 
+  * 0x1B-0x02 	- start of HBus frame (SOF)
+  * 0x1B-0x03 	- start of MQTT-SN frame (SOF)
+  * 0x1B-0x07 	- end of frame (EOF)
   * 0x1B-0x08 	- insert 0x1B into data flow
   * 0x1B-0x09 	- insert 0x1B, 0x1B into data flow
 
 ## Frame structure
+
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>SOF</th>
+<th>Message</th>
+<th>CRC</th>
+<th>EOF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 byte</td>
+<td>2 bytes</td>
+<td>8...136 bytes</td>
+<td>2 bytes</td>
+<td>2 bytes</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td>Prefix</td>
+<td>0x1B-0x02</td>
+<td>message content</td>
+<td>CRC</td>
+<td>0x1B-0x07</td>
+</tr></tbody></table>
