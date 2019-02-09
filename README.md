@@ -195,3 +195,25 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 <td>Write node description</td> 	
 </tr>
 </tbody></table>
+
+## [1] REV
+Request from node A to node B
+
+<table>
+<thead>
+<tr>
+<th>[0]/th>
+<th>[1:2]/th>
+<th>[3:4]/th>
+<th>[5:6]/th>
+<th>[7]/th>
+</tr>
+</thead>
+<tbody>
+<th>0x01</th>
+<th>nodeA_ID</th>
+<th>nodeB_ID</th>
+<th>MsgID</th>
+<th>0</th>
+</tbody></table>
+ 
