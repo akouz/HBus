@@ -133,7 +133,7 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 <th>Command</th>
 <th>Name</th>
 <th>Target</th>
-<th>Description/th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
