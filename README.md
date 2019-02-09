@@ -90,6 +90,8 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
     * 0xFC -	Medium priority message 
     * 0xF0 -	High priority message
 
+CRC covers message content. Prefix and SOF exluded. Sender calculates CRC before byte-stuffing added to the message. Receiver calculates CRC after byte-stuffing removed from the received message. 
+
 ## Fields
 
 <table>
