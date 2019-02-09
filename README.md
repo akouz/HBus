@@ -80,3 +80,52 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
     * 0xFF -	Low priority message
     * 0xFC -	Medium priority message 
     * 0xF0 -	High priority message
+
+## Fields
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Bits</th>
+<th>Description/th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nodeA_ID</td> 	
+<td>16</td> 	
+<td>ID of node A, it must be unique in current network </td> 	
+</tr>
+<tr>
+<td>nodeB_ID</td> 	
+<td>16</td> 	
+<td>ID of node B, it must be unique in current network </td> 	
+</tr>
+ <tr>
+<td>Group</td> 	
+<td>8</td> 	
+<td>Group used for point-to-multipoint node addressing. Defined groups:
+1 - all nodes;
+2 - nodes with temporary S/N; 
+3- nodes with permanent S/N </td> 	
+</tr>
+<tr>
+<td>MsgID</td> 	
+<td>16</td> 	
+<td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE</td> 	
+</tr>
+<tr>
+<td>DevType</td> 	
+<td>8</td> 	
+<td>1 - HBus bridge; 2 - generic HBus node </td> 	
+</tr>
+<tr>
+<td>Format</td> 	
+<td>8</td> 	
+<td>1 - JSON; 2 - MessagePack </td> 	
+</tr>
+
+
+ </tbody></table>
+ 
