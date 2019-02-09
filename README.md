@@ -97,14 +97,14 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 </thead>
 <tbody> 
 <tr>
-<td>nodeA_ID</td> 	
+<td>NodeA_ID</td> 	
 <td>16</td> 	
-<td>ID of node A, it must be unique in current network </td> 	
+<td>ID of Node A, it must be unique in current network </td> 	
 </tr>
 <tr>
-<td>nodeB_ID</td> 	
+<td>NodeB_ID</td> 	
 <td>16</td> 	
-<td>ID of node B, it must be unique in current network </td> 	
+<td>ID of Node B, it must be unique in current network </td> 	
 </tr>
 <tr>
 <td>MsgID</td> 	
@@ -184,7 +184,7 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
 
 ## [1] REV
 
-Request from node A to node B
+Request from Node A to Node B
 
 <table>
 <thead>
@@ -198,13 +198,13 @@ Request from node A to node B
 </thead>
 <tbody>
 <th>0x01</th>
-<th>nodeA_ID</th>
-<th>nodeB_ID</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
 <th>MsgID</th>
 <th>0</th>
 </tbody></table>
  
- Reply from node B to node A
+ Reply from Node B to Node A
 
 <table>
 <thead>
@@ -226,8 +226,8 @@ Request from node A to node B
 </thead>
 <tbody>
 <th>0x81</th>
-<th>nodeA_ID</th>
-<th>nodeB_ID</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
 <th>MsgID</th>
 <th>OkErr</th>
 <th>DevType</th>
@@ -242,7 +242,7 @@ Request from node A to node B
 
 ## [2] STATUS
 
-Request from node A to node B
+Request from Node A to Node B
 
 <table>
 <thead>
@@ -256,13 +256,13 @@ Request from node A to node B
 </thead>
 <tbody>
 <th>0x02</th>
-<th>nodeA_ID</th>
-<th>nodeB_ID</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
 <th>MsgID</th>
 <th>0</th>
 </tbody></table>
  
- Reply from node B to node A
+ Reply from Node B to Node A
 
 <table>
 <thead>
@@ -277,8 +277,8 @@ Request from node A to node B
 </thead>
 <tbody>
 <th>0x82</th>
-<th>nodeA_ID</th>
-<th>nodeB_ID</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
 <th>MsgID</th>
 <th>OkErr</th>
 <th>Content depends on DevType and DevModel</th>
@@ -301,7 +301,7 @@ Request from node A to a Group
 </thead>
 <tbody>
 <th>0x03</th>
-<th>nodeA_ID</th>
+<th>NodeA_ID</th>
 <th>Group</th>
 <th>Slots</th>
 <th>MsgID</th>
@@ -314,5 +314,5 @@ Request from node A to a Group
     * 3 - nodes with permanent ID
   * Slots - is number of 10ms time slots. Device should output its reply in a randomly selected time slot within specified number of slots. Number of slots must be in the range [4..63]
 
- Reply from a Group member to node A
+ Reply from a Group member to Node A
 
