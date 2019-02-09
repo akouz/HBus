@@ -636,3 +636,23 @@ Reply from Node B to Node A
 <th>OkErr</th>
 </tbody></table>
 
+# MQTT-SN mode (broadcast messages)
+
+## Message format
+
+Len 	MsgType 	Variable part 
+<table>
+<thead>
+<tr>
+<th>Len</th>
+<th>MsgType</th>
+<th>Variable part</th>
+</tr>
+</thead>
+<tbody>
+<th>1 byte</th>
+<th>1 byte</th>
+<th>Len-2 bytes</th>
+</tbody></table>
+
+Message length Len is in the range [2..127]. 
