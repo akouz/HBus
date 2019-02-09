@@ -570,5 +570,5 @@ Reply from Node B to Node A
 <th>Text</th>
 </tbody></table>
 
-  * N - length of text, bytes 
+  * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
