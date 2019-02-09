@@ -314,5 +314,23 @@ Request from node A to a Group
     * 3 - nodes with permanent ID
   * Slots - is number of 10ms time slots. Device should output its reply in a randomly selected time slot within specified number of slots. Number of slots must be in the range [4..63]
 
- Reply from a Group member to Node A
+ Reply from a Group member Node B to Node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x83</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>0</th>
+</tbody></table>
 
