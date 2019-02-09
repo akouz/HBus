@@ -430,3 +430,48 @@ Request from Node A to Node B
 
 If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID value.
 
+## [6] BOOT
+
+Request from Node A to Node B
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x06</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>Pause</th>
+</tbody></table>
+ 
+Reply from Node B to Node A
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr>
+</thead>
+<tbody>
+<th>0x86</th>
+<th>NodeA_ID</th>
+<th>NodeB_ID</th>
+<th>MsgID</th>
+<th>OkErr</th>
+</tbody></table>
+
+After sending reply the addressed node resets and starts its bootloader.
+
+After receiving reply 0x86 other nodes must go into standby mode for Pause seconds. During that interval they should ignore all bus traffic and should not talk to the bus. 
