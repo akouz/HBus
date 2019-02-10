@@ -174,6 +174,5 @@ uchar finish_txmsg(hb_msg_t* txmsg)
     }
     return ERR;
 }
-
-
+                           
 /* EOF */

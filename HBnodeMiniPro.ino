@@ -35,10 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //##############################################################################
 
 
-//uchar   rxbuf[MAX_TMP_BUF];    // tmp buffer to store UART data
-//uchar   rxbuf_len;
 uchar   rxpause;
-//hb_msg_t rx_msg;                 // decoded message
 uchar  state;
 
 //##############################################################################
@@ -66,6 +63,7 @@ uchar print_val(uchar val, uchar i)
         return 0;
     }    
 }
+
 // ========================================
 // Debug: print message buffer
 // ========================================
@@ -95,82 +93,6 @@ void print_buf(const char* name, hb_msg_t* msg)
         Serial.println();
 }
 
-// ========================================
-// Debug: micro monitor
-// ========================================
-/*
-uchar mon(uchar c)
-{
-    uchar i;
-    switch (c)
-    {
-    // ---------------------------
-    // print rxbuf
-    // ---------------------------
-    case 'r':   
-//        Serial.println();
-//        Serial.println(" == rxbuf ==");
-//        for (i=0; i<rxbuf_len; i++)
-//        {
-//            print_val(rxbuf[i], i);
-//        }
-//        Serial.println();
-        return 1;
-        break;        
-    // ---------------------------
-    // print rx_msg
-    // ---------------------------
-    case 'R':  
-//        print_buf(" == rxmsg ==", &rx_msg); 
-        return 1;
-        break;
-    default: 
-        break;
-    }
-    return 0;
-}
-*/
-// ========================================
-// Debug: convert hex input into binary
-// ========================================
-/*
-int h2b(uchar c)
-{
-    static uchar res;
-    static uchar ready = 0;
-    res = (ready)? res : 0;
-    if (mon(c))
-        return -2;
-    if ((c >= '0') && (c <= '9'))
-    {
-        res = (res << 4) | (c - '0');
-        ready++;
-    }
-    else if ((c >= 'A') && (c <= 'F'))
-    {
-        res = (res << 4) | (c - 'A' + 0x0A);
-        ready++;
-    }
-    else if ((c >= 'a') && (c <= 'f'))
-    {
-        res = (res << 4) | (c - 'a' + 0x0A);
-        ready++;
-    }
-    else if (ready) // for single-digit numbers
-    {
-        ready = 2;
-    }
-    if (ready > 1)
-    {
-        ready = 0;
-        return (int)res;
-    }
-    else
-    {
-        return -1;
-    }
-}
-*/
 // ========================================
 // Clear receiver
 // ========================================
@@ -216,7 +138,6 @@ void coos_task0(void)
                 if (rxmsg) 
                 {
                     state = 4;
-                    //Serial.print(" rxmsg ");
                     // --------------------------------
                     // process HBus message    
                     // --------------------------------
@@ -231,7 +152,6 @@ void coos_task0(void)
                         while (txmsg)  
                         {
                             state = 6;
-                            //Serial.print(" hb_reply ");
                             // -----------------
                             // postpone transmission in first run
                             // -----------------
@@ -241,13 +161,6 @@ void coos_task0(void)
                             if ((HBrxtx.rtr_cnt++ > 2) || (txmsg->len < 14))
                             {
                                 state = 6;
-                                /*
-                                Serial.print(" ERR: rtr_cnt=");
-                                Serial.print(HBrxtx.rtr_cnt);
-                                Serial.print(", txmsg.len=");
-                                Serial.print(txmsg->len);
-                                Serial.println(", txmsg_released");
-                                */
                                 txmsg->busy = 0;
                                 txmsg = NULL;                                
                             }
@@ -270,7 +183,6 @@ void coos_task0(void)
                                     if (++tmout > 200)  // time-out 200 ms
                                     {
                                         state = 9;
-                                        // Serial.println(" ERR: tx_aborted");
                                         txmsg = NULL;
                                         COOS_DELAY(10);
                                         Serial.flush();
@@ -282,13 +194,6 @@ void coos_task0(void)
                                 // ------------                            
                                 if ((txmsg) && (coos.pause_cnt >= 2)) 
                                 {
-                                  /*  Serial.print(" tx ");
-                                    COOS_DELAY(2);
-                                    Serial.flush();
-                                    while (Serial.available())
-                                    {
-                                        Serial.read();
-                                    } */
                                     state = 10;
                                     if (OK == HBrxtx.start_tx(txmsg))
                                     {
@@ -302,22 +207,12 @@ void coos_task0(void)
                                         {
                                             state = 11;
                                             Serial.flush();
-                                            /*
-                                            Serial.print(" txmsg len=");
-                                            Serial.print(txmsg->len);
-                                            Serial.print(", txpos=");
-                                            Serial.print(HBrxtx.txpos);
-                                            Serial.print(", txcnt=");
-                                            Serial.print(HBrxtx.txcnt);
-                                            Serial.println(" done");
-                                            */
                                             txmsg->busy = 0;
                                             txmsg = NULL; // success
                                         }
                                         else    // echo mismatch
                                         {
                                             state = 12;
-                                            // Serial.println(" echo_err");
                                             COOS_DELAY(10);
                                             Serial.end();
                                             Serial.begin(19200);                                            
@@ -353,9 +248,6 @@ void coos_task1(void)
         if (++cnt >= 1000) // every 10 sec
         {
             cnt = 0;
-            // Serial.print(" node state=");
-            // Serial.println(state);
-            // print_buf("== HBrxtx.rxmsg ==", &HBrxtx.rxmsg);
         }            
     }
 }
@@ -406,20 +298,6 @@ void setup()
         EEPROM.write(EE_OWN_ID+1, HBcmd.own.id[0]);
     }
     print_hdr_txt(pup_cnt, seed, HBcmd.own.ID);
-/*        
-    Serial.println();
-    Serial.println("=======================");
-    Serial.println("=== HBnode Mini Pro ===");
-    Serial.println("=======================");
-    Serial.print("Power-up cnt = ");
-    Serial.print(pup_cnt);    
-    Serial.print(", seed = ");
-    Serial.print(seed);    
-    Serial.print(", own ID = 0x");
-    Serial.println(HBcmd.own.ID, HEX);
-*/    
-    // HBrxtx.flag.debug = 1;
-    // HBrxtx.flag.no_crc = 1;
     coos.register_task(coos_task0);    
     coos.register_task(coos_task1);
     coos.start();                     // init registered tasks

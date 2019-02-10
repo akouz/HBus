@@ -73,8 +73,6 @@ uchar Hb_rxtx::add_rx_uchar(uchar c, hb_msg_t* dest)
                     }
                     else
                     {
-                        //Serial.print(" <end>, len=");
-                        //Serial.println(dest->len);
                         res = READY;    // message completed, rx buffer ready
                         dest->gate = 0;
                     }
@@ -119,7 +117,6 @@ uchar Hb_rxtx::add_rx_uchar(uchar c, hb_msg_t* dest)
             if (c == _ESC) 
             {
                 dest->esc = 1;  // consider next char
-                //Serial.print(" <esc> ");
             }  
             else
             {
@@ -234,7 +231,6 @@ uchar Hb_rxtx::rx_decode(uchar* src, uchar* src_len, hb_msg_t* dest)
                 }
                 else // crc mismatch
                 {
-                    //Serial.print(" <crc failed> ");
                     dest->len = 0;     // reset output buffer
                     dest->all = 0;          
                 }
@@ -254,16 +250,13 @@ hb_msg_t* Hb_rxtx::rx(uchar c)
     {
         if (READY == add_rx_uchar(c, &rxmsg))
         {
-            //Serial.print(" rx_msg_ready ");
             if ((flag.no_crc) || (OK == check_crc(&rxmsg)))  // if crc matches
             {                    
-                //Serial.print(" crc_OK ");
                 rxmsg.busy = 1;
                 return &rxmsg;
             }
             else // crc mismatch
             {
-                //Serial.print(" crc_mismatch ");
                 rxmsg.len = 0;     // reset output buffer
                 rxmsg.all = 0;          
             }
@@ -278,16 +271,6 @@ uchar Hb_rxtx::start_tx(hb_msg_t* buf)
 {
     if ((buf == NULL) || (buf->len < 8))
     {
-        /*
-        Serial.print(" Hb_rxtx::start_tx bad params: buf=");
-        Serial.print((uint)buf);
-        if (buf)
-        {
-            Serial.print(", buf->len=");
-            Serial.print(buf->len);
-        }
-        Serial.println("");
-        */        
         return ERR_PARAM;
     }
     txbuf = buf;
@@ -347,7 +330,5 @@ uchar Hb_rxtx::tx(uchar* pause_cnt)
     }
     return NOT_READY;
 }
-
-
 
 /* EOF */

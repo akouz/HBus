@@ -53,7 +53,6 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
     uchar res = 0; // no reply
     if ((rxmsg) && (reply.busy == 0) && (rxmsg->hb) && (rxmsg->len >= 8))
     {
-        // Serial.print(" process_rx_cmd "); 
         reply.hb = 1;
         cmd = rxmsg->buf[0];
         // ----------------------------
@@ -70,7 +69,6 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
         // ----------------------------
         else if ((rxmsg->buf[3] == own.id[1]) && (rxmsg->buf[4] == own.id[0]))
         {
-            // Serial.print(" ID_matched ");
             begin_txmsg(&reply, rxmsg->hb);
             reply.postpone = 0;
             switch(cmd)
@@ -88,7 +86,6 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
             if (READY == res)
             {
                 finish_txmsg(&reply);
-                //Serial.print(" replying ");
                 rxmsg->busy = 0;
                 rxmsg = NULL;
                 return &reply;
@@ -107,25 +104,11 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
         // ----------------------------
         else
         {
-            /*
-            Serial.print("own ID ");
-            Serial.print(own.id[1], HEX);   
-            Serial.print(own.id[0], HEX);   
-            Serial.print(", presented ID ");
-            Serial.print(rxmsg->buf[3], HEX);   
-            Serial.println(rxmsg->buf[4], HEX);
-            */   
             rxmsg->busy = 0;
         }
     }
     else
     {
-        /*
-        Serial.print(" Hb_cmd::process_rx_cmd bad_params: reply.busy=");
-        Serial.print(reply.busy);
-        Serial.print(", rxmsg->len=");
-        Serial.println(rxmsg->len);
-        */
         rxmsg->busy = 0;
     }
     return NULL; 
@@ -190,14 +173,6 @@ uchar Hb_cmd::rply_collect(hb_msg_t* rxmsg, hb_msg_t* rply)
     if (READY == res)
     {
         rply->postpone = random(slots);
-        /*
-        Serial.print(" collect grp=");
-        Serial.print(grp);
-        Serial.print(", slots=");
-        Serial.print(slots);
-        Serial.print(", postpone=");
-        Serial.println(rply->postpone);
-        */
         begin_txmsg(&reply, rxmsg->hb);
         copy_msg_hdr(rxmsg, 0, 3, rply);
         add_txmsg_uchar(rply, own.id[1]); 
