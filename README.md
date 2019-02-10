@@ -144,7 +144,7 @@ CRC covers message content. Prefix and SOF exluded. Sender calculates CRC before
 <tbody>
 <tr>
 <td>1</td> 	
-<td>[REV](https://github.com/akouz/HBus#1-rev)</td> 	
+<td>REV</td> 	
 <td>Node</td> 	
 <td>Read node description, hardware and software revisions </td> 	
 </tr>
