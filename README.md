@@ -9,14 +9,14 @@ HBus is a wired home automation interface. Nodes made as simple and as cheap as 
 
 ## Basic principles
 
-  * UART with CAN transceivers, dominant/recessive states.
   * Baud rate 19.2 kbps.
+  * UART with CAN transceivers, dominant/recessive states.
   * CSMA/CD allowed for low-cost implementations. CSMA/CA recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
-  * CRC-16-CCITT.
   * Flow control by byte-stuffing.
   * Two modes of operation:
     * Configuration, point-to-point messages, master/slave communication model - HBus mode.
     * Operation, broadcast messages, producer/consumer communication model - MQTT mode.
+  * Messages covered by CRC-16-CCITT.  
 
 ## Wiring
 
