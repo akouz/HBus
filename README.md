@@ -641,7 +641,7 @@ Reply from Node B to Node A
 
 # MQTT-SN mode (broadcast messages)
 
-[MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/tag/mqtt-sn)
+[MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation)
 
 ## Message format
 
