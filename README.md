@@ -173,6 +173,7 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>Group</td> 	
 <td>A group of nodes must reply within specified time window, each node selects a random time slot </td> 	
 </tr>
+<tr>
 <td>4</td> 	
 <td>PING</td> 	
 <td>Node</td> 	
