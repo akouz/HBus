@@ -682,6 +682,36 @@ In simplest case only PUBLISH command is required.
 <th>0x03</th>
 <th>reserved</th>
 </tbody>
+<tbody>
+<th>0x04</th>
+<th>CONNECT</th>
+<th>0x05</th>
+<th>CONNACK</th>
+</tbody>
+<tbody>
+<th>0x06</th>
+<th>WILLTOPICREQ</th>
+<th>0x07</th>
+<th>WILLTOPIC</th>
+</tbody>
+<tbody>
+<th>0x08</th>
+<th>WILLMSGREQ</th>
+<th>0x09</th>
+<th>WILLMSG</th>
+</tbody>
+<tbody>
+<th>0x0A</th>
+<th>REGISTER</th>
+<th>0x0B</th>
+<th>REGACK</th>
+</tbody>
+<tbody>
+<th>0x0C</th>
+<th>PUBLISH</th>
+<th>0x0D</th>
+<th>PUBACK</th>
+</tbody>
 </table>
 
 
