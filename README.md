@@ -39,7 +39,7 @@ Many CAN drivers has embedded mechanism to prevent long dominant state. If domin
   * L9615 - no limit, slope control
   * PCA82C250 - no limit, slope control
 
-Transcevers with slope control produce less noise on the bus, ie offer better EMI.
+Transcevers with slope control produce less noise on the bus, ie have better EMC.
 
 ## Byte-stuffing
 
