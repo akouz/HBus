@@ -7,6 +7,17 @@
 
 HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transciever. 
 
+## Basic principles
+
+  * UART with CAN transceivers, dominant/recessive states.
+  * Baud rate 19.2 kbps.
+  * CSMA/CD allowed for low-cost implementations. CSMA/CA recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
+  * CRC-16-CCITT.
+  * Flow control by byte-stuffing.
+  * Two modes of operation:
+    * Configuration, point-to-point messages, master/slave communication model - HBus mode.
+    * Operation, broadcast messages, producer/consumer communication model - MQTT mode.
+
 ## Wiring
 
 Wiring made by Cat5/Cat6 cables. Twisted pair used as follows:
@@ -19,17 +30,6 @@ Wiring made by Cat5/Cat6 cables. Twisted pair used as follows:
 Free topology is allowed. Total length of cables should not exceed 500 m. A single terminating resistor 100 Ohm should be placed somwhere in a middle of the network.
 
 Cat5/Cat6 cables have limited current carrying capability. To prevent fire in case of short circuit, power supply +12V connected to the bus should have current limit at no more than 2A. In simplest case use a 1A...2A fuse. 
-
-## Basic principles
-
-  * UART with CAN transceivers, dominant/recessive states.
-  * Baud rate 19.2 kbps.
-  * CSMA/CD allowed for low-cost implementations. CSMA/CA recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
-  * CRC-16-CCITT.
-  * Flow control by byte-stuffing.
-  * Two modes of operation:
-    * Configuration, point-to-point messages, master/slave communication model - HBus mode.
-    * Operation, broadcast messages, producer/consumer communication model - MQTT mode.
 
 ## CAN driver restrictions
 
