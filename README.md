@@ -20,13 +20,13 @@ HBus is a wired home automation interface. Nodes made as simple and as cheap as 
 
 ## Wiring
 
-Wiring made by Cat5/Cat6 cables. Twisted pair used as follows:
-   * orange + orange/white = HBus signal:
+Wiring made by Cat5/Cat6 cables. Twisted pairs used as follows:
+   * (orange + orange/white) = HBus signal:
      * orange - HBus_H
      * orange/white - HBus_L
-   * blue + blue/white = common
-   * brown + brown/white = supply +12V
-   * green + green/white = not used.
+   * (blue + blue/white) = common
+   * (brown + brown/white) = supply +12V
+   * (green + green/white) = not used.
 
 Free topology is allowed. Total length of cables should not exceed 500 m. A single terminating resistor 100 Ohm should be placed somwhere in a middle of the network.
 
