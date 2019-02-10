@@ -225,11 +225,13 @@ Request from Node A to Node B
 </tr>
 </thead>
 <tbody>
+<tr>
 <th>0x01</th>
 <th>NodeA_ID</th>
 <th>NodeB_ID</th>
 <th>MsgID</th>
 <th>0</th>
+</tr> 
 </tbody></table>
  
  Reply from Node B to Node A
@@ -253,6 +255,7 @@ Request from Node A to Node B
 </tr>
 </thead>
 <tbody>
+<tr>
 <th>0x81</th>
 <th>NodeA_ID</th>
 <th>NodeB_ID</th>
@@ -266,6 +269,7 @@ Request from Node A to Node B
 <th>BootRevMin</th>
 <th>SwRevMaj</th>
 <th>SwRevMin</th>
+</tr> 
 </tbody></table>
 
 ## [2] STATUS
@@ -283,11 +287,13 @@ Request from Node A to Node B
 </tr>
 </thead>
 <tbody>
+<tr> 
 <th>0x02</th>
 <th>NodeA_ID</th>
 <th>NodeB_ID</th>
 <th>MsgID</th>
 <th>0</th>
+</tr> 
 </tbody></table>
  
  Reply from Node B to Node A
@@ -304,13 +310,15 @@ Request from Node A to Node B
 </tr>
 </thead>
 <tbody>
+<tr> 
 <th>0x82</th>
 <th>NodeA_ID</th>
 <th>NodeB_ID</th>
 <th>MsgID</th>
 <th>OkErr</th>
 <th>Content depends on DevType and DevModel</th>
-</tbody></table>
+</tr>
+ </tbody></table>
 
 ## [3] COLLECT
 
@@ -328,12 +336,14 @@ Request from node A to a Group
 </tr>
 </thead>
 <tbody>
+<tr> 
 <th>0x03</th>
 <th>NodeA_ID</th>
 <th>Group</th>
 <th>Slots</th>
 <th>MsgID</th>
 <th>0</th>
+</tr>
 </tbody></table>
  
   * Group - defines a group of nodes. The following groups defined so far:
@@ -354,13 +364,13 @@ Request from node A to a Group
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
+<tbody><tr>
 <th>0x83</th>
 <th>NodeA_ID</th>
 <th>NodeB_ID</th>
 <th>MsgID</th>
 <th>0</th>
-</tbody></table>
+</tr></tbody></table>
 
 ## [4] PING
 
@@ -376,13 +386,13 @@ Request from Node A to Node B
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
+<tbody><tr>
 <th>0x04</th>
 <th>NodeA_ID</th>
 <th>NodeB_ID</th>
 <th>MsgID</th>
 <th>Param</th>
-</tbody></table>
+</tr></tbody></table>
  
  Param - time interval, seconds. During that interval target node should not respond to the COLLECT command. 
  
