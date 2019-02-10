@@ -784,8 +784,8 @@ MsgType range [0x1E:0xFF] reserved.
 <th>Flags</th>
 <th>TopicID</th>
 <th>MsgID</th>
-<th>Format</th>
+<th>DF</th>
 <th>Data</th>
 </tbody></table>
 
-Format specifies data format: 1 = Json, 2 = MessagePack
+DF specifies data format: 1 = Json, 2 = MessagePack, other - TBD.
