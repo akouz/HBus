@@ -63,37 +63,32 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
 ## Frame structure
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>Prefix</th>
 <th>SOF</th>
 <th>Message</th>
 <th>CRC</th>
 <th>EOF</th>
-</tr>
-</thead>
-<tbody>
-<tr>
+</tr></thead>
+<tbody><tr>
 <td>1 byte</td>
 <td>2 bytes</td>
 <td>8...136 bytes</td>
 <td>2 bytes</td>
 <td>2 bytes</td>
-</tr>
-<tr>
+</tr><tr>
 <td>priority</td>
 <td>0x1B-0x02</td>
 <td>HBus message content</td>
 <td>CRC</td>
 <td>0x1B-0x07</td>
-<tr>
+</tr><tr>
 <td>priority</td>
 <td>0x1B-0x03</td>
 <td>MQTT message content</td>
 <td>CRC</td>
 <td>0x1B-0x07</td>
-</tr>
-</tbody></table>
+</tr></tbody></table>
 
 Prefix used to wake-up CAN receivers from standby mode. Also it is used for early collision detection. If echo does not match the sent byte then sender must switch off its transmitter and wait until bus is free. 
 
@@ -112,135 +107,111 @@ While debugging nodes, it is possible to transfer text messages duirng the pause
 Big endian used, eg MSB byte sent first, LSB byte sent last.
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>Name</th>
 <th>Bits</th>
 <th>Description</th>
-</tr>
-</thead>
-<tbody> 
-<tr>
+</tr></thead>
+<tbody><tr>
 <td>NodeA_ID</td> 	
 <td>16</td> 	
 <td>ID of Node A, it must be unique in current network </td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>NodeB_ID</td> 	
 <td>16</td> 	
 <td>ID of Node B, it must be unique in current network </td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>MsgID</td> 	
 <td>16</td> 	
 <td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE</td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>OkErr</td> 	
 <td>8</td> 	
 <td>OK = 0, any other value is an error code </td> 	
-</tr>
-</tbody></table>
+</tr></tbody></table>
 
 # HBus mode (config and control messages)
 
 ## List of HBus commands
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>Command</th>
 <th>Name</th>
 <th>Target</th>
 <th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
+</tr></thead>
+<tbody><tr>
 <td>1</td> 	
 <td>REV</td> 	
 <td>Node</td> 	
 <td>Read node description, hardware and software revisions </td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>2</td> 	
 <td>STATUS</td> 	
 <td>Node</td> 	
 <td>Read node status</td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>3</td> 	
 <td>COLLECT</td> 	
 <td>Group</td> 	
 <td>A group of nodes must reply within specified time window, each node selects a random time slot </td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>4</td> 	
 <td>PING</td> 	
 <td>Node</td> 	
 <td>Request node acknowledge</td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>5</td> 	
 <td>SET_ID</td> 	
 <td>Node</td> 	
 <td>Set permanent node ID</td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>6</td> 	
 <td>BOOT</td> 	
 <td>All nodes</td> 	
 <td>Reset selected node and put it into boot mode, other nodes go into standby mode</td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>7</td> 	
 <td>BEEP</td> 	
 <td>Node</td> 	
 <td>Beep and LED flash to identify the node</td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>8</td> 	
 <td>RD_DESCR</td> 	
 <td>Node</td> 	
 <td>Read node description </td> 	
-</tr>
-<tr>
+</tr><tr>
 <td>9</td> 	
 <td>WR_DESCR</td> 	
 <td>Node</td> 	
 <td>Write node description</td> 	
-</tr>
-</tbody></table>
+</tr></tbody></table>
 
 ## [1] REV
 
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
-<tbody>
-<tr>
+</tr></thead>
+<tbody><tr>
 <td>0x01</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgID</td>
 <td>0</td>
-</tr> 
-</tbody></table>
+</tr></tbody></table>
  
  Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
@@ -254,10 +225,8 @@ Request from Node A to Node B
 <td>[13]</td>
 <td>[14]</td>
 <td>[15]</td>
-</tr>
-</thead>
-<tbody>
-<tr>
+</tr></thead>
+<tbody><tr>
 <td>0x81</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
@@ -271,82 +240,69 @@ Request from Node A to Node B
 <td>BootRevMin</td>
 <td>SwRevMaj</td>
 <td>SwRevMin</td>
-</tr> 
-</tbody></table>
+</tr></tbody></table>
 
 ## [2] STATUS
 
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
-<tbody>
-<tr> 
+</tr></thead>
+<tbody><tr> 
 <td>0x02</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgID</td>
 <td>0</td>
-</tr> 
-</tbody></table>
+</tr></tbody></table>
  
  Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
 <td>[8:N]</td>
-</tr>
-</thead>
-<tbody>
-<tr> 
+</tr></thead>
+<tbody><tr> 
 <td>0x82</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgID</td>
 <td>OkErr</td>
 <td>Content depends on DevType and DevModel</td>
-</tr>
- </tbody></table>
+</tr></tbody></table>
 
 ## [3] COLLECT
 
 Request from node A to a Group
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3]</th>
 <th>[4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
-<tbody>
-<tr> 
+</tr></thead>
+<tbody><tr> 
 <td>0x03</td>
 <td>NodeA_ID</td>
 <td>Group</td>
 <td>Slots</td>
 <td>MsgID</td>
 <td>0</td>
-</tr>
-</tbody></table>
+</tr></tbody></table>
  
   * Group - defines a group of nodes. The following groups defined so far:
     * 1 - all nodes
@@ -357,39 +313,33 @@ Request from node A to a Group
  Reply from a Group member Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
-<tbody>
-<tr>
+</tr></thead>
+<tbody><tr>
 <td>0x83</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgID</td>
 <td>0</td>
-</tr>
-</tbody></table>
+</tr></tbody></table>
 
 ## [4] PING
 
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x04</td>
 <td>NodeA_ID</td>
@@ -403,17 +353,15 @@ Request from Node A to Node B
  Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
-<tbody>
-<td>0x84</td>
+</tr></thead>
+<tbody><tr>
+ <td>0x84</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgID</td>
@@ -429,16 +377,14 @@ If a node does not have permanent ID, it assigns itself a random temporary ID of
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
 <td>[8:9]</td>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x05</td>
 <td>NodeA_ID</td>
@@ -453,15 +399,13 @@ Request from Node A to Node B
  Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x85</td>
 <td>NodeA_ID</td>
@@ -477,15 +421,13 @@ If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID 
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x06</td>
 <td>NodeA_ID</td>
@@ -497,15 +439,13 @@ Request from Node A to Node B
 Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x86</td>
 <td>NodeA_ID</td>
@@ -525,15 +465,13 @@ Request beep and LED flash to physically identify the node.
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x07</td>
 <td>NodeA_ID</td>
@@ -547,15 +485,13 @@ Duration specifies duration of the beep, sec.
 Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x87</td>
 <td>NodeA_ID</td>
@@ -571,15 +507,13 @@ Read text description of the target node, such as name, location, etc.
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x08</td>
 <td>NodeA_ID</td>
@@ -591,8 +525,7 @@ Request from Node A to Node B
 Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
@@ -600,8 +533,7 @@ Reply from Node B to Node A
 <th>[7]</th>
 <th>[8]</th>
 <th>[9:(9+N)]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x88</th>
 <td>NodeA_ID</td>
@@ -622,8 +554,7 @@ Write text description to the target node.
 Request from Node A to Node B
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
@@ -631,8 +562,7 @@ Request from Node A to Node B
 <th>[7]</th>
 <th>[8]</th>
 <th>[9:(9+N)]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x09</td>
 <td>NodeA_ID</td>
@@ -649,15 +579,13 @@ Request from Node A to Node B
 Reply from Node B to Node A
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>0x89</td>
 <td>NodeA_ID</td>
@@ -673,13 +601,11 @@ In that mode messages are made compatible to [MQTT for Sensor Networks – MQTT-
 ## Message format
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>Len</th>
 <th>MsgType</th>
 <th>Variable part</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>1 byte</td>
 <td>1 byte</td>
@@ -693,114 +619,95 @@ Message length Len should be in the range [8..136].
 In simplest case only PUBLISH command is required.
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>MsgType</th>
 <th>Name</th>
 <th>MsgType</th>
 <th>Name</th>
-</tr>
-</thead>
-<tbody>
-<tr> 
+</tr></thead>
+<tbody><tr> 
 <td>0x00</td>
 <td>ADVERTISE</td>
 <td>0x01</td>
 <td>SEARCHGW</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x02</td>
 <td>GWINFO</td>
 <td>0x03</td>
 <td>reserved</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x04</td>
 <td>CONNECT</td>
 <td>0x05</td>
 <td>CONNACK</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x06</td>
 <td>WILLTOPICREQ</td>
 <td>0x07</td>
 <td>WILLTOPIC</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x08</td>
 <td>WILLMSGREQ</td>
 <td>0x09</td>
 <td>WILLMSG</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x0A</td>
 <td>REGISTER</td>
 <td>0x0B</td>
 <td>REGACK</td>
-</tr>
-<tr>
+</tr><tr>
 <th>0x0C</th>
 <th>PUBLISH</th>
 <td>0x0D</td>
 <td>PUBACK</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x0E</td>
 <td>PUBCOMP</td>
 <td>0x0F</td>
 <td>PUBREC</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x10</td>
 <td>PUBREL</td>
 <td>0x11</td>
 <td>reserved</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x12</td>
 <td>SUBSCRIBE</td>
 <td>0x13</td>
 <td>SUBACK</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x14</td>
 <td>UNSUBSCRIBE</td>
 <td>0x15</td>
 <td>UNSUBACK</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x16</td>
 <td>PINGREQ</td>
 <td>0x17</td>
 <td>PINGRESP</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x18</td>
 <td>DISCONNECT</td>
 <td>0x19</td>
 <td>reserved</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x1A</td>
 <td>WILLTOPICUPD</td>
 <td>0x1B</td>
 <td>WILLTOPICRESP</td>
-</tr>
-<tr>
+</tr><tr>
 <td>0x1C</td>
 <td>WILLMSGUPD</td>
 <td>0x1D</td>
 <td>WILLMSGRESP</td>
-</tr>
- </tbody></table>
+</tr> </tbody></table>
 
 MsgType range [0x1E:0xFF] reserved.
 
 ## [0x0C] PUBLISH
 
 <table>
-<thead>
-<tr>
+<thead><tr>
 <th>[0]</th>
 <th>[1]</th>
 <th>[2]</th>
@@ -808,8 +715,7 @@ MsgType range [0x1E:0xFF] reserved.
 <th>[5:6]</th>
 <th>[7]</th>
 <th>[8:(LEN-1)]</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody><tr>
 <td>Len</td>
 <td>0x0C</td>
