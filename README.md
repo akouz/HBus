@@ -805,4 +805,4 @@ MsgType range [0x1E:0xFF] reserved.
 <th>Data</th>
 </tbody></table>
 
-DF specifies data format: 1 = Json, 2 = MessagePack, other - TBD.
+DF specifies data format: 1 = [Json](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
