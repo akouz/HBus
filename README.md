@@ -744,6 +744,7 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
 
   * First message is COLLECT command (code 0x03) issued by node 0x1020 (NodeTest) to Group=0x01 (all nodes) with Slots=0x20. MsgID is 0x005.
   * Next message is a reply to COLLECT command (code 0x83) issued by node 0x1234 and addressed to node 0x1020 (NodeTest).
+
 Other commands can be easily decoded and interpreted in a similar manner.
   
 
