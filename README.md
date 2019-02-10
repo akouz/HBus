@@ -2,6 +2,7 @@
 
   * [HBus mode (config and control messages)](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages)
   * [MQTT-SN mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
+  * [NodeTest](https://github.com/akouz/HBus#nodetest)
  
 ## Introduction
 
@@ -734,8 +735,8 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
 
 [Pic1](https://raw.githubusercontent.com/akouz/HBus/master/pic1.png)
 
-  * After reset node issued a splash screen with ASCII text. NodeTest displays debug info until Prefix and SOF arrived.
-  * First message is REV command (code 0x01) issued by NodeTest. Its own ID is 0x1020, target node ID is 0x1234. MsgID is 0x003.
+  * After reset node issued a splash screen with ASCII text. For debug purposes, NodeTest prints all data appeared between HBus messages. If data bytes can be represented as visible ASCII chars, nodeTest prints ASCII chars, otherwise it prints hex value in square brackets.
+  * First HBus message is REV command (code 0x01) issued by NodeTest. Its own ID is 0x1020, target node ID is 0x1234. MsgID is 0x003. NodeTest prints Prefix (0xFF), then message type (HBus or MQTT) and then message without byte-stuffing symbols and without CRC.
   * Next message is a reply to REV command (code 0x81). Reply is addressed to node 0x1020 (NodeTest) from node 0x1234. MsgID is 0x003.
   * Next message is STATUS command (code 0x02) issued by node 0x1020 (eg NodeTest) and addressed to node 0x1234. MsgID is 0x004.
   * Next message is a reply to STATUS command (code 0x82). Reply is addressed to node 0x1020 (NodeTest) from node 0x1234. MsgID is 0x004.
