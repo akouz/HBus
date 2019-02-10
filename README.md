@@ -92,7 +92,8 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
 <td>MQTT message content</td>
 <td>CRC</td>
 <td>0x1B-0x07</td>
-</tr></tbody></table>
+</tr>
+</tbody></table>
 
 Prefix used to wake-up CAN receivers from standby mode. Also it is used for early collision detection. If echo does not match the sent byte then sender must switch off its transmitter and wait until bus is free. 
 
@@ -227,11 +228,11 @@ Request from Node A to Node B
 </thead>
 <tbody>
 <tr>
-<th>0x01</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>0</th>
+<td>0x01</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>0</td>
 </tr> 
 </tbody></table>
  
@@ -245,31 +246,31 @@ Request from Node A to Node B
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-<th>[8]</th>
-<th>[9]</th>
-<th>[10]</th>
-<th>[11]</th>
-<th>[12]</th>
-<th>[13]</th>
-<th>[14]</th>
-<th>[15]</th>
+<td>[8]</td>
+<td>[9]</td>
+<td>[10]</td>
+<td>[11]</td>
+<td>[12]</td>
+<td>[13]</td>
+<td>[14]</td>
+<td>[15]</td>
 </tr>
 </thead>
 <tbody>
 <tr>
-<th>0x81</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>OkErr</th>
-<th>DevType</th>
-<th>DevModel</th>
-<th>HwRevMaj</th>
-<th>HwRevMin</th>
-<th>BootRevMaj</th>
-<th>BootRevMin</th>
-<th>SwRevMaj</th>
-<th>SwRevMin</th>
+<td>0x81</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+<td>DevType</td>
+<td>DevModel</td>
+<td>HwRevMaj</td>
+<td>HwRevMin</td>
+<td>BootRevMaj</td>
+<td>BootRevMin</td>
+<td>SwRevMaj</td>
+<td>SwRevMin</td>
 </tr> 
 </tbody></table>
 
@@ -289,11 +290,11 @@ Request from Node A to Node B
 </thead>
 <tbody>
 <tr> 
-<th>0x02</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>0</th>
+<td>0x02</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>0</td>
 </tr> 
 </tbody></table>
  
@@ -307,17 +308,17 @@ Request from Node A to Node B
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-<th>[8:N]</th>
+<td>[8:N]</td>
 </tr>
 </thead>
 <tbody>
 <tr> 
-<th>0x82</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>OkErr</th>
-<th>Content depends on DevType and DevModel</th>
+<td>0x82</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+<td>Content depends on DevType and DevModel</td>
 </tr>
  </tbody></table>
 
@@ -338,12 +339,12 @@ Request from node A to a Group
 </thead>
 <tbody>
 <tr> 
-<th>0x03</th>
-<th>NodeA_ID</th>
-<th>Group</th>
-<th>Slots</th>
-<th>MsgID</th>
-<th>0</th>
+<td>0x03</td>
+<td>NodeA_ID</td>
+<td>Group</td>
+<td>Slots</td>
+<td>MsgID</td>
+<td>0</td>
 </tr>
 </tbody></table>
  
@@ -365,13 +366,15 @@ Request from node A to a Group
 <th>[7]</th>
 </tr>
 </thead>
-<tbody><tr>
-<th>0x83</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>0</th>
-</tr></tbody></table>
+<tbody>
+<tr>
+<td>0x83</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>0</td>
+</tr>
+</tbody></table>
 
 ## [4] PING
 
@@ -388,11 +391,11 @@ Request from Node A to Node B
 </tr>
 </thead>
 <tbody><tr>
-<th>0x04</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>Param</th>
+<td>0x04</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>Param</td>
 </tr></tbody></table>
  
  Param - time interval, seconds. During that interval target node should not respond to the COLLECT command. 
@@ -410,12 +413,12 @@ Request from Node A to Node B
 </tr>
 </thead>
 <tbody>
-<th>0x84</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>OkErr</th>
-</tbody></table>
+<td>0x84</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+</tr></tbody></table>
 
 ## [5] SET_ID
 
@@ -433,17 +436,17 @@ Request from Node A to Node B
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-<th>[8:9]</th>
+<td>[8:9]</td>
 </tr>
 </thead>
-<tbody>
-<th>0x05</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>0</th>
-<th>New_ID</th>
-</tbody></table>
+<tbody><tr>
+<td>0x05</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>0</td>
+<td>New_ID</td>
+</tr></tbody></table>
  
  New_ID - a new ID for node B.
  
@@ -459,13 +462,13 @@ Request from Node A to Node B
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x85</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>OkErr</th>
-</tbody></table>
+<tbody><tr>
+<td>0x85</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+</tr></tbody></table>
 
 If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID value.
 
@@ -483,13 +486,13 @@ Request from Node A to Node B
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x06</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>Pause</th>
-</tbody></table>
+<tbody><tr>
+<td>0x06</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>Pause</td>
+</tr></tbody></table>
  
 Reply from Node B to Node A
 
@@ -503,13 +506,13 @@ Reply from Node B to Node A
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x86</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>OkErr</th>
-</tbody></table>
+<tbody><tr>
+<td>0x86</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+</tr></tbody></table>
 
 After sending reply the addressed node resets and starts its bootloader.
 
