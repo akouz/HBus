@@ -601,7 +601,7 @@ In that mode messages are made compatible to [MQTT for Sensor Networks – MQTT-
 
 ## Message format
 
-MQTT-SN messages must have the following format:
+MQTT-SN message header described in MQTT-SN specification rev 1.2 clause 5.2. MQTT-SN message length can be 1 or 3 octets. Here we use only 1 octet (byte), its value must be greater than 0x01:
 
 <table>
 <thead><tr>
@@ -615,7 +615,7 @@ MQTT-SN messages must have the following format:
 <td>Len-2 bytes</td>
 </tr></tbody></table>
 
-Message length Len should be in the range [8..136]. 
+Actual message length Len should be in the range [8..136]. 
 
 ## MQTT MsgType
 
