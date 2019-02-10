@@ -656,3 +656,32 @@ Len 	MsgType 	Variable part
 </tbody></table>
 
 Message length Len is in the range [2..127]. 
+
+## MsgType
+
+In simplest case only PUBLISH command is required.
+
+<table>
+<thead>
+<tr>
+<th>MsgType</th>
+<th>Name</th>
+<th>MsgType</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<th>0x00</th>
+<th>ADVERTISE</th>
+<th>0x01</th>
+<th>SEARCHGW</th>
+</tbody>
+<tbody>
+<th>0x02</th>
+<th>GWINFO</th>
+<th>0x03</th>
+<th>reserved</th>
+</tbody>
+</table>
+
+
