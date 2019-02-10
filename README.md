@@ -764,3 +764,28 @@ In simplest case only PUBLISH command is required.
 
 MsgType range [0x1E:0xFF] reserved.
 
+## [0x0C] PUBLISH
+
+<table>
+<thead>
+<tr>
+<th>[0]</th>
+<th>[1]</th>
+<th>[2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:(LEN-1)]</th>
+</tr>
+</thead>
+<tbody>
+<th>Len</th>
+<th>0x0C</th>
+<th>Flags</th>
+<th>TopicID</th>
+<th>MsgID</th>
+<th>Format</th>
+<th>Data</th>
+</tbody></table>
+
+Format specifies data format: 1 = Json, 2 = MessagePack
