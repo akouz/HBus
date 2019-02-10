@@ -727,3 +727,10 @@ MsgType range [0x1E:0xFF] reserved.
 </tr></tbody></table>
 
 DF specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
+
+# NodeTest
+
+NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a USB-UART bridge with CAN transceiver. 
+
+
+
