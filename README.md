@@ -601,6 +601,8 @@ In that mode messages are made compatible to [MQTT for Sensor Networks – MQTT-
 
 ## Message format
 
+MQTT-SN messages must have the following format:
+
 <table>
 <thead><tr>
 <th>Len</th>
@@ -615,7 +617,7 @@ In that mode messages are made compatible to [MQTT for Sensor Networks – MQTT-
 
 Message length Len should be in the range [8..136]. 
 
-## MsgType
+## MQTT MsgType
 
 In simplest case only PUBLISH command is required.
 
@@ -715,7 +717,7 @@ MsgType range [0x1E:0xFF] reserved.
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-<th>[8:(LEN-1)]</th>
+<th>[8:(Len-1)]</th>
 </tr></thead>
 <tbody><tr>
 <td>Len</td>
