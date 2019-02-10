@@ -730,7 +730,20 @@ DF specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](h
 
 # NodeTest
 
-NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a USB-UART bridge with CAN transceiver. 
+NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a USB-UART gateway with CAN transceiver. 
 
+## Pic1
+
+  * After reset node issued a splash screen with ASCII text. NodeTest displays debug info until Prefix and SOF arrived.
+  * First message is REV command (code 0x01) issued by NodeTest. Its own ID is 0x1020, target node ID is 0x1234. MsgID is 0x003.
+  * Next message is a reply to REV command (code 0x81). Reply is addressed to node 0x1020 (NodeTest) from node 0x1234. MsgID is 0x003.
+  * Next message is STATUS command (code 0x02) issued by node 0x1020 (eg NodeTest) and addressed to node 0x1234. MsgID is 0x004.
+  * Next message is a reply to STATUS command (code 0x82). Reply is addressed to node 0x1020 (NodeTest) from node 0x1234. MsgID is 0x003.
+  
+## Pic2
+   * First message is COLLECT command (code 0x03) issued by node 0x1020 (NodeTest) to Group=0x01 (all nodes) with Slots=0x20. MsgID is 0x005.
+   * Next message is a reply to COLLECT command (code 0x83) issued by node 0x1234 and addressed to node 0x1020 (NodeTest).
+Other commands can be easily decoded and interpreted in a similar manner.
+  
 
 
