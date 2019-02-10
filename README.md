@@ -534,13 +534,13 @@ Request from Node A to Node B
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x07</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>Duration</th>
-</tbody></table>
+<tbody><tr>
+<td>0x07</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>Duration</td>
+</tr></tbody></table>
  
 Duration specifies duration of the beep, sec.
  
@@ -556,13 +556,13 @@ Reply from Node B to Node A
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x87</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>OkErr</th>
-</tbody></table>
+<tbody><tr>
+<td>0x87</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+</tr></tbody></table>
 
 ## [8] RD_DESCR
 
@@ -580,13 +580,13 @@ Request from Node A to Node B
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x08</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>0</th>
-</tbody></table>
+<tbody><tr>
+<td>0x08</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>0</td>
+</tr></tbody></table>
   
 Reply from Node B to Node A
 
@@ -602,15 +602,15 @@ Reply from Node B to Node A
 <th>[9:(9+N)]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x88</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>0</th>
-<th>N</th>
-<th>Text</th>
-</tbody></table>
+<tbody><tr>
+<td>0x88</th>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>0</td>
+<td>N</td>
+<td>Text</td>
+</tr></tbody></table>
 
   * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
@@ -633,15 +633,15 @@ Request from Node A to Node B
 <th>[9:(9+N)]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x09</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>0</th>
-<th>N</th>
-<th>Text</th>
-</tbody></table>
+<tbody><tr>
+<td>0x09</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>0</td>
+<td>N</td>
+<td>Text</td>
+</tr></tbody></table>
 
   * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
@@ -658,13 +658,13 @@ Reply from Node B to Node A
 <th>[7]</th>
 </tr>
 </thead>
-<tbody>
-<th>0x89</th>
-<th>NodeA_ID</th>
-<th>NodeB_ID</th>
-<th>MsgID</th>
-<th>OkErr</th>
-</tbody></table>
+<tbody><tr>
+<td>0x89</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+</tr></tbody></table>
 
 # MQTT-SN mode (broadcast messages)
 
@@ -680,11 +680,11 @@ In that mode messages are made compatible to [MQTT for Sensor Networks – MQTT-
 <th>Variable part</th>
 </tr>
 </thead>
-<tbody>
-<th>1 byte</th>
-<th>1 byte</th>
-<th>Len-2 bytes</th>
-</tbody></table>
+<tbody><tr>
+<td>1 byte</td>
+<td>1 byte</td>
+<td>Len-2 bytes</td>
+</tr></tbody></table>
 
 Message length Len should be in the range [8..136]. 
 
@@ -703,94 +703,94 @@ In simplest case only PUBLISH command is required.
 </thead>
 <tbody>
 <tr> 
-<th>0x00</th>
-<th>ADVERTISE</th>
-<th>0x01</th>
-<th>SEARCHGW</th>
+<td>0x00</td>
+<td>ADVERTISE</td>
+<td>0x01</td>
+<td>SEARCHGW</td>
 </tr>
 <tr>
-<th>0x02</th>
-<th>GWINFO</th>
-<th>0x03</th>
-<th>reserved</th>
+<td>0x02</td>
+<td>GWINFO</td>
+<td>0x03</td>
+<td>reserved</td>
 </tr>
 <tr>
-<th>0x04</th>
-<th>CONNECT</th>
-<th>0x05</th>
-<th>CONNACK</th>
+<td>0x04</td>
+<td>CONNECT</td>
+<td>0x05</td>
+<td>CONNACK</td>
 </tr>
 <tr>
-<th>0x06</th>
-<th>WILLTOPICREQ</th>
-<th>0x07</th>
-<th>WILLTOPIC</th>
+<td>0x06</td>
+<td>WILLTOPICREQ</td>
+<td>0x07</td>
+<td>WILLTOPIC</td>
 </tr>
 <tr>
-<th>0x08</th>
-<th>WILLMSGREQ</th>
-<th>0x09</th>
-<th>WILLMSG</th>
+<td>0x08</td>
+<td>WILLMSGREQ</td>
+<td>0x09</td>
+<td>WILLMSG</td>
 </tr>
 <tr>
-<th>0x0A</th>
-<th>REGISTER</th>
-<th>0x0B</th>
-<th>REGACK</th>
+<td>0x0A</td>
+<td>REGISTER</td>
+<td>0x0B</td>
+<td>REGACK</td>
 </tr>
 <tr>
 <th>0x0C</th>
 <th>PUBLISH</th>
-<th>0x0D</th>
-<th>PUBACK</th>
+<td>0x0D</td>
+<td>PUBACK</td>
 </tr>
 <tr>
-<th>0x0E</th>
-<th>PUBCOMP</th>
-<th>0x0F</th>
-<th>PUBREC</th>
+<td>0x0E</td>
+<td>PUBCOMP</td>
+<td>0x0F</td>
+<td>PUBREC</td>
 </tr>
 <tr>
-<th>0x10</th>
-<th>PUBREL</th>
-<th>0x11</th>
-<th>reserved</th>
+<td>0x10</td>
+<td>PUBREL</td>
+<td>0x11</td>
+<td>reserved</td>
 </tr>
 <tr>
-<th>0x12</th>
-<th>SUBSCRIBE</th>
-<th>0x13</th>
-<th>SUBACK</th>
+<td>0x12</td>
+<td>SUBSCRIBE</td>
+<td>0x13</td>
+<td>SUBACK</td>
 </tr>
 <tr>
-<th>0x14</th>
-<th>UNSUBSCRIBE</th>
-<th>0x15</th>
-<th>UNSUBACK</th>
+<td>0x14</td>
+<td>UNSUBSCRIBE</td>
+<td>0x15</td>
+<td>UNSUBACK</td>
 </tr>
 <tr>
-<th>0x16</th>
-<th>PINGREQ</th>
-<th>0x17</th>
-<th>PINGRESP</th>
+<td>0x16</td>
+<td>PINGREQ</td>
+<td>0x17</td>
+<td>PINGRESP</td>
 </tr>
 <tr>
-<th>0x18</th>
-<th>DISCONNECT</th>
-<th>0x19</th>
-<th>reserved</th>
+<td>0x18</td>
+<td>DISCONNECT</td>
+<td>0x19</td>
+<td>reserved</td>
 </tr>
 <tr>
-<th>0x1A</th>
-<th>WILLTOPICUPD</th>
-<th>0x1B</th>
-<th>WILLTOPICRESP</th>
+<td>0x1A</td>
+<td>WILLTOPICUPD</td>
+<td>0x1B</td>
+<td>WILLTOPICRESP</td>
 </tr>
 <tr>
-<th>0x1C</th>
-<th>WILLMSGUPD</th>
-<th>0x1D</th>
-<th>WILLMSGRESP</th>
+<td>0x1C</td>
+<td>WILLMSGUPD</td>
+<td>0x1D</td>
+<td>WILLMSGRESP</td>
 </tr>
  </tbody></table>
 
@@ -810,14 +810,14 @@ MsgType range [0x1E:0xFF] reserved.
 <th>[8:(LEN-1)]</th>
 </tr>
 </thead>
-<tbody>
-<th>Len</th>
-<th>0x0C</th>
-<th>Flags</th>
-<th>TopicID</th>
-<th>MsgID</th>
-<th>DF</th>
-<th>Data</th>
-</tbody></table>
+<tbody><tr>
+<td>Len</td>
+<td>0x0C</td>
+<td>Flags</td>
+<td>TopicID</td>
+<td>MsgID</td>
+<td>DF</td>
+<td>Data</td>
+</tr></tbody></table>
 
 DF specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
