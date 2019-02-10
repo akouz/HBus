@@ -97,6 +97,8 @@ CRC covers message content. Prefix and SOF exluded. Sender calculates CRC before
 
 ## Fields
 
+Big endian used, eg MSB byte sent first, LSB byte sent last.
+
 <table>
 <thead>
 <tr>
