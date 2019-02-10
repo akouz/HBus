@@ -658,7 +658,7 @@ Len 	MsgType 	Variable part
 <th>Len-2 bytes</th>
 </tbody></table>
 
-Message length Len is in the range [2..127]. 
+Message length Len should be in the range [8..136]. 
 
 ## MsgType
 
