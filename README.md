@@ -641,9 +641,10 @@ Reply from Node B to Node A
 
 # MQTT-SN mode (broadcast messages)
 
+[MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/tag/mqtt-sn)
+
 ## Message format
 
-Len 	MsgType 	Variable part 
 <table>
 <thead>
 <tr>
