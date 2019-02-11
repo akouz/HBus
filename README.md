@@ -734,34 +734,9 @@ Fits MQTT-SN clause 5.4.12:
 <td>Data</td>
 </tr></tbody></table>
 
+  * Flags byte set to 0x00.
+  * MsgID - not required when QoS = 00, but used for clarity.
   * DataFormat specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
-  * Flags byte as per MQTT-SN:
-<table>
-<thead><tr>
-<th>[7]</th>
-<th>[6:5]</th>
-<th>[4]</th>
-<th>[3]</th>
-<th>[2]</th>
-<th>[1:0]</th>
-</tr></thead>
-<tbody><tr>
-<td>DUP</td>
-<td>QoS</td>
-<td>Retain</td>
-<td>Will</td>
-<td>CleanSession</td>
-<td>TopicIdType</td>
-</tr></body></table>
-
-    * DUP - set to 0
-    * QoS  - set to 00
-    * Retain - set to 0
-    * Will - set to 0
-    * CleanSession - set to 0
-    * TopicIdType - set to 00
- * MsgID - not required when QoS = 00, but used for clarity.
-
 
 # NodeTest
 
