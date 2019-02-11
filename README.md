@@ -124,12 +124,15 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 </tr><tr>
 <td>MsgID</td> 	
 <td>16</td> 	
-<td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE, as per [MQTT](http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#msg-id) </td> 	
+<td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE</td> 	
 </tr><tr>
 <td>OkErr</td> 	
 <td>8</td> 	
 <td>OK = 0, any other value is an error code </td> 	
 </tr></tbody></table>
+
+MsgID description is [here](http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#msg-id).
+
 
 # HBus mode (config and control messages)
 
