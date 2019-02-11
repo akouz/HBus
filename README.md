@@ -753,6 +753,7 @@ Fits MQTT-SN clause 5.4.12:
 <td>CleanSession</td>
 <td>TopicIdType</td>
 </tr></body></table>
+
     * DUP - set to 0
     * QoS  - set to 00
     * Retain - set to 0
