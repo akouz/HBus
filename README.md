@@ -709,6 +709,8 @@ MsgType range [0x1E:0xFF] reserved.
 
 ## [0x0C] PUBLISH
 
+Fits MQTT-SN clause 5.4.12:
+
 <table>
 <thead><tr>
 <th>[0]</th>
