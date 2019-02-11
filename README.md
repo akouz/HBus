@@ -131,9 +131,6 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>OK = 0, any other value is an error code </td> 	
 </tr></tbody></table>
 
-MsgID description is [here](http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#msg-id).
-
-
 # HBus mode (config and control messages)
 
 ## List of HBus commands
@@ -735,7 +732,7 @@ Fits MQTT-SN clause 5.4.12:
 </tr></tbody></table>
 
   * Flags byte set to 0x00.
-  * MsgID - not required when QoS = 00, but used for clarity.
+  * [MsgID](http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#msg-id) - not required when QoS = 00, but used for clarity.
   * DataFormat specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
 
 # NodeTest
