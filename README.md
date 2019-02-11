@@ -124,7 +124,7 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 </tr><tr>
 <td>MsgID</td> 	
 <td>16</td> 	
-<td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE</td> 	
+<td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE, as per [MQTT](http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#msg-id) </td> 	
 </tr><tr>
 <td>OkErr</td> 	
 <td>8</td> 	
@@ -727,11 +727,37 @@ Fits MQTT-SN clause 5.4.12:
 <td>Flags</td>
 <td>TopicID</td>
 <td>MsgID</td>
-<td>DF</td>
+<td>DataFormat</td>
 <td>Data</td>
 </tr></tbody></table>
 
-DF specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
+  * DataFormat specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
+  * Flags byte as per MQTT-SN:
+<table>
+<thead><tr>
+<th>[7]</th>
+<th>[6:5]</th>
+<th>[4]</th>
+<th>[3]</th>
+<th>[2]</th>
+<th>[1:0]</th>
+</tr></thead>
+<tbody><tr>
+<td>DUP</td>
+<td>QoS</td>
+<td>Retain</td>
+<td>Will</td>
+<td>CleanSession</td>
+<td>TopicIdType</td>
+</tr></body></table>
+    * DUP - set to 0
+    * QoS  - set to 00
+    * Retain - set to 0
+    * Will - set to 0
+    * CleanSession - set to 0
+    * TopicIdType - set to 00
+ * MsgID - not required when QoS = 00, but used for clarity.
+
 
 # NodeTest
 
