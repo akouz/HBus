@@ -726,13 +726,13 @@ Fits MQTT-SN clause 5.4.12:
 <td>0x0C</td>
 <td>Flags</td>
 <td>TopicID</td>
-<td>MsgID</td>
+<td>NodeID</td>
 <td>DataFormat</td>
 <td>Data</td>
 </tr></tbody></table>
 
   * Flags byte set to 0x00.
-  * [MsgID](http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#msg-id) - not required when QoS = 00, but used for clarity.
+  * NodeID - ID of the broadcasting node; used for debug and monitoring.
   * DataFormat specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
 
 # NodeTest
