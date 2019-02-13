@@ -96,7 +96,7 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
         // ----------------------------
         else if (cmd == CMD_BOOT)   
         {
-            alien_boot(rxmsg->buf[8]);  
+            alien_boot(rxmsg->buf[7]);  
             rxmsg->busy = 0;
         }
         // ----------------------------
