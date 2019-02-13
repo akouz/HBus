@@ -1,0 +1,294 @@
+object Form1: TForm1
+  Left = 356
+  Height = 304
+  Top = 148
+  Width = 642
+  Caption = 'NodeTest rev 1.01'
+  ClientHeight = 304
+  ClientWidth = 642
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  ShowHint = True
+  LCLVersion = '1.4.2.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 34
+    Top = 0
+    Width = 642
+    Align = alTop
+    ClientHeight = 34
+    ClientWidth = 642
+    TabOrder = 0
+    object CbPorts: TComboBox
+      Left = 72
+      Height = 23
+      Hint = 'Selected COM port'
+      Top = 0
+      Width = 72
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'COM1'
+      )
+      OnChange = CbPortsChange
+      Style = csDropDownList
+      TabOrder = 0
+      Text = 'COM1'
+    end
+    object Label2: TLabel
+      Left = 8
+      Height = 15
+      Top = 4
+      Width = 53
+      Caption = 'COM Port'
+      ParentColor = False
+      OnDblClick = Label2DblClick
+    end
+    object Label3: TLabel
+      Left = 152
+      Height = 15
+      Hint = 'Connection status'
+      Top = 4
+      Width = 34
+      Caption = 'Label3'
+      ParentColor = False
+    end
+    object EdOwnId: TEdit
+      Left = 296
+      Height = 23
+      Hint = 'NodeTest own ID'
+      Top = 0
+      Width = 80
+      OnDblClick = EdOwnIdDblClick
+      OnExit = EdOwnIdDblClick
+      TabOrder = 1
+      Text = 'EdOwnId'
+    end
+    object Label4: TLabel
+      Left = 248
+      Height = 15
+      Top = 4
+      Width = 39
+      Caption = 'Own ID'
+      ParentColor = False
+    end
+    object EdMsgId: TEdit
+      Left = 448
+      Height = 23
+      Top = 0
+      Width = 80
+      HelpType = htKeyword
+      HelpKeyword = 'Next MsgID'
+      OnDblClick = EdMsgIdDblClick
+      OnExit = EdMsgIdDblClick
+      TabOrder = 2
+      Text = 'EdMsgId'
+    end
+    object Label5: TLabel
+      Left = 384
+      Height = 15
+      Top = 4
+      Width = 59
+      Caption = 'next MsgID'
+      ParentColor = False
+    end
+  end
+  object LB: TListBox
+    Left = 170
+    Height = 270
+    Hint = 'Doble click to clear screen'
+    Top = 34
+    Width = 472
+    Align = alClient
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -12
+    Font.Name = 'Courier New'
+    Font.Pitch = fpFixed
+    Font.Quality = fqDraft
+    ItemHeight = 0
+    OnDblClick = LBDblClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 270
+    Top = 34
+    Width = 170
+    Align = alLeft
+    ClientHeight = 270
+    ClientWidth = 170
+    TabOrder = 2
+    object BtnRev: TButton
+      Left = 0
+      Height = 25
+      Top = 24
+      Width = 104
+      Caption = 'Read Revision'
+      OnClick = BtnRevClick
+      TabOrder = 0
+    end
+    object EdNode: TEdit
+      Left = 104
+      Height = 23
+      Hint = 'node ID'
+      Top = 0
+      Width = 64
+      OnDblClick = EdNodeDblClick
+      OnExit = EdNodeDblClick
+      TabOrder = 1
+      Text = 'EdNode'
+    end
+    object Label1: TLabel
+      Left = 56
+      Height = 15
+      Top = 4
+      Width = 40
+      Caption = 'NodeID'
+      ParentColor = False
+    end
+    object BtnStatus: TButton
+      Left = 0
+      Height = 25
+      Top = 48
+      Width = 104
+      Caption = 'Read Status'
+      OnClick = BtnStatusClick
+      TabOrder = 2
+    end
+    object BtnCollect: TButton
+      Left = 0
+      Height = 25
+      Top = 72
+      Width = 104
+      Caption = 'Collect Nodes'
+      OnClick = BtnCollectClick
+      TabOrder = 3
+    end
+    object EdSlots: TEdit
+      Left = 128
+      Height = 23
+      Hint = 'time slots'
+      Top = 72
+      Width = 40
+      TabOrder = 4
+      Text = '32'
+    end
+    object EdGroup: TEdit
+      Left = 104
+      Height = 23
+      Hint = 'group'
+      Top = 72
+      Width = 24
+      TabOrder = 5
+      Text = '1'
+    end
+    object BtnPing: TButton
+      Left = 0
+      Height = 25
+      Top = 96
+      Width = 104
+      Caption = 'Ping'
+      OnClick = BtnPingClick
+      TabOrder = 6
+    end
+    object EdPause: TEdit
+      Left = 104
+      Height = 23
+      Hint = 'sec, ignore Collect Nodes commands'
+      Top = 96
+      Width = 64
+      TabOrder = 7
+      Text = '10'
+    end
+    object BtnNewID: TButton
+      Left = 0
+      Height = 25
+      Top = 120
+      Width = 104
+      Caption = 'Set New ID'
+      OnClick = BtnNewIDClick
+      TabOrder = 8
+    end
+    object EdNewID: TEdit
+      Left = 104
+      Height = 23
+      Hint = 'new node ID'
+      Top = 120
+      Width = 64
+      OnDblClick = EdNewIDDblClick
+      OnExit = EdNewIDDblClick
+      TabOrder = 9
+      Text = '$1235'
+    end
+    object BtnBoot: TButton
+      Left = 0
+      Height = 25
+      Top = 144
+      Width = 104
+      Caption = 'Boot'
+      OnClick = BtnBootClick
+      TabOrder = 10
+    end
+    object EdBootPause: TEdit
+      Left = 104
+      Height = 23
+      Hint = 'sec, ignore HBus traffic'
+      Top = 144
+      Width = 64
+      TabOrder = 11
+      Text = '20'
+    end
+    object BtnBeep: TButton
+      Left = 0
+      Height = 25
+      Top = 168
+      Width = 104
+      Caption = 'Beep'
+      OnClick = BtnBeepClick
+      TabOrder = 12
+    end
+    object EdDuration: TEdit
+      Left = 104
+      Height = 23
+      Hint = 'sec'
+      Top = 168
+      Width = 64
+      TabOrder = 13
+      Text = '2'
+    end
+    object BtnRdDescr: TButton
+      Left = 0
+      Height = 25
+      Top = 192
+      Width = 104
+      Caption = 'Read Description'
+      OnClick = BtnRdDescrClick
+      TabOrder = 14
+    end
+    object EdDescr: TEdit
+      Left = 0
+      Height = 23
+      Hint = 'node description'
+      Top = 216
+      Width = 168
+      TabOrder = 15
+      Text = 'Description'
+    end
+    object BtnWrDescr: TButton
+      Left = 0
+      Height = 25
+      Top = 240
+      Width = 104
+      Caption = 'Write Description'
+      OnClick = BtnWrDescrClick
+      TabOrder = 16
+    end
+  end
+  object Timer10ms: TTimer
+    Interval = 10
+    OnTimer = Timer10msTimer
+    left = 516
+    top = 45
+  end
+end
