@@ -279,9 +279,15 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgID</td>
-<td>OkErr</td>
-<td>Content depends on DevType and DevModel</td>
+<td>DF</td>
+<td>Data, content depends on DevType and DevModel</td>
 </tr></tbody></table>
+
+ DF is data format: 
+  * 0 = binary 
+  * 1 = [JSON](https://www.json.org/) 
+  * 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md) 
+  * other - TBD.
 
 ## [3] COLLECT
 
@@ -727,14 +733,18 @@ Fits MQTT-SN clause 5.4.12:
 <td>Flags</td>
 <td>TopicID</td>
 <td>NodeID</td>
-<td>DataFormat</td>
+<td>DF</td>
 <td>Data</td>
 </tr></tbody></table>
 
   * Flags byte set to 0x00.
   * NodeID - ID of the broadcasting node; used for debug and monitoring.
-  * DataFormat specifies data format: 1 = [JSON](https://www.json.org/), 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md), other - TBD.
-
+  * DF is data format: 
+    * 0 = binary 
+    * 1 = [JSON](https://www.json.org/) 
+    * 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md) 
+    * other - TBD.
+    
 # NodeTest
 
 NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a USB-UART gateway with CAN transceiver. 
