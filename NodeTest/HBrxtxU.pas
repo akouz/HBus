@@ -42,9 +42,9 @@ const
 
 type
   THbMsg = record
-    pri : byte;
-    s : string;
-    hb : boolean;
+    pri : byte;      // priority (prefix)
+    s : string;      // data
+    hb : boolean;    // HBus/MQTT
     valid : boolean;
     postpone : byte; // 10 ms ticks
   end;

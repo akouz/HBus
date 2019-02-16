@@ -85,7 +85,7 @@ type
     NewID : word;
   public
     { public declarations }
-    function StrToHex(s : string) : string;
+    function StrToHex(s : string; json : boolean) : string;
     procedure PrintHbMsg(msg : THbMsg);
     function num_str_c2pas(s : string) : string;
   end;
@@ -177,16 +177,23 @@ end;
 // =====================================================
 // Convert binary message into hex str
 // =====================================================
-function TForm1.StrToHex(s : string) : string;
-var i : integer;
+function TForm1.StrToHex(s : string; json : boolean) : string;
+var i, hl : integer;
     c : char;
 begin
   result := '';
-  for i:=1 to length(s) do begin
+  if json then
+    hl := 8
+  else
+    hl := length(s);
+  for i:=1 to hl do begin
     c := s[i];
     result := result + IntToHex(ord(c),2) + ' ';
     if (i and 7)=0 then
       result := result + ' ';
+  end;
+  if json then begin
+    result := result + copy(s, 9, length(s)- 8);
   end;
 end;
 
@@ -195,13 +202,26 @@ end;
 // =====================================================
 procedure TForm1.PrintHbMsg(msg : THbMsg);
 var s : string;
+    cmd : byte;
+    OkErr : byte;
 begin
-  s := IntToHex(msg.pri, 2);
-  if msg.hb then
-    s := s + ' HBus '
-  else
+  s := IntToHex(msg.pri, 2); // show priority byte (prefix)
+  cmd := 0;
+  if msg.hb then begin
+    s := s + ' HBus ';
+    cmd := ord(msg.s[1]);
+    OkErr := ord(msg.s[8]);
+    if (cmd = $82) and (OkErr = 1) then // STATUS reply
+      s := s + StrToHex(msg.s, true) // JSON
+    else
+      s := s + StrToHex(msg.s, false); // binary
+  end  else begin
     s := s + ' MQTT ';
-  s := s + StrToHex(msg.s);
+    if (OkErr = 1) then
+       s := s + StrToHex(msg.s, true) // JSON
+    else
+      s := s + StrToHex(msg.s, false); // binary
+  end;
   LB.Items.Add(s);;
 end;
 
