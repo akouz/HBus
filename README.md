@@ -8,7 +8,7 @@
 
 HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transciever. 
 
-## Basic principles
+## Basic
 
   * Baud rate 19.2 kbps.
   * Communication by ordinary UARTs with CAN transceivers, dominant/recessive states. CAN protocol not used, CAN controllers not required.
