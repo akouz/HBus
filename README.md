@@ -128,7 +128,7 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 </tr><tr>
 <td>OkErr</td> 	
 <td>8</td> 	
-<td>OK = 0, any other value is an error code </td> 	
+<td>OK = 0; error codes must be in the range [0x80...0xFE], other codes reserved </td> 	
 </tr></tbody></table>
 
 # HBus mode (config and control messages)
