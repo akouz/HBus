@@ -2,23 +2,35 @@
  * Library   HBus commands
  * Author    A.Kouznetsov
  * Rev       1.0 dated 26/12/2018
- * Target    Arduino
+ * Target    Arduino 
 
-Redistribution and use in source and binary forms, with or without modification, are permitted.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 //##############################################################################
 // Inc
 //##############################################################################
 
 #include  "common.h"
+#include  "HBmqtt.h"
 #include  "HBcmd.h"
 
 //##############################################################################
@@ -138,7 +150,31 @@ uchar Hb_cmd::rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply)
 uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
     copy_msg_hdr(rxmsg, 0, 7, rply);
-    add_txmsg_uchar(rply,  OK);
+    if (DF_STATUS == 1) // DF = JSON 
+    {
+        char buf[32];
+        add_txmsg_uchar(rply,  DF_STATUS);
+        snprintf(buf, sizeof(buf),"{topics:[");
+        add_txmsg_z_str(rply, buf);
+        for (uchar i=0; i< MAX_TOPIC; i++)
+        {
+            if (i < MAX_TOPIC-1)        
+                snprintf(buf, sizeof(buf),"%d,", HBmqtt.topic[i]);
+            else
+                snprintf(buf, sizeof(buf),"%d]}", HBmqtt.topic[i]);
+            add_txmsg_z_str(rply, buf);
+        }
+    }
+    else // DF = binary, other formats not implemented yet
+    {
+        add_txmsg_uchar(rply,  0); // 0 = binary data
+        add_txmsg_uchar(rply, MAX_TOPIC);
+        for (uchar i=0; i<MAX_TOPIC; i++)
+        {
+            add_txmsg_uchar(rply, (uchar)(HBmqtt.topic[i] >> 8));
+            add_txmsg_uchar(rply, (uchar)HBmqtt.topic[i]);
+        }
+    }
     return READY;           
 }
 
@@ -250,8 +286,7 @@ void Hb_cmd::alien_boot(uchar param)
 // =====================================  
 uchar Hb_cmd::rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
-    digitalWrite(LED_BUILTIN, HIGH);
-    led_cnt = (uint)rxmsg->buf[7]*100;
+    blink((uint)rxmsg->buf[7]*100);
     copy_msg_hdr(rxmsg, 0, 7, rply); 
     add_txmsg_uchar(rply,  OK);
     return READY; 

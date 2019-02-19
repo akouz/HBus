@@ -1,7 +1,7 @@
 /*
- * Library   HBus rx/tx
- * Author    A.Kouznetsov
- * Rev       1.0 dated 20/12/2018
+ * Library   HBus MQTT-SN 
+ * Author    A.Kouznetsov     (https://github.com/akouz)
+ * Rev       1.0 dated 11/2/2019
  * Target    Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -24,9 +24,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
-#ifndef __HB_RXTX_H
-#define __HB_RXTX_H
+
+#ifndef __HB_MQTT_H
+#define __HB_MQTT_H
 
 //##############################################################################
 // Inc                                              
@@ -38,59 +38,34 @@
 // Def
 //##############################################################################
 
-enum{  
-  _PRI_LO       = 0xFF,
-  _PRI_MED      = 0xFC,
-  _PRI_HI       = 0xF0,
-  
-  TX_TMOUT      = 20,  // 200 ms
+enum{
+    PUBLISH     = 0x0C,
+    MAX_TOPIC   = 4,
+        
+    TOPIC1      = 101,
+    TOPIC2      = 102,
+    TOPIC3      = 103,
+    TOPIC4      = 201,
 };
-
-//##############################################################################
-// Var
-//##############################################################################
-
 
 //##############################################################################
 // Class
 //##############################################################################
 
-class Hb_rxtx{
+class HB_mqtt{
     public:
-                Hb_rxtx(void);
-    uchar       err_cnt;
-    union{
-        uchar   all;
-        struct{
-            unsigned rx_busy    : 1;     
-            unsigned busy       : 1;
-            unsigned debug      : 1;
-            unsigned no_crc     : 1;
-            unsigned seed       : 1;    // when random seed is set
-        };
-    }flag;
-    uchar       priority;
-    uchar       txpos;
-    uchar       txcnt;
-    hb_msg_t    rxmsg;
-    uchar       rx_decode(uchar* src, uchar* src_len, hb_msg_t* dest);
-    uchar       tx_encode(hb_msg_t* src, hb_msg_t* dest);
-    hb_msg_t*   rx(uchar c);
-    uchar       rtr_cnt;
-    uchar       start_tx(hb_msg_t* buf);
-    uchar       tx(uchar* pause_cnt);
-       
+                HB_mqtt(void);
+    hb_msg_t    mqmsg;
+    uint        topic[MAX_TOPIC];  
+    float       value[MAX_TOPIC];              
+    StaticJsonBuffer<128> jsonBuf;
+    char        rd_msg(hb_msg_t* msg);
+    uchar       make_msg(uchar topic_i);    
+    
     private:
-    uchar       tx_tmout;
-    hb_msg_t*   txbuf;
-    uchar       echobuf[3];
-    uchar       echolen;
-    uint        txcrc;
-    uchar       add_rx_uchar(uchar c, hb_msg_t* dest);
-    void        add_crc(hb_msg_t* msg);
-    uchar       check_crc(hb_msg_t* msg);
-};
-extern Hb_rxtx HBrxtx;
+    char        is_topic(uint tpc);
+};    
 
-#endif /* __HB_RXTX_H */
+extern HB_mqtt HBmqtt;
 
+#endif /* __HB_MQTT_H */
