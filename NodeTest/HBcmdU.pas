@@ -2,16 +2,25 @@
 // HBus commands
 // =====================================================================
 {
-Author    A.Kouznetsov
-
-Redistribution and use in source and binary forms, with or without modification, are permitted.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 }
 
 unit HBcmdU;
@@ -88,6 +97,7 @@ type
     function CmdBeep(dest : word; dur : byte) : THbMsg;
     function CmdRdDescr(dest : word) : THbMsg;
     function CmdWrDescr(dest : word; descr : string) : THbMsg;
+    function SendMqtt(topic : word; val : string) : THbMsg;
     // receive HBus commands
     function RxCmd(rx :THbMsg) : THbMsg;
     procedure Tick10ms;      // process it every 10 ms
@@ -309,6 +319,22 @@ begin
     result.valid := true;
   end else
     result.valid := false;
+end;
+
+// =====================================
+// Make MQTT-SN message
+// =====================================
+function THbCmd.SendMqtt(topic : word; val : string) : THbMsg;
+var s : string;
+begin
+  s := '{topic:'+IntToStr(topic)+',val:'+val+'}';
+  result.s := char(length(s)+8) + char($0C) + char(0);
+  result.s := result.s + char(byte(topic shr 8)) + char(byte(topic and $FF));
+  result.s := result.s + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF)) + char(1);
+  result.s := result.s + s;
+  result.hb := false;
+  result.postpone := 0;
+  result.valid := true;
 end;
 
 // =====================================  

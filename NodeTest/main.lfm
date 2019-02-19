@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 356
-  Height = 304
-  Top = 148
-  Width = 642
+  Left = 743
+  Height = 323
+  Top = 239
+  Width = 722
   Caption = 'NodeTest rev 1.02'
-  ClientHeight = 304
-  ClientWidth = 642
+  ClientHeight = 323
+  ClientWidth = 722
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   ShowHint = True
@@ -14,10 +14,10 @@ object Form1: TForm1
     Left = 0
     Height = 34
     Top = 0
-    Width = 642
+    Width = 722
     Align = alTop
     ClientHeight = 34
-    ClientWidth = 642
+    ClientWidth = 722
     TabOrder = 0
     object CbPorts: TComboBox
       Left = 72
@@ -92,13 +92,21 @@ object Form1: TForm1
       Caption = 'next MsgID'
       ParentColor = False
     end
+    object CbDamp: TCheckBox
+      Left = 544
+      Height = 19
+      Top = 4
+      Width = 105
+      Caption = 'Show bus traffic'
+      TabOrder = 3
+    end
   end
   object LB: TListBox
-    Left = 170
-    Height = 270
+    Left = 176
+    Height = 289
     Hint = 'Doble click to clear screen'
     Top = 34
-    Width = 472
+    Width = 546
     Align = alClient
     Font.CharSet = ANSI_CHARSET
     Font.Height = -12
@@ -110,179 +118,231 @@ object Form1: TForm1
     ParentFont = False
     TabOrder = 1
   end
-  object Panel2: TPanel
+  object PageControl1: TPageControl
     Left = 0
-    Height = 270
+    Height = 289
     Top = 34
-    Width = 170
+    Width = 176
+    ActivePage = TsHBus
     Align = alLeft
-    ClientHeight = 270
-    ClientWidth = 170
+    TabIndex = 0
     TabOrder = 2
-    object BtnRev: TButton
-      Left = 0
-      Height = 25
-      Top = 24
-      Width = 104
-      Caption = 'Read Revision'
-      OnClick = BtnRevClick
-      TabOrder = 0
+    object TsHBus: TTabSheet
+      Caption = 'HBus'
+      ClientHeight = 261
+      ClientWidth = 168
+      object BtnRev: TButton
+        Left = 0
+        Height = 25
+        Top = 24
+        Width = 104
+        Caption = 'Read Revision'
+        OnClick = BtnRevClick
+        TabOrder = 0
+      end
+      object EdNode: TEdit
+        Left = 104
+        Height = 23
+        Hint = 'node ID'
+        Top = 0
+        Width = 64
+        OnDblClick = EdNodeDblClick
+        OnExit = EdNodeDblClick
+        TabOrder = 1
+        Text = 'EdNode'
+      end
+      object Label1: TLabel
+        Left = 56
+        Height = 15
+        Top = 4
+        Width = 40
+        Caption = 'NodeID'
+        ParentColor = False
+      end
+      object BtnStatus: TButton
+        Left = 0
+        Height = 25
+        Top = 48
+        Width = 104
+        Caption = 'Read Status'
+        OnClick = BtnStatusClick
+        TabOrder = 2
+      end
+      object BtnCollect: TButton
+        Left = 0
+        Height = 25
+        Top = 72
+        Width = 104
+        Caption = 'Collect Nodes'
+        OnClick = BtnCollectClick
+        TabOrder = 3
+      end
+      object EdSlots: TEdit
+        Left = 128
+        Height = 23
+        Hint = 'time slots'
+        Top = 72
+        Width = 40
+        TabOrder = 4
+        Text = '32'
+      end
+      object EdGroup: TEdit
+        Left = 104
+        Height = 23
+        Hint = 'group'
+        Top = 72
+        Width = 24
+        TabOrder = 5
+        Text = '1'
+      end
+      object BtnPing: TButton
+        Left = 0
+        Height = 25
+        Top = 96
+        Width = 104
+        Caption = 'Ping'
+        OnClick = BtnPingClick
+        TabOrder = 6
+      end
+      object EdPause: TEdit
+        Left = 104
+        Height = 23
+        Hint = 'sec, ignore Collect Nodes commands'
+        Top = 96
+        Width = 64
+        TabOrder = 7
+        Text = '10'
+      end
+      object BtnNewID: TButton
+        Left = 0
+        Height = 25
+        Top = 120
+        Width = 104
+        Caption = 'Set New ID'
+        OnClick = BtnNewIDClick
+        TabOrder = 8
+      end
+      object EdNewID: TEdit
+        Left = 104
+        Height = 23
+        Hint = 'new node ID'
+        Top = 120
+        Width = 64
+        OnDblClick = EdNewIDDblClick
+        OnExit = EdNewIDDblClick
+        TabOrder = 9
+        Text = '$1235'
+      end
+      object BtnBoot: TButton
+        Left = 0
+        Height = 25
+        Top = 144
+        Width = 104
+        Caption = 'Boot'
+        OnClick = BtnBootClick
+        TabOrder = 10
+      end
+      object EdBootPause: TEdit
+        Left = 104
+        Height = 23
+        Hint = 'sec, ignore HBus traffic'
+        Top = 144
+        Width = 64
+        TabOrder = 11
+        Text = '20'
+      end
+      object BtnBeep: TButton
+        Left = 0
+        Height = 25
+        Top = 168
+        Width = 104
+        Caption = 'Beep'
+        OnClick = BtnBeepClick
+        TabOrder = 12
+      end
+      object EdDuration: TEdit
+        Left = 104
+        Height = 23
+        Hint = 'sec'
+        Top = 168
+        Width = 64
+        TabOrder = 13
+        Text = '2'
+      end
+      object BtnRdDescr: TButton
+        Left = 0
+        Height = 25
+        Top = 192
+        Width = 104
+        Caption = 'Read Description'
+        OnClick = BtnRdDescrClick
+        TabOrder = 14
+      end
+      object EdDescr: TEdit
+        Left = 0
+        Height = 23
+        Hint = 'node description'
+        Top = 216
+        Width = 168
+        TabOrder = 15
+        Text = 'Description'
+      end
+      object BtnWrDescr: TButton
+        Left = 0
+        Height = 25
+        Top = 240
+        Width = 104
+        Caption = 'Write Description'
+        OnClick = BtnWrDescrClick
+        TabOrder = 16
+      end
     end
-    object EdNode: TEdit
-      Left = 104
-      Height = 23
-      Hint = 'node ID'
-      Top = 0
-      Width = 64
-      OnDblClick = EdNodeDblClick
-      OnExit = EdNodeDblClick
-      TabOrder = 1
-      Text = 'EdNode'
-    end
-    object Label1: TLabel
-      Left = 56
-      Height = 15
-      Top = 4
-      Width = 40
-      Caption = 'NodeID'
-      ParentColor = False
-    end
-    object BtnStatus: TButton
-      Left = 0
-      Height = 25
-      Top = 48
-      Width = 104
-      Caption = 'Read Status'
-      OnClick = BtnStatusClick
-      TabOrder = 2
-    end
-    object BtnCollect: TButton
-      Left = 0
-      Height = 25
-      Top = 72
-      Width = 104
-      Caption = 'Collect Nodes'
-      OnClick = BtnCollectClick
-      TabOrder = 3
-    end
-    object EdSlots: TEdit
-      Left = 128
-      Height = 23
-      Hint = 'time slots'
-      Top = 72
-      Width = 40
-      TabOrder = 4
-      Text = '32'
-    end
-    object EdGroup: TEdit
-      Left = 104
-      Height = 23
-      Hint = 'group'
-      Top = 72
-      Width = 24
-      TabOrder = 5
-      Text = '1'
-    end
-    object BtnPing: TButton
-      Left = 0
-      Height = 25
-      Top = 96
-      Width = 104
-      Caption = 'Ping'
-      OnClick = BtnPingClick
-      TabOrder = 6
-    end
-    object EdPause: TEdit
-      Left = 104
-      Height = 23
-      Hint = 'sec, ignore Collect Nodes commands'
-      Top = 96
-      Width = 64
-      TabOrder = 7
-      Text = '10'
-    end
-    object BtnNewID: TButton
-      Left = 0
-      Height = 25
-      Top = 120
-      Width = 104
-      Caption = 'Set New ID'
-      OnClick = BtnNewIDClick
-      TabOrder = 8
-    end
-    object EdNewID: TEdit
-      Left = 104
-      Height = 23
-      Hint = 'new node ID'
-      Top = 120
-      Width = 64
-      OnDblClick = EdNewIDDblClick
-      OnExit = EdNewIDDblClick
-      TabOrder = 9
-      Text = '$1235'
-    end
-    object BtnBoot: TButton
-      Left = 0
-      Height = 25
-      Top = 144
-      Width = 104
-      Caption = 'Boot'
-      OnClick = BtnBootClick
-      TabOrder = 10
-    end
-    object EdBootPause: TEdit
-      Left = 104
-      Height = 23
-      Hint = 'sec, ignore HBus traffic'
-      Top = 144
-      Width = 64
-      TabOrder = 11
-      Text = '20'
-    end
-    object BtnBeep: TButton
-      Left = 0
-      Height = 25
-      Top = 168
-      Width = 104
-      Caption = 'Beep'
-      OnClick = BtnBeepClick
-      TabOrder = 12
-    end
-    object EdDuration: TEdit
-      Left = 104
-      Height = 23
-      Hint = 'sec'
-      Top = 168
-      Width = 64
-      TabOrder = 13
-      Text = '2'
-    end
-    object BtnRdDescr: TButton
-      Left = 0
-      Height = 25
-      Top = 192
-      Width = 104
-      Caption = 'Read Description'
-      OnClick = BtnRdDescrClick
-      TabOrder = 14
-    end
-    object EdDescr: TEdit
-      Left = 0
-      Height = 23
-      Hint = 'node description'
-      Top = 216
-      Width = 168
-      TabOrder = 15
-      Text = 'Description'
-    end
-    object BtnWrDescr: TButton
-      Left = 0
-      Height = 25
-      Top = 240
-      Width = 104
-      Caption = 'Write Description'
-      OnClick = BtnWrDescrClick
-      TabOrder = 16
+    object TabSheet2: TTabSheet
+      Caption = 'MQTT'
+      ClientHeight = 261
+      ClientWidth = 168
+      object EdTopic: TEdit
+        Left = 112
+        Height = 23
+        Top = 0
+        Width = 56
+        TabOrder = 0
+        Text = '101'
+      end
+      object Label6: TLabel
+        Left = 73
+        Height = 15
+        Top = 8
+        Width = 29
+        Caption = 'Topic'
+        ParentColor = False
+      end
+      object EdTopicVal: TEdit
+        Left = 112
+        Height = 23
+        Top = 24
+        Width = 56
+        TabOrder = 1
+        Text = '11.5'
+      end
+      object Label7: TLabel
+        Left = 87
+        Height = 15
+        Top = 32
+        Width = 15
+        Caption = 'Val'
+        ParentColor = False
+      end
+      object BtnMqttSend: TButton
+        Left = 0
+        Height = 48
+        Hint = 'Send MQTT-SN message'
+        Top = 0
+        Width = 72
+        Caption = 'Send'
+        OnClick = BtnMqttSendClick
+        TabOrder = 2
+      end
     end
   end
   object Timer10ms: TTimer

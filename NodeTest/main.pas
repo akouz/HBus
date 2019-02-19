@@ -1,17 +1,26 @@
 // =============================================================================
-//HBus node test
+// HBus node test
 // =============================================================================
 {
-Author    A.Kouznetsov
-
-Redistribution and use in source and binary forms, with or without modification, are permitted.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 }
 unit main;
 
@@ -23,7 +32,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, CPort, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, Registry, IniFiles, HBrxtxU, HBcmdU;
+  ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, HBrxtxU, HBcmdU;
 
 type
 
@@ -39,11 +48,15 @@ type
     BtnBeep : TButton;
     BtnRdDescr : TButton;
     BtnWrDescr : TButton;
+    BtnMqttSend : TButton;
     CbPorts : TComboBox;
+    CbDamp : TCheckBox;
     EdGroup : TEdit;
     EdBootPause : TEdit;
     EdDuration : TEdit;
     EdDescr : TEdit;
+    EdTopicVal : TEdit;
+    EdTopic : TEdit;
     EdMsgId : TEdit;
     EdOwnId : TEdit;
     EdNewID : TEdit;
@@ -55,13 +68,18 @@ type
     Label3 : TLabel;
     Label4 : TLabel;
     Label5 : TLabel;
+    Label6 : TLabel;
+    Label7 : TLabel;
     LB : TListBox;
+    PageControl1 : TPageControl;
     Panel1 : TPanel;
-    Panel2 : TPanel;
+    TsHBus : TTabSheet;
+    TabSheet2 : TTabSheet;
     Timer10ms : TTimer;
     procedure BtnBeepClick(Sender : TObject);
     procedure BtnBootClick(Sender : TObject);
     procedure BtnCollectClick(Sender : TObject);
+    procedure BtnMqttSendClick(Sender : TObject);
     procedure BtnNewIDClick(Sender : TObject);
     procedure BtnPingClick(Sender : TObject);
     procedure BtnRdDescrClick(Sender : TObject);
@@ -85,7 +103,7 @@ type
     NewID : word;
   public
     { public declarations }
-    function StrToHex(s : string; json : boolean) : string;
+    function StrToHex(s : string; txt_i : byte) : string;
     procedure PrintHbMsg(msg : THbMsg);
     function num_str_c2pas(s : string) : string;
   end;
@@ -154,16 +172,31 @@ end;
 // 10 ms
 // =====================================================
 procedure TForm1.Timer10msTimer(Sender : TObject);
-var i : integer;
+var i, cnt : integer;
     rx : THbMsg;
 begin
   HBcmd.Tick10ms;
   HB.Tick10ms;
   rx := HB.Rx;
-  if (HB.DbgStr.Count > 0) then begin
-    for i:=0 to HB.DbgStr.Count-1 do
-      LB.Items.Add(HB.DbgStr.Strings[i]);
-    HB.DbgStr.Clear;
+  // debug messages
+  cnt := HB.DbgList.Count;
+  if (cnt > 0) then begin
+    for i:=0 to cnt-1 do
+      LB.Items.Add(HB.DbgList.Strings[i]);
+    for i:=0 to cnt-1 do
+      HB.DbgList.Delete(cnt-1-i);
+  end;
+  // dump
+  cnt := HB.DampList.Count;
+  if (cnt > 0) then begin
+    if (cnt > 0) then begin
+      if CbDamp.Checked then begin
+        for i:=0 to cnt-1 do
+          LB.Items.Add('  -- bus: '+HB.DampList.Strings[i]);
+      end;
+      for i:=0 to cnt-1 do
+        HB.DampList.Delete(cnt-1-i);
+    end;
   end;
   if rx.valid then begin
     PrintHbMsg(rx);
@@ -177,23 +210,23 @@ end;
 // =====================================================
 // Convert binary message into hex str
 // =====================================================
-function TForm1.StrToHex(s : string; json : boolean) : string;
+function TForm1.StrToHex(s : string; txt_i : byte) : string;
 var i, hl : integer;
     c : char;
 begin
   result := '';
-  if json then
-    hl := 8
+  if (txt_i = 0) then
+    hl := length(s)
   else
-    hl := length(s);
+    hl := txt_i; //
   for i:=1 to hl do begin
     c := s[i];
     result := result + IntToHex(ord(c),2) + ' ';
     if (i and 7)=0 then
       result := result + ' ';
   end;
-  if json then begin
-    result := result + copy(s, 9, length(s)- 8);
+  if (txt_i > 0) then begin
+    result := result + copy(s, hl+1, length(s)- hl);
   end;
 end;
 
@@ -206,21 +239,22 @@ var s : string;
     OkErr : byte;
 begin
   s := IntToHex(msg.pri, 2); // show priority byte (prefix)
-  cmd := 0;
+  cmd := ord(msg.s[1]);
+  OkErr := ord(msg.s[8]);
   if msg.hb then begin
     s := s + ' HBus ';
-    cmd := ord(msg.s[1]);
-    OkErr := ord(msg.s[8]);
     if (cmd = $82) and (OkErr = 1) then // STATUS reply
-      s := s + StrToHex(msg.s, true) // JSON
+      s := s + StrToHex(msg.s, 8) // JSON
+    else if ((cmd = $88) or (cmd = 9)) then
+      s := s + StrToHex(msg.s, 9) // description
     else
-      s := s + StrToHex(msg.s, false); // binary
+      s := s + StrToHex(msg.s, 0); // binary
   end  else begin
     s := s + ' MQTT ';
     if (OkErr = 1) then
-       s := s + StrToHex(msg.s, true) // JSON
+       s := s + StrToHex(msg.s, 8) // JSON
     else
-      s := s + StrToHex(msg.s, false); // binary
+      s := s + StrToHex(msg.s, 0); // binary
   end;
   LB.Items.Add(s);;
 end;
@@ -252,6 +286,7 @@ begin
   NodeID := ini.ReadInteger('Node','ID',$FFFF);
   ini.Free;
   EdNode.Text := '0x' + IntToHex(NodeID,4);
+  EdNewID.Text := EdNode.Text;
   Label2DblClick(Sender); // select COM port
   HB := THbRxtx.Create(ComPort);
   if HB.ComPort.Connected then
@@ -333,6 +368,20 @@ begin
   TxMsg := HBcmd.CmdCollect(grp, slots);
   s := HB.Tx(TxMsg);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
+end;
+
+// =====================================================
+// Send MQTT message
+// =====================================================
+procedure TForm1.BtnMqttSendClick(Sender : TObject);
+var topic : word;
+    s : string;
+begin
+  HBcmd.Flush;
+  topic := StrToIntDef(EdTopic.text,100);
+  EdTopic.text := IntToStr(topic);
+  TxMsg := HBcmd.SendMqtt(topic, EdTopicVal.Text);
+  s := HB.Tx(TxMsg);
 end;
 
 // =====================================================

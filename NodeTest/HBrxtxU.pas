@@ -6,16 +6,25 @@
 //   echo of transmitted messages then adds received string to the list
 // =============================================================================
 {
-Author    A.Kouznetsov
-
-Redistribution and use in source and binary forms, with or without modification, are permitted.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 }
 unit HBrxtxU;
 
@@ -45,6 +54,7 @@ type
     pri : byte;      // priority (prefix)
     s : string;      // data
     hb : boolean;    // HBus/MQTT
+    err : boolean;
     valid : boolean;
     postpone : byte; // 10 ms ticks
   end;
@@ -58,6 +68,7 @@ type
   THbRxtx = class(TStringList)
   private
     FGate:    boolean;        // message gate
+    FGateTmout : integer;
     FEsc:     boolean;        // ESC flag
     FLast:    char;           // last received char outside gate
     FLastValid : boolean;
@@ -69,7 +80,12 @@ type
     FTxTmout: integer;        // time-out
     FRtrCnt:  integer;        // retry count
     FStr : string;
+    FDampHex : string;
+    FDampStr : string;
+    FDampCnt : integer;
+    FDampPause : integer;
     FStr_tmout : integer;
+    procedure FAddDampStr(c:char);
     procedure FAddDebugStr(c:char);
     function FAddChar(c: char): string;         // strip byte-stuffing
     function Fcrc(ss: string): word;            // calculate CRC
@@ -84,7 +100,8 @@ type
     ComPort: TComPort;
     ErrCnt:  integer;       // errors while receiving
     NoRx:    boolean;       // no receiption
-    DbgStr : TStringList;
+    DbgList : TStringList;
+    DampList : TStringList;
     TxStatus : integer;
     Reply : string;         // when a reply received
     property Gate : boolean read FGate;
@@ -105,6 +122,28 @@ implementation
 { THbRxtx }
 
 // =====================================
+// Add char to dump string
+// =====================================
+procedure THbRxtx.FAddDampStr(c : char);
+begin
+  FDampPause := 0;
+  if ((c >= ' ') and (ord(c) < $7F)) then
+    FDampStr := FDampStr + c
+  else
+    FDampStr := FDampStr + '?';
+  FDampHex := FDampHex + IntToHex(ord(c),2) + ' ';
+  if (FDampCnt and 7) = 7 then
+     FDampHex := FDampHex + ' ';
+  inc(FDampCnt);
+  if (FDampCnt >= 16) then begin
+    DampList.Add(FDampHex+FDampStr);
+    FDampCnt := 0;
+    FDampHex := '';
+    FDampStr := '';
+  end;
+end;
+
+// =====================================
 // Add char to debug string
 // =====================================
 procedure THbRxtx.FAddDebugStr(c : char);
@@ -116,7 +155,7 @@ begin
   end;
   if (FStr <> '') then begin
     if (ord(c) = 10) then begin
-       DbgStr.Add(FStr);
+       DbgList.Add(FStr);
        FStr := '';
        FStr_tmout := 0;
     end;
@@ -128,6 +167,7 @@ end;
  // =====================================  
 function THbRxtx.FAddChar(c: char): string;
 begin
+  FAddDampStr(c);
   Result := '';
   // --------------------
   // char after ESC
@@ -139,7 +179,7 @@ begin
       _ESC_START_HB.._ESC_START_MQ: // beginning of a frame
       begin
         if FStr <> '' then begin
-          DbgStr.Add(FStr);
+          DbgList.Add(FStr);
           FStr := '';
           FStr_tmout := 0;
         end;
@@ -151,9 +191,10 @@ begin
         if FGate then
           Inc(ErrCnt);  // START without STOP
         FGate := True;
+        FGateTmout := 0;
         FRxMsg.s := '';
         FRxMsg.hb := (Ord(c) = _ESC_START_HB);
-        //DbgStr.Add('<start>');
+        //DbgList.Add('<start>');
       end;
       // --------------
       _ESC_END: // end of a frame
@@ -162,7 +203,7 @@ begin
           Inc(ErrCnt)   // STOP without START
         else
         begin
-          //DbgStr.Add('<end>');
+          //DbgList.Add('<end>');
           Result := FRxMsg.s; // message completed
           FRxMsg.s := '';
           FGate  := False;
@@ -322,25 +363,30 @@ begin
     c := ss[i];
     s := FAddChar(c);
     if s <> '' then  begin
-      //DbgStr.Add('RX_msg');
+      //DbgList.Add('RX_msg');
       NoRx := False;
       if FCheckCrc(s) then begin   // if crc matches
-        //DbgStr.Add('CRC_matched');
-        if s = Fexpected then  begin // it is reply
-          //DbgStr.Add('expected');
+        //DbgList.Add('CRC_matched');
+        if s = Fexpected then  begin // it is echo
+          //DbgList.Add('expected');
           TxStatus := 2;
           Fexpected := '';
           Fsent  := '';
           FTxTmout := 0;
           FTxBusy  := False;
-          Add(char(FRxMsg.pri)+'H' + s);
+          if FRxMsg.hb then
+            Add(char(FRxMsg.pri)+'H' + s)
+          else
+            Add(char(FRxMsg.pri)+'M' + s);
         end else begin
-          //DbgStr.Add('unexpected');
+          //DbgList.Add('unexpected');
           if FRxMsg.hb then
             Add(char(FRxMsg.pri) + 'H' + s)   // mark HBus message
           else
             Add(char(FRxMsg.pri) + 'M' + s);  // mark MQTT message
         end;
+      end else begin
+        Add(char(FRxMsg.pri) + 'E' + s);      // mark error
       end;
     end;
   end;
@@ -356,6 +402,7 @@ begin
   if self.Count > 0 then  begin
     s := self.Strings[0];
     Result.pri := byte(s[1]);
+    Result.err := (s[2] = 'E');
     Result.hb := (s[2] = 'H');             // first letter 'H' means HBus message
     Result.s := Copy(s, 3, Length(s) - 2); // remove first letter
     self.Delete(0);                        // remove it from the list
@@ -454,7 +501,7 @@ begin
 end;
 
 // =====================================  
-// Time tick, count time-out and re-send
+// Time tick 10 ms, count time-out and re-send
 // =====================================  
 procedure THbRxtx.Tick10ms;
 var len : integer;
@@ -476,6 +523,10 @@ begin
     end;
   end;
   // Rx
+  if (FGateTmout < 1000) then
+     inc(FGateTmout);
+  if (FGateTmout > 20) then // after 200 ms
+    FGate := false;         // gate is expired
   len := ComPort.InputCount;
   if len > 0 then begin
      ComPort.ReadStr(s, len);
@@ -487,11 +538,20 @@ begin
     if FStr_tmout > 100 then begin
       if FLastValid then
          FAddDebugStr(FLast);
-      DbgStr.Add(FStr);
+      DbgList.Add(FStr);
       FLastValid := false;
       FStr := '';
       FStr_tmout := 0;
     end;
+  end;
+  // Dump
+  inc(FDampPause);
+  if (FDampPause > 100) and (FDampHex <> '') then begin
+    FDampPause := 0;
+    DampList.Add(FDampHex+FDampStr);
+    FDampCnt := 0;
+    FDampHex := '';
+    FDampStr := '';
   end;
 end;
 
@@ -515,7 +575,11 @@ begin
   FlushTx;
   FlushRx;
   FStr := '';
-  DbgStr := TStringList.Create;
+  DbgList := TStringList.Create;
+  DampList := TStringList.Create;
+  FDampCnt := 0;
+  FDampStr := '';
+  FDampHex := '';
   FLastValid := false;
 end;
 
@@ -526,7 +590,8 @@ destructor THbRxtx.Destroy;
 begin
   ComPort.Close;
   ComPort.Free;
-  DbgStr.Free;
+  DbgList.Free;
+  DampList.Free;
   inherited Destroy;
 end;
 
