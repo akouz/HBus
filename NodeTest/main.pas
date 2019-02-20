@@ -182,7 +182,7 @@ begin
   cnt := HB.DbgList.Count;
   if (cnt > 0) then begin
     for i:=0 to cnt-1 do
-      LB.Items.Add(HB.DbgList.Strings[i]);
+      LB.Items.Add(' - dbg: '+HB.DbgList.Strings[i]);
     for i:=0 to cnt-1 do
       HB.DbgList.Delete(cnt-1-i);
   end;
@@ -192,7 +192,7 @@ begin
     if (cnt > 0) then begin
       if CbDamp.Checked then begin
         for i:=0 to cnt-1 do
-          LB.Items.Add('  -- bus: '+HB.DampList.Strings[i]);
+          LB.Items.Add(' --- bus: '+HB.DampList.Strings[i]);
       end;
       for i:=0 to cnt-1 do
         HB.DampList.Delete(cnt-1-i);
@@ -260,7 +260,7 @@ begin
 end;
 
 // =====================================================
-//
+// C number string into Pascal number string
 // =====================================================
 function TForm1.num_str_c2pas(s : string) : string;
 var ss : string;
@@ -284,6 +284,8 @@ begin
   ini := TIniFile.Create('NodeTest.ini');
   ComPort := AnsiUpperCase(ini.ReadString('Serial','Port','COM1'));
   NodeID := ini.ReadInteger('Node','ID',$FFFF);
+  EdTopic.Text := ini.ReadString('MQTT','topic','101');
+  EdTopicVal.Text := ini.ReadString('MQTT','val','12.3');
   ini.Free;
   EdNode.Text := '0x' + IntToHex(NodeID,4);
   EdNewID.Text := EdNode.Text;
@@ -307,6 +309,8 @@ begin
   ini := TIniFile.Create('NodeTest.ini');
   ini.WriteString('Serial','Port',AnsiUpperCase(ComPort));
   ini.WriteInteger('Node','ID',NodeID);
+  ini.WriteString('MQTT','topic',EdTopic.Text);
+  ini.WriteString('MQTT','val',EdTopicVal.Text);
   ini.Free;
   HB.Free;
   HBcmd.Free;
