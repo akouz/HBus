@@ -1,8 +1,7 @@
 /*
- * Library   HBus commands
- * Author    A.Kouznetsov
- * Rev       1.0 dated 26/12/2018
- * Target    Arduino 
+ * File     HBcmd.cpp
+ * Rev      1.0 dated 26/12/2018
+ * Target   Arduino 
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *

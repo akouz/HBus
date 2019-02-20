@@ -1,8 +1,7 @@
 /*
- * Library   HBus MQTT-SN 
- * Author    A.Kouznetsov     (https://github.com/akouz)
- * Rev       1.0 dated 8/1/2019
- * Target    Arduino
+ * File     HBmqtt.cpp 
+ * Rev      1.0 dated 8/1/2019
+ * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
@@ -85,16 +84,12 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
     char res =  is_topic(tpc);
     if (res >= 0)
     {
-//        Serial.print(" topic=");
-//        Serial.print(topic[res]);
         jsonBuf.clear();            
         JsonObject& root = jsonBuf.parseObject(msg->buf+8);
         if (root.success())
         {
             value[res] = root["val"];
             blink(10);
-//            Serial.print(" val=");
-//            Serial.println(value[res]);
         }
         else
         {

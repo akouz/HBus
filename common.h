@@ -1,7 +1,7 @@
 /*
- * Author    A.Kouznetsov     (https://github.com/akouz)
- * Rev       1.0 dated 20/12/2018
- * Target    Arduino
+ * File     common.h 
+ * Rev      1.0 dated 20/12/2018
+ * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
@@ -49,7 +49,7 @@ enum{
  * ============== Descriptor ==============
  */
     DEV_TYPE      = 2,  // generic HBus node
-    DEV_MODEL     = 1,  // Arduino Pro Mini
+    DEV_MODEL     = 1,  // Arduino Pro Mini framework
     
 /*
  * ============== Hardware ==============
@@ -60,10 +60,10 @@ enum{
 
 /*
  * ============== Software ==============
- * Rev 0.2  - February 2019, development wip
+ * Rev 0.3  - February 2019, development wip
  */
     SW_REV_MAJ    = 0,
-    SW_REV_MIN    = 2,  
+    SW_REV_MIN    = 3,  
 
 /*
  * ============== Bootloader ==============
@@ -153,6 +153,9 @@ extern uint led_cnt;
 //##############################################################################
 
 void blink(uint dur); 
+
+uchar print_val(uchar val, uchar i);
+void print_buf(const char* name, hb_msg_t* msg);
 
 void copy_buf(uchar* src, uchar* dst, uchar len);
 void shift_buf(uchar* buf, uchar pos, uchar len);

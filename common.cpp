@@ -1,7 +1,7 @@
 /*
- * Author    A.Kouznetsov
- * Rev       1.0 dated 8/1/2019
- * Target    Arduino
+ * File     common.cpp
+ * Rev      1.0 dated 8/01/2019
+ * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
@@ -30,7 +30,6 @@
 
 #include  "common.h"
 
-
 //##############################################################################
 // Var
 //##############################################################################
@@ -50,7 +49,59 @@ void blink(uint dur) // 10ms ticks
 {
     led_cnt = dur;
     digitalWrite(LED_BUILTIN, HIGH);
-} 
+}
+
+// ========================================
+// Debug: print hex value
+// ========================================
+uchar print_val(uchar val, uchar i)
+{
+    if (val < 0x10)
+        Serial.print("0");
+    Serial.print(val, HEX);
+    Serial.print(" ");
+    if ((i & 7) == 7)
+        Serial.print(" ");   
+    if ((i & 0x1F) == 0x1F)
+    {
+        Serial.println();
+        return 1;
+    }
+    else
+    {   
+        return 0;
+    }    
+}
+
+// ========================================
+// Debug: print message buffer
+// ========================================
+void print_buf(const char* name, hb_msg_t* msg)
+{
+    uchar nl = 1;
+    Serial.println();
+    Serial.println(name);
+    if (msg->hb)
+        Serial.print(" hb");
+    else    
+        Serial.print(" mqtt");
+    if (msg->busy)
+        Serial.print(" busy");
+    if (msg->valid)
+        Serial.print(" valid");
+    if (msg->esc)
+        Serial.print(" esc");
+    if (msg->gate)
+        Serial.print(" gate");
+    Serial.println();           
+    for (uchar i=0; i < msg->len; i++)
+    {
+        nl = print_val(msg->buf[i], i);
+    }
+    if (nl == 0)
+        Serial.println();
+}
+ 
 // =============================================
 // Copy buffer
 // =============================================

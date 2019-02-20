@@ -1,7 +1,7 @@
 /*
- * file     HBmqtt.h 
- * Rev      1.0 dated 11/2/2019
- * Target   Arduino
+ * File      HBus.h
+ * Rev       1.0 dated 20/12/2018
+ * Target    Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
@@ -23,48 +23,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-#ifndef __HB_MQTT_H
-#define __HB_MQTT_H
-
-//##############################################################################
-// Inc                                              
-//##############################################################################
-
-#include  "common.h"
+ #ifndef __HBUS_H
+ #define __HBUS_H
 
 //##############################################################################
-// Def
+// Inc
 //##############################################################################
 
-enum{
-    PUBLISH     = 0x0C,
-    MAX_TOPIC   = 4,
-        
-    TOPIC1      = 101,
-    TOPIC2      = 102,
-    TOPIC3      = 103,
-    TOPIC4      = 201,
-};
+#include "common.h"
+#include "coos.h"
+#include "HBrxtx.h" 
+#include "HBcmd.h"
+#include "HBmqtt.h"
 
 //##############################################################################
-// Class
+// Func
 //##############################################################################
 
-class HB_mqtt{
-    public:
-                HB_mqtt(void);
-    hb_msg_t    mqmsg;
-    uint        topic[MAX_TOPIC];  
-    float       value[MAX_TOPIC];              
-    StaticJsonBuffer<128> jsonBuf;
-    char        rd_msg(hb_msg_t* msg);
-    uchar       make_msg(uchar topic_i);    
-    
-    private:
-    char        is_topic(uint tpc);
-};    
+void coos_task_HBus_rxtx(void);
+void coos_task_tick10ms(void);
 
-extern HB_mqtt HBmqtt;
-
-#endif /* __HB_MQTT_H */
+#endif /* __HBUS_H */

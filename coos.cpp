@@ -1,8 +1,7 @@
 /*
- * Library   COOS - COoperative Operating System
- * Author    A.Kouznetsov
- * Rev       1.2 dated 14/07/2018
- * Target    Arduino
+ * File     coos.cpp
+ * Rev      1.2 dated 14/07/2018
+ * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *

@@ -1,6 +1,5 @@
 /*
  * Library   COOS - COoperative Operating System
- * Author    A.Kouznetsov
  * Rev       1.2 dated 14/07/2018
  * Target    Arduino
 

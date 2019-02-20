@@ -1,8 +1,7 @@
 /*
- * Library   HBus rx/tx
- * Author    A.Kouznetsov
- * Rev       1.0 dated 20/12/2018
- * Target    Arduino
+ * File     HBrxtx.h
+ * Rev      1.0 dated 20/12/2018
+ * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
