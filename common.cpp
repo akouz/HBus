@@ -82,7 +82,7 @@ void print_buf(const char* name, hb_msg_t* msg)
     Serial.println();
     Serial.println(name);
     if (msg->hb)
-        Serial.print(" hb");
+        Serial.print(" hbus");
     else    
         Serial.print(" mqtt");
     if (msg->busy)

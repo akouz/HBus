@@ -1,7 +1,7 @@
 /*
- * File      HBus.h
- * Rev       1.0 dated 20/12/2018
- * Target    Arduino
+ * File     HBus.h
+ * Rev      1.0 dated 20/02/2019
+ * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *

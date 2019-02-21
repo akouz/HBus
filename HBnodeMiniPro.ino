@@ -93,7 +93,7 @@ void setup()
     pup_cnt = 0x100*EEPROM.read(EE_PUP_CNT) + EEPROM.read(EE_PUP_CNT+1);   
     node_seed = 0x100*EEPROM.read(EE_SEED) + EEPROM.read(EE_SEED+1);    
     pup_cnt = (pup_cnt >= 0xFFFE) ? 1 : (pup_cnt+1);
-    if (pup_cnt < (node_seed | 0x8A53))  // EEPROM endurance 100k write cycles
+    if (pup_cnt < (node_seed | 0xDEAD)  // EEPROM endurance 100k write cycles
     {
         EEPROM.write(EE_PUP_CNT, (uchar)(pup_cnt >> 8));
         EEPROM.write(EE_PUP_CNT+1, (uchar)pup_cnt);
