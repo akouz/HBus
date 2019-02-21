@@ -751,18 +751,10 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
 
 ![Pic1](https://github.com/akouz/HBus/blob/master/Doc/pic1.png)
 
-  * After reset node issued a splash screen with ASCII text. For debug purposes, NodeTest prints all data appeared between HBus messages. If data bytes can be represented as visible ASCII chars, nodeTest prints ASCII chars, otherwise it prints hex value in square brackets.
-  * First HBus message is REV command (code 0x01) issued by NodeTest. Its own ID is 0x1020, target node ID is 0x1234. MsgID is 0x003. NodeTest prints Prefix (0xFF), then message type (HBus or MQTT) and then message without byte-stuffing symbols and without CRC.
-  * Next message is a reply to REV command (code 0x81). Reply is addressed to node 0x1020 (NodeTest) from node 0x1234. MsgID is 0x003.
-  * Next message is STATUS command (code 0x02) issued by node 0x1020 (eg NodeTest) and addressed to node 0x1234. MsgID is 0x004.
-  * Next message is a reply to STATUS command (code 0x82). Reply is addressed to node 0x1020 (NodeTest) from node 0x1234. MsgID is 0x004.
+  * After reset node issued a splash screen with ASCII text. For debug purposes, NodeTest prints all data appeared between HBus messages. If data bytes can be represented as visible ASCII chars, nodeTest prints ASCII chars, otherwise it prints hex value in square brackets. NodeTest marks these prints with " - dbg " prefix.
+  * At splash screen node reports its ID, in this occasion it is 0xF058. First hex digit "F" indicates that node ID is temporary ID. 
+  * NodeTest issued COLLECT command, its code is 0x03. NodeTest own ID os 0x2468. Replies should be within 32 time slots 10 ms each.
+  * So far only one reply arrived. Reply code is 0x83. It was issued by node 0xF058 to node 0x2468.  
   
 ![Pic2](https://github.com/akouz/HBus/blob/master/Doc/pic2.png)
-
-  * First message is COLLECT command (code 0x03) issued by node 0x1020 (NodeTest) to Group=0x01 (all nodes) with Slots=0x20. MsgID is 0x005.
-  * Next message is a reply to COLLECT command (code 0x83) issued by node 0x1234 and addressed to node 0x1020 (NodeTest).MsgID is 0x005.
-
-Other commands can be easily decoded and interpreted in a similar manner.
-  
-
 
