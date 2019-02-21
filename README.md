@@ -758,3 +758,6 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
   
 ![Pic2](https://github.com/akouz/HBus/blob/master/Doc/pic2.png)
 
+  * NodeTest issued SET_ID command (code 0x05) to node 0xF058. New ID is 0x1234.
+  * Node replied OK, reply code 0x85. Its ID now is set to 0x1234.
+  
