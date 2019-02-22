@@ -761,15 +761,10 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
   * NodeTest issued SET_ID command (code 0x05) to node 0xF058. New ID is 0x1234.
   * Node replied OK, reply code 0x85. Its ID now is set to 0x1234. It is a permanent ID.
   
-![Pic3](https://github.com/akouz/HBus/blob/master/Doc/pic3.png)
-
-  * When a permanent ID assigned, the demo sketch broadcasts a topic and its value every 10 sec. Topic exists in the message header, but for clarity it repeated in JSON payload as well. First message has topic 0x0065 = 101.
-  * Demo sketch has 4 topics: 101,102,103 and 201. They are brodcasted repeatedly. After power-up all topics have the same initial value of 0.0.
-
 ![Pic4](https://github.com/akouz/HBus/blob/master/Doc/pic4.png)
 
   * Double click to NodeTest list box clears it.
-  * NodeTest issues REV command, code 0x01. Node replies DevType=2, DevModel=1, h/w revision 0.1, bootloader rev 0/1, s/w revision 0.3.
+  * NodeTest issues REV command, code 0x01. Node replies DevType 2, DevModel 1, h/w revision 0.1, bootloader revision 0.1, s/w revision 0.3.
   * NodeTest issues STATUS command, code 0x02. Node replies list of topics and list of topic values.
   * NodeTest issues BEEP command, code 0x07, with parameter 0x02. Node blinks its LED for 2 seconds.
   * NodeTest issies RD_DESCR command, code 0x08. Node replies zero length string.
