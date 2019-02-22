@@ -763,7 +763,7 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
   
 ![Pic3](https://github.com/akouz/HBus/blob/master/Doc/pic3.png)
 
-  * When a permanent ID assigned, the demo sketch broadcasts a topic and its value every 10 sec. Topic exists in rge header, but for clarity it repeated in JSON payload. First message has topic 0x0065 = 101.
+  * When a permanent ID assigned, the demo sketch broadcasts a topic and its value every 10 sec. Topic exists in the message header, but for clarity it repeated in JSON payload as well. First message has topic 0x0065 = 101.
   * Demo sketch has 4 topics: 101,102,103 and 201. They are brodcasted repeatedly. After power-up all topics have the same initial value of 0.0.
 
 ![Pic4](https://github.com/akouz/HBus/blob/master/Doc/pic4.png)
