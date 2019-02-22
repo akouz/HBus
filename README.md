@@ -761,7 +761,7 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
   * NodeTest issued SET_ID command (code 0x05) to node 0xF058. New ID is 0x1234.
   * Node replied OK, reply code 0x85. Its ID now is set to 0x1234. It is a permanent ID.
   
-![Pic4](https://github.com/akouz/HBus/blob/master/Doc/pic4.png)
+![Pic3](https://github.com/akouz/HBus/blob/master/Doc/pic3.png)
 
   * Double click to NodeTest list box clears it.
   * NodeTest issues REV command, code 0x01. Node replies DevType 2, DevModel 1, h/w revision 0.1, bootloader revision 0.1, s/w revision 0.3.
