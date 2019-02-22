@@ -153,6 +153,7 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
     {
         char buf[32];
         add_txmsg_uchar(rply,  DF_STATUS);
+        // list all topics
         snprintf(buf, sizeof(buf),"{topics:[");
         add_txmsg_z_str(rply, buf);
         for (uchar i=0; i< MAX_TOPIC; i++)
@@ -160,9 +161,22 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
             if (i < MAX_TOPIC-1)        
                 snprintf(buf, sizeof(buf),"%d,", HBmqtt.topic[i]);
             else
-                snprintf(buf, sizeof(buf),"%d]}", HBmqtt.topic[i]);
+                snprintf(buf, sizeof(buf),"%d]", HBmqtt.topic[i]);
             add_txmsg_z_str(rply, buf);
         }
+        // list all topics values
+        snprintf(buf, sizeof(buf),",values:[");
+        add_txmsg_z_str(rply, buf);
+        for (uchar i=0; i< MAX_TOPIC; i++)
+        {
+            dtostrf(HBmqtt.value[i], 4,2, buf);
+            add_txmsg_z_str(rply, buf);         
+            if (i < MAX_TOPIC-1)        
+                add_txmsg_uchar(rply, ',');
+            else
+                add_txmsg_uchar(rply, ']');
+        }
+        add_txmsg_uchar(rply, '}');
     }
     else // DF = binary, other formats not implemented yet
     {

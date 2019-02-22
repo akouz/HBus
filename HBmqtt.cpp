@@ -59,6 +59,10 @@ HB_mqtt::HB_mqtt(void)
     topic[1] = TOPIC2;
     topic[2] = TOPIC3;
     topic[3] = TOPIC4;
+    for (uchar i=0; i<MAX_TOPIC; i++)
+    {   
+        valid[i] = 0; // initially topic values are not valid
+    }
 }
 
 // =============================================
@@ -89,6 +93,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
         if (root.success())
         {
             value[res] = root["val"];
+            valid[res] = 1; 
             blink(10);
         }
         else

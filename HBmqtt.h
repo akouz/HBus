@@ -55,8 +55,9 @@ class HB_mqtt{
     public:
                 HB_mqtt(void);
     hb_msg_t    mqmsg;
-    uint        topic[MAX_TOPIC];  
-    float       value[MAX_TOPIC];              
+    uint        topic[MAX_TOPIC];   // list of topics  
+    float       value[MAX_TOPIC];   // topic values
+    uchar       valid[MAX_TOPIC];   // indicate valid value              
     StaticJsonBuffer<128> jsonBuf;
     char        rd_msg(hb_msg_t* msg);
     uchar       make_msg(uchar topic_i);    

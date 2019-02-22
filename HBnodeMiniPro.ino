@@ -53,9 +53,12 @@ void coos_task_broadcast(void)
         COOS_DELAY(10000);  // pause 10 sec (10,000 ms)
         if ((HBcmd.own.ID & 0xF000) != 0xF000) // if not temporary ID
         {
-            HBmqtt.make_msg(topic_i++); // prepare MQTT message with topic value,
-                                        // then it will be automatically transmitted    
-            topic_i = (topic_i >= MAX_TOPIC)? 0 : topic_i;  // next topic
+            if (HBmqtt.valid[topic_i])   // broadcast only valid values
+            {
+                HBmqtt.make_msg(topic_i); // prepare MQTT message with topic value,
+                                            // then it will be automatically transmitted
+            }    
+            ++topic_i = (topic_i >= MAX_TOPIC)? 0 : topic_i;  // next topic
         }
     }
 }
@@ -93,7 +96,7 @@ void setup()
     pup_cnt = 0x100*EEPROM.read(EE_PUP_CNT) + EEPROM.read(EE_PUP_CNT+1);   
     node_seed = 0x100*EEPROM.read(EE_SEED) + EEPROM.read(EE_SEED+1);    
     pup_cnt = (pup_cnt >= 0xFFFE) ? 1 : (pup_cnt+1);
-    if (pup_cnt < (node_seed | 0xDEAD)  // EEPROM endurance 100k write cycles
+    if (pup_cnt < (node_seed | 0xDEAD)) // EEPROM endurance 100k write cycles
     {
         EEPROM.write(EE_PUP_CNT, (uchar)(pup_cnt >> 8));
         EEPROM.write(EE_PUP_CNT+1, (uchar)pup_cnt);
