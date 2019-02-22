@@ -774,4 +774,4 @@ NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a 
 ![Pic4](https://github.com/akouz/HBus/blob/master/Doc/pic4.png)
   
   * NodeTest in MQTT mode issues message to topic 101 (it is 0x0065 in hex) with value 36.6. TopicID is in the message header followed by NodeID = 0x2468 for NodeTest. Topic repeated in JSON for clarity.
-  * Node reads topic 101 and sets its value to 36.6. Topic value becomes valid. Demo sketch scans through all its topic and broadcasts valid topics regularly. After a while the node issued MQTT message to topic 0x0065, NodeID = 0x1234. 
+  * Node reads topic 101 and sets its value to 36.6. Topic value becomes valid. Demo sketch scans through all its topics and broadcasts valid topics regularly. After a while the node issued MQTT message to topic 0x0065, NodeID = 0x1234. 
