@@ -101,9 +101,9 @@ Prefix used to wake-up CAN receivers from standby mode. Also it is used for earl
     * 0xFC -	Medium priority message 
     * 0xF0 -	High priority message
 
-CRC covers message content. Prefix and SOF exluded. Sender calculates CRC before byte-stuffing added to the message. Receiver calculates CRC after byte-stuffing removed from the received message. 
+CRC covers message content, Prefix and SOF exluded. Sender calculates CRC before byte-stuffing added to the message. Receiver calculates CRC after byte-stuffing removed from the received message. 
 
-While debugging nodes, it is possible to transfer text messages duirng the pause from EOF to Prefix. In normal operation all debugging traffic should be switched off.
+While debugging nodes, it is possible to transfer text messages duirng the pause from EOF to Prefix. In normal operation all debugging traffic should be disabled.
 
 ## Fields
 
