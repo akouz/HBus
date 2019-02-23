@@ -6,7 +6,7 @@
  
 ## Introduction
 
-HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transciever. 
+HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transciever. Configured system can operate without any host or server. 
 
 ## Basics
 
@@ -16,7 +16,7 @@ HBus is a wired home automation interface. Nodes made as simple and as cheap as 
   * Flow control by byte-stuffing.
   * Two modes of operation:
     * Configuration, point-to-point messages, master/slave communication model - HBus mode.
-    * Operation, broadcast messages, producer/consumer communication model - MQTT mode.
+    * Operation, broadcast messages, producer/consumer communication model - MQTT mode. 
   * Messages covered by CRC-16-CCITT.  
 
 ## Wiring
