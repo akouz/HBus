@@ -33,6 +33,8 @@ Free topology is allowed. Total length of cables should not exceed 500 m. A sing
 
 Cat5/Cat6 cables have limited current carrying capability. To prevent fire in case of short circuit, power supply +12V connected to the bus should have current limit at no more than 2A. In simplest case use a 1A...2A fuse. 
 
+More expensive EIB/KNX cable can be used too.
+
 ## CAN driver restrictions
 
 Many CAN drivers has embedded mechanism to prevent long dominant state. If dominant state lasts longer than a pre-defined time-out, driver automatically goes into recessive state. Bit interval is 52.08 us at baud rate of 19.2 kbps. Start bit and a data byte of 0x00 produce dominant state for 9 bit-intervals, or for 0.47 ms. The following CAN transceivers are suitable for HBus: 
