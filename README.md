@@ -747,7 +747,7 @@ Fits MQTT-SN clause 5.4.12:
     
 # NodeTest
 
-NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a USB-UART gateway with CAN transceiver. 
+NodeTest.exe is a Windows application to test nodes in HBus mode. It requires a USB-UART gateway with CAN transceiver. It could be a dedicated [HBus USB bridge](https://github.com/akouz/HBus/tree/master/HBus_USB_Bridge), or a [generic USB-UART bridge](https://www.ebay.com.au/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=usb+to+uart+bridge+board&_sacat=0&LH_TitleDesc=0&ul_noapp=true&_odkw=usb+to+uart+bridge) with a [CAN transceiver board](https://www.amazon.com/SN65HVD230-CAN-Board-Communication-Development/dp/B00KM6XMXO). 
 
 ![Pic1](https://github.com/akouz/HBus/blob/master/Doc/pic1.png)
 
