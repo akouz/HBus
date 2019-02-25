@@ -64,6 +64,10 @@ class HB_mqtt{
     
     private:
     char        is_topic(uint tpc);
+    uint        MsgID; 
+    ulong       MsgID_cnt;      // count all received MQTT messages 
+    uint        MsgID_err_cnt;
+    void        get_MsgID(uint msg_id); 
 };    
 
 extern HB_mqtt HBmqtt;

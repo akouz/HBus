@@ -60,10 +60,10 @@ enum{
 
 /*
  * ============== Software ==============
- * Rev 0.3  - February 2019, development wip
+ * Rev 0.4  - February 2019, development wip
  */
     SW_REV_MAJ    = 0,
-    SW_REV_MIN    = 3,  
+    SW_REV_MIN    = 4,  
 
 /*
  * ============== Bootloader ==============

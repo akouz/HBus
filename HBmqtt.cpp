@@ -59,6 +59,9 @@ HB_mqtt::HB_mqtt(void)
     topic[1] = TOPIC2;
     topic[2] = TOPIC3;
     topic[3] = TOPIC4;
+    MsgID = 1;
+    MsgID_cnt = 0;  
+    MsgID_err_cnt = 0;  
     for (uchar i=0; i<MAX_TOPIC; i++)
     {   
         valid[i] = 0; // initially topic values are not valid
@@ -79,12 +82,38 @@ char HB_mqtt::is_topic(uint tpc)
     }
     return -1;
 }
+
 // =============================================
-// Read message and extract its value  
+// Get MsgID from the bus
+// =============================================
+void  HB_mqtt::get_MsgID(uint msg_id)
+{    
+    if ((msg_id == MsgID+1) || ((MsgID == 0xFFFE) && (msg_id == 1)))
+    {
+        MsgID = msg_id;       
+    }
+    else
+    {
+        MsgID_err_cnt++;
+        if ((msg_id > MsgID) || ((msg_id < 0x10) && (MsgID > 0xFFF0)))
+        {
+            MsgID = msg_id;
+        }       
+    } 
+}
+
+// =============================================
+// Read message and extract its values  
 // =============================================
 char HB_mqtt::rd_msg(hb_msg_t* msg)
 {
-    uint tpc =  0x100*msg->buf[3] + msg->buf[4]; // topic 
+    if (MsgID_cnt < 0xFFFFFFFF)
+    {
+        MsgID_cnt++;
+    }
+    uint tpc =  0x100*msg->buf[3] + msg->buf[4];    // topic
+    uint msg_id = 0x100*msg->buf[5] + msg->buf[6];  // message ID
+    get_MsgID(msg_id);  
     char res =  is_topic(tpc);
     if (res >= 0)
     {
@@ -105,36 +134,30 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
 }
 
 // =============================================
-// Make MQTT message  
+// Make a pseudo-MQTT-SN message  
 // =============================================
 uchar HB_mqtt::make_msg(uchar topic_i)
 {
     mqmsg.valid = 0;
     if (topic_i < MAX_TOPIC) 
     {
-        begin_txmsg(&mqmsg, 0);        
-        add_txmsg_uchar(&mqmsg, 0);         // message length
-        add_txmsg_uchar(&mqmsg, PUBLISH);
-        add_txmsg_uchar(&mqmsg, 0);     // flags
-        add_txmsg_uchar(&mqmsg, (uchar)(topic[topic_i] >> 8));
-        add_txmsg_uchar(&mqmsg, (uchar)(topic[topic_i]));
+        begin_txmsg(&mqmsg, 0);
+        uchar nonce = (uchar)random(0x100);
+        add_txmsg_uchar(&mqmsg, nonce);        
         add_txmsg_uchar(&mqmsg, HBcmd.own.id[1]);
         add_txmsg_uchar(&mqmsg, HBcmd.own.id[0]);
+        add_txmsg_uchar(&mqmsg, (uchar)(topic[topic_i] >> 8));
+        add_txmsg_uchar(&mqmsg, (uchar)(topic[topic_i]));
+        MsgID = (MsgID < 0xFFFE)? MsgID+1 : 1;          
+        add_txmsg_uchar(&mqmsg, (uchar)(MsgID >> 8));
+        add_txmsg_uchar(&mqmsg, (uchar)(MsgID));                
         add_txmsg_uchar(&mqmsg, 1);    // JSON
-        uchar mlen = 8;                              
         char buf[32];
         sprintf(buf,"{topic:%d,val:", topic[topic_i]);
-        mlen += add_txmsg_z_str(&mqmsg, buf);
+        add_txmsg_z_str(&mqmsg, buf);
         dtostrf(value[topic_i], 4,2, buf);
-        mlen += add_txmsg_z_str(&mqmsg, buf);
+        add_txmsg_z_str(&mqmsg, buf);
         add_txmsg_uchar(&mqmsg, '}'); 
-        mlen++;
-        if (mlen == _ESC) 
-        {
-            add_txmsg_uchar(&mqmsg, 0);
-            mlen++;
-        } 
-        mqmsg.buf[2] = mlen; // replace 0 by actual message length
         finish_txmsg(&mqmsg);
         mqmsg.hb = 0;
         mqmsg.valid = 1;
