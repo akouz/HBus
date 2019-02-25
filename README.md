@@ -603,144 +603,33 @@ Reply from Node B to Node A
 <td>OkErr</td>
 </tr></tbody></table>
 
-# MQTT-SN mode (broadcast messages)
+# MQTT mode (broadcast messages)
 
-In that mode messages are made compatible to [MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  But compatibility with MQTT-SN simplifies gateways software and easies integration with IoT.
+In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
 
-## Message format
-
-MQTT-SN message header described in MQTT-SN specification rev 1.2 clause 5.2. MQTT-SN message length can be 1 or 3 octets. Here we use only 1 octet (byte), thus, to comply to clause 5.2.1, Len value must be greater than 0x01:
-
-<table>
-<thead><tr>
-<th>Len</th>
-<th>MsgType</th>
-<th>Variable part</th>
-</tr></thead>
-<tbody><tr>
-<td>1 byte</td>
-<td>1 byte</td>
-<td>Len-2 bytes</td>
-</tr></tbody></table>
-
-Actual message length Len should be in the range [8..136]. 
-
-## MQTT MsgType
-
-In simplest case only PUBLISH command is required.
-
-<table>
-<thead><tr>
-<th>MsgType</th>
-<th>Name</th>
-<th>MsgType</th>
-<th>Name</th>
-</tr></thead>
-<tbody><tr> 
-<td>0x00</td>
-<td>ADVERTISE</td>
-<td>0x01</td>
-<td>SEARCHGW</td>
-</tr><tr>
-<td>0x02</td>
-<td>GWINFO</td>
-<td>0x03</td>
-<td>reserved</td>
-</tr><tr>
-<td>0x04</td>
-<td>CONNECT</td>
-<td>0x05</td>
-<td>CONNACK</td>
-</tr><tr>
-<td>0x06</td>
-<td>WILLTOPICREQ</td>
-<td>0x07</td>
-<td>WILLTOPIC</td>
-</tr><tr>
-<td>0x08</td>
-<td>WILLMSGREQ</td>
-<td>0x09</td>
-<td>WILLMSG</td>
-</tr><tr>
-<td>0x0A</td>
-<td>REGISTER</td>
-<td>0x0B</td>
-<td>REGACK</td>
-</tr><tr>
-<th>0x0C</th>
-<th>PUBLISH</th>
-<td>0x0D</td>
-<td>PUBACK</td>
-</tr><tr>
-<td>0x0E</td>
-<td>PUBCOMP</td>
-<td>0x0F</td>
-<td>PUBREC</td>
-</tr><tr>
-<td>0x10</td>
-<td>PUBREL</td>
-<td>0x11</td>
-<td>reserved</td>
-</tr><tr>
-<td>0x12</td>
-<td>SUBSCRIBE</td>
-<td>0x13</td>
-<td>SUBACK</td>
-</tr><tr>
-<td>0x14</td>
-<td>UNSUBSCRIBE</td>
-<td>0x15</td>
-<td>UNSUBACK</td>
-</tr><tr>
-<td>0x16</td>
-<td>PINGREQ</td>
-<td>0x17</td>
-<td>PINGRESP</td>
-</tr><tr>
-<td>0x18</td>
-<td>DISCONNECT</td>
-<td>0x19</td>
-<td>reserved</td>
-</tr><tr>
-<td>0x1A</td>
-<td>WILLTOPICUPD</td>
-<td>0x1B</td>
-<td>WILLTOPICRESP</td>
-</tr><tr>
-<td>0x1C</td>
-<td>WILLMSGUPD</td>
-<td>0x1D</td>
-<td>WILLMSGRESP</td>
-</tr> </tbody></table>
-
-MsgType range [0x1E:0xFF] reserved.
-
-## [0x0C] PUBLISH
-
-Fits MQTT-SN clause 5.4.12:
+Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN clause 5.4.12. Message structure is as follows:
 
 <table>
 <thead><tr>
 <th>[0]</th>
-<th>[1]</th>
-<th>[2]</th>
+<th>[1:2]</th>
 <th>[3:4]</th>
 <th>[5:6]</th>
 <th>[7]</th>
-<th>[8:(Len-1)]</th>
+<th>[8:N]</th>
 </tr></thead>
 <tbody><tr>
-<td>Len</td>
-<td>0x0C</td>
-<td>Flags</td>
-<td>TopicID</td>
+<td>Nonce</td>
 <td>NodeID</td>
+<td>TopicID</td>
+<td>MessageID</td>
 <td>DF</td>
 <td>Data</td>
 </tr></tbody></table>
 
-  * Flags byte set to 0x00.
   * NodeID - ID of the broadcasting node; used for debug and monitoring.
+  * TopicID - MQTT topic ID.
+  * MsgID - message ID, all MQTT messages should use common ID incremented with every broadcasted message. MsgID used for network diagnostics. 
   * DF is data format: 
     * 0 = binary 
     * 1 = [JSON](https://www.json.org/) 
