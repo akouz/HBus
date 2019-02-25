@@ -174,6 +174,7 @@ end;
 procedure TForm1.Timer10msTimer(Sender : TObject);
 var i, cnt : integer;
     rx : THbMsg;
+    msg_id : word;
 begin
   HBcmd.Tick10ms;
   HB.Tick10ms;
@@ -199,6 +200,15 @@ begin
     end;
   end;
   if rx.valid then begin
+    if (rx.hb = false) and (rx.err = false) then begin
+      msg_id := HB.MsgID;   // received
+      if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $FFF0) and (msg_id < $10)) then begin
+         HBcmd.MsgID := msg_id +1;
+         if (HBcmd.MsgID > $FFF0) or (HBcmd.MsgID = 0) then
+           HBcmd.MsgID := 1;
+         EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
+      end;
+    end;
     PrintHbMsg(rx);
   end;
   if HB.TxStatus = 2 then begin
@@ -378,14 +388,18 @@ end;
 // Send MQTT message
 // =====================================================
 procedure TForm1.BtnMqttSendClick(Sender : TObject);
-var topic : word;
+var topic, msg_id : word;
     s : string;
 begin
   HBcmd.Flush;
   topic := StrToIntDef(EdTopic.text,100);
   EdTopic.text := IntToStr(topic);
-  TxMsg := HBcmd.SendMqtt(topic, EdTopicVal.Text);
+  TxMsg := HBcmd.SendMqtt(topic, HBcmd.MsgID, EdTopicVal.Text);
   s := HB.Tx(TxMsg);
+  inc(HBcmd.MsgId);
+  if HBcmd.MsgId >= $FFFE then
+    HBcmd.MsgId := 1;
+  EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
 end;
 
 // =====================================================
@@ -515,7 +529,7 @@ procedure TForm1.EdMsgIdDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdMsgId.Text);
-  HBcmd.MsgID := StrToIntDef(s, $FFFF);
+  HBcmd.MsgID := StrToIntDef(s, $FFFE);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4)
 end;
 

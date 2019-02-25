@@ -103,6 +103,7 @@ type
     DbgList : TStringList;
     DampList : TStringList;
     TxStatus : integer;
+    MsgID : word;
     Reply : string;         // when a reply received
     property Gate : boolean read FGate;
     function Rx: THbMsg;    // get received string and remove it from the list
@@ -407,6 +408,9 @@ begin
     Result.s := Copy(s, 3, Length(s) - 2); // remove first letter
     self.Delete(0);                        // remove it from the list
     Result.valid := true;
+    if (Result.hb = false) and (Result.err = false) then begin
+       MsgID := $100*ord(Result.s[6]) + ord(Result.s[7]);
+    end;
   end;
 end;
 
@@ -574,6 +578,7 @@ begin
   end;
   FlushTx;
   FlushRx;
+  MsgID := 1;
   FStr := '';
   DbgList := TStringList.Create;
   DampList := TStringList.Create;

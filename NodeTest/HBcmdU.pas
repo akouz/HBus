@@ -97,7 +97,7 @@ type
     function CmdBeep(dest : word; dur : byte) : THbMsg;
     function CmdRdDescr(dest : word) : THbMsg;
     function CmdWrDescr(dest : word; descr : string) : THbMsg;
-    function SendMqtt(topic : word; val : string) : THbMsg;
+    function SendMqtt(topic : word; Msg_ID : word; val : string) : THbMsg;
     // receive HBus commands
     function RxCmd(rx :THbMsg) : THbMsg;
     procedure Tick10ms;      // process it every 10 ms
@@ -128,7 +128,7 @@ begin
   FRplyTmout := 100;
   // increment MsgID
   inc(MsgId);
-  if MsgId >= $FFFF then
+  if MsgId >= $FFFE then
     MsgId := 1;
 end;
 
@@ -324,13 +324,16 @@ end;
 // =====================================
 // Make MQTT-SN message
 // =====================================
-function THbCmd.SendMqtt(topic : word; val : string) : THbMsg;
-var s : string;
+function THbCmd.SendMqtt(topic : word; Msg_ID : word; val : string) : THbMsg;
+var  b : byte;
+     s : string;
 begin
-  s := '{topic:'+IntToStr(topic)+',val:'+val+'}';
-  result.s := char(length(s)+8) + char($0C) + char(0);
+  b := random($100);
+  result.s := '' + char(b) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
   result.s := result.s + char(byte(topic shr 8)) + char(byte(topic and $FF));
-  result.s := result.s + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF)) + char(1);
+  result.s := result.s + char(byte(Msg_ID shr 8)) + char(byte(Msg_ID and $FF));
+  result.s := result.s + char(1);
+  s := '{topic:'+IntToStr(topic)+',val:'+val+'}';
   result.s := result.s + s;
   result.hb := false;
   result.postpone := 0;
@@ -560,6 +563,7 @@ constructor THbCmd.Create;
 var ini : TIniFile;
     w : word;
 begin
+  Randomize;
   ini := TIniFile.Create('Gateway.ini');
   w := $F000 or Random($1000);
   OwnID := ini.ReadInteger('HBus','OwnID', w);

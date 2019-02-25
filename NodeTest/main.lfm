@@ -3,7 +3,7 @@ object Form1: TForm1
   Height = 323
   Top = 239
   Width = 769
-  Caption = 'NodeTest rev 1.03'
+  Caption = 'NodeTest rev 1.04'
   ClientHeight = 323
   ClientWidth = 769
   OnCreate = FormCreate
