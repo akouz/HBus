@@ -627,6 +627,7 @@ Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN 
 <td>Data</td>
 </tr></tbody></table>
 
+  * Nonce - a random number
   * NodeID - ID of the broadcasting node; used for debug and monitoring.
   * TopicID - MQTT topic ID.
   * MsgID - message ID, all MQTT messages should use common ID incremented with every broadcasted message. MsgID used for network diagnostics. 
