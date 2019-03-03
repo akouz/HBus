@@ -4,7 +4,7 @@ Power meter uses two current transformers (CT). One measures total household cur
 
 ![Pic2](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/2.png)
 
-Mains voltage is not measured, it assumed to be stable. However, device measures mains voltage phase; it is required to calculate power balance. 
+Mains voltage is not measured, it assumed to be stable. However, device measures mains voltage zero-crossing (eg mains phase); it is required to calculate power balance. 
 
 1m long 12V RGB LED strip used to indicate household power balance in the range from -2kW to +2kW.  
 
