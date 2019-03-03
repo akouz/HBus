@@ -10,6 +10,8 @@ Mains voltage is not measured, it assumed to be constant. However, Power Meter m
 
 LED strip can be either close to the HBus Power Meter or it can be placed quite far away if LED Strip Driver used. A CAT5/CAT6 cable should be used to connect LED Strip Driver to the HBus Power Meter. Cable length can be up to 100 m. 
 
+If LED Strip Driver not used then solder R7 and remove R6. LED strip to be connected to TB4 pin 1.
+
 HBus Power Meter can work autonomously, without any other HBus device. In that case only 12Vdc 1A power supply is required. Measured power is indicated on LED strip:
 - power consumed from grid indicated in red
 - power exported to grid indicated in blue
