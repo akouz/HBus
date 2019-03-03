@@ -1,6 +1,6 @@
 # HBus Power Meter
 
-Power meter uses two current transformers (CT). One measures total household current, another measures solar station current. 
+Power meter uses two current transformers (CT). One measures total household current, another measures solar station current. Mains voltage is not measured, it assumed to be stable. However, device measures mains voltage phase; it is required to calculate power balance. 
 
 1m long 12V RGB LED strip used to indicate household power balance in the range from -2kW to +2kW.  
 
