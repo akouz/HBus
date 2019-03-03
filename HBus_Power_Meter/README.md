@@ -10,6 +10,7 @@ HBus Power Meter can work autonomously, without any other HBus device. In that c
 - power consumed from grid indicated in red
 - power exported to grid indicated in blue
 - power produced and consumed locally indicated in green
+
 Every 3 LEDs in full brightness indicate 200W of power, half brightness indicate 100W of power.
 
 If device connected to HBus network, it also regularly broadcasts measured power in MQTT mode.
