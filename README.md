@@ -610,7 +610,7 @@ Reply from Node B to Node A
 
 ## [10] C_CMD
 
-Optional custom command to HBus node. Content depends on node type, software revision, etc.
+Optional custom command to HBus node. Content depends on device type and model, software revision, etc. For example, it can be a ыутыщк calibration command, etc.
 
 Request from Node A to Node B
 
