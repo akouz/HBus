@@ -1,10 +1,10 @@
 object Form1: TForm1
   Left = 743
-  Height = 323
+  Height = 376
   Top = 239
   Width = 769
-  Caption = 'NodeTest rev 1.04'
-  ClientHeight = 323
+  Caption = 'NodeTest rev 1.05'
+  ClientHeight = 376
   ClientWidth = 769
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -103,7 +103,7 @@ object Form1: TForm1
   end
   object LB: TListBox
     Left = 176
-    Height = 289
+    Height = 342
     Hint = 'Doble click to clear screen'
     Top = 34
     Width = 593
@@ -120,7 +120,7 @@ object Form1: TForm1
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 289
+    Height = 342
     Top = 34
     Width = 176
     ActivePage = TsHBus
@@ -129,7 +129,7 @@ object Form1: TForm1
     TabOrder = 2
     object TsHBus: TTabSheet
       Caption = 'HBus'
-      ClientHeight = 261
+      ClientHeight = 314
       ClientWidth = 168
       object BtnRev: TButton
         Left = 0
@@ -273,7 +273,7 @@ object Form1: TForm1
         Left = 0
         Height = 25
         Top = 192
-        Width = 104
+        Width = 112
         Caption = 'Read Description'
         OnClick = BtnRdDescrClick
         TabOrder = 14
@@ -291,10 +291,27 @@ object Form1: TForm1
         Left = 0
         Height = 25
         Top = 240
-        Width = 104
+        Width = 112
         Caption = 'Write Description'
         OnClick = BtnWrDescrClick
         TabOrder = 16
+      end
+      object EdCustomCmd: TEdit
+        Left = 0
+        Height = 23
+        Top = 264
+        Width = 168
+        TabOrder = 17
+        Text = '{cmd:1}'
+      end
+      object BtnCustomCmd: TButton
+        Left = 0
+        Height = 25
+        Top = 288
+        Width = 112
+        Caption = 'Custom Command'
+        OnClick = BtnCustomCmdClick
+        TabOrder = 18
       end
     end
     object TabSheet2: TTabSheet

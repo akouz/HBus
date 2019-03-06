@@ -44,6 +44,7 @@ const
   CMD_BEEP           = 7;
   CMD_RD_DESCR       = 8;
   CMD_WR_DESCR       = 9;
+  CMD_CUSTOM         = 10;
   // -------------------
   DEV_TYPE           = 1; // bridge/gateway
   DEV_MODEL          = 1; // PC bridge
@@ -97,6 +98,7 @@ type
     function CmdBeep(dest : word; dur : byte) : THbMsg;
     function CmdRdDescr(dest : word) : THbMsg;
     function CmdWrDescr(dest : word; descr : string) : THbMsg;
+    function CmdCustom(dest : word; json : string) : THbMsg;
     function SendMqtt(topic : word; Msg_ID : word; val : string) : THbMsg;
     // receive HBus commands
     function RxCmd(rx :THbMsg) : THbMsg;
@@ -139,7 +141,7 @@ function THbCmd.FMakeCmd(cmd : byte; dest : word; param : byte) : boolean;
 begin
   result := false;
   if FExpRplyHdr = '' then begin
-    if cmd in [CMD_REV..CMD_WR_DESCR] then begin
+    if cmd in [CMD_REV..CMD_CUSTOM] then begin
       FCmdStr := FMakeHdr(cmd, dest, param);
       result := true;
     end;
@@ -316,6 +318,21 @@ begin
     FCmdStr := FCmdStr + char(b) + descr;
     result.s := FCmdStr;
     result.hb := true;
+    result.valid := true;
+  end else
+    result.valid := false;
+end;
+
+// =====================================
+// Custom JSON command
+// =====================================
+function THbCmd.CmdCustom(dest : word; json : string) : THbMsg;
+begin
+  if FMakeCmd(CMD_CUSTOM, dest, 1) and (Length(json) < 64) then begin
+    FCmdStr := FCmdStr + json;
+    result.s := FCmdStr;
+    result.hb := true;
+    result.postpone := 0;
     result.valid := true;
   end else
     result.valid := false;

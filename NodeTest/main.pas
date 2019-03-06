@@ -49,12 +49,14 @@ type
     BtnRdDescr : TButton;
     BtnWrDescr : TButton;
     BtnMqttSend : TButton;
+    BtnCustomCmd : TButton;
     CbPorts : TComboBox;
     CbDamp : TCheckBox;
     EdGroup : TEdit;
     EdBootPause : TEdit;
     EdDuration : TEdit;
     EdDescr : TEdit;
+    EdCustomCmd : TEdit;
     EdTopicVal : TEdit;
     EdTopic : TEdit;
     EdMsgId : TEdit;
@@ -79,6 +81,7 @@ type
     procedure BtnBeepClick(Sender : TObject);
     procedure BtnBootClick(Sender : TObject);
     procedure BtnCollectClick(Sender : TObject);
+    procedure BtnCustomCmdClick(Sender : TObject);
     procedure BtnMqttSendClick(Sender : TObject);
     procedure BtnNewIDClick(Sender : TObject);
     procedure BtnPingClick(Sender : TObject);
@@ -257,6 +260,8 @@ begin
       s := s + StrToHex(msg.s, 8) // JSON
     else if ((cmd = $88) or (cmd = 9)) then
       s := s + StrToHex(msg.s, 9) // description
+    else if (cmd = $A) or (cmd = $8A) then    // custom cmd and reply
+      s := s + StrToHex(msg.s, 8)
     else
       s := s + StrToHex(msg.s, 0); // binary
   end  else begin
@@ -382,6 +387,20 @@ begin
   TxMsg := HBcmd.CmdCollect(grp, slots);
   s := HB.Tx(TxMsg);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
+end;
+
+// =====================================================
+// Send costom command
+// =====================================================
+procedure TForm1.BtnCustomCmdClick(Sender : TObject);
+var s : string;
+begin
+  HBcmd.Flush;
+  TxMsg := HBcmd.CmdCustom(NodeID, EdCustomCmd.Text);
+  if TxMsg.valid then begin
+    s := HB.Tx(TxMsg);
+    inc(HBcmd.MsgId);
+  end;
 end;
 
 // =====================================================
