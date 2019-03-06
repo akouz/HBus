@@ -189,6 +189,11 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>WR_DESCR</td> 	
 <td>Node</td> 	
 <td>Write node description</td> 	
+</tr><tr>
+<td>10</td> 	
+<td>C_CMD</td> 	
+<td>Node</td> 	
+<td>Custom command</td> 	
 </tr></tbody></table>
 
 ## [1] REV
