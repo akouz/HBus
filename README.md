@@ -608,6 +608,60 @@ Reply from Node B to Node A
 <td>OkErr</td>
 </tr></tbody></table>
 
+## [10] C_CMD
+
+Optional custom command to HBus node. Content depends on node type, software revision, etc.
+
+Request from Node A to Node B
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:(8+N)]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x0A</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>DF</td>
+<td>Cmd</td>
+<td></td>
+</tr></tbody></table>
+
+  * DF is data format:
+    * 0 = binary
+    * 1 = JSON
+    * 2 = MessagePack
+    * other - TBD.
+  * Cmd - custom command itself
+
+Reply from Node B to Node A
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:(8+X)]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x89</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgID</td>
+<td>OkErr</td>
+<td>Rply</td>
+</tr></tbody></table>
+
+Rply  is an optional reply.
+
 # MQTT mode (broadcast messages)
 
 In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
