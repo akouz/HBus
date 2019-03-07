@@ -60,10 +60,10 @@ enum{
 
 /*
  * ============== Software ==============
- * Rev 0.4  - February 2019, development wip
+ * Rev 0.5  - March 2019, development wip, added CMD_CUSTOM
  */
     SW_REV_MAJ    = 0,
-    SW_REV_MIN    = 4,  
+    SW_REV_MIN    = 5,  
 
 /*
  * ============== Bootloader ==============
@@ -94,6 +94,7 @@ enum{
     ERR_BUSY        = 0xE0,
     ERR_PARAM       = 0xE1,
     ERR_ECHO        = 0xE2,   
+    ERR_UNKNOWN     = 0xE3,   
 
     // settings
     MAX_BUF         = 0x90,
@@ -147,6 +148,8 @@ typedef struct{
 extern uint pup_cnt; 
 extern uint node_seed;
 extern uint led_cnt;
+
+extern StaticJsonBuffer<128> jsonBuf;
 
 //##############################################################################
 // Func

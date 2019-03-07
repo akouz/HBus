@@ -47,6 +47,7 @@ enum{
   CMD_BEEP           = 7,
   CMD_RD_DESCR       = 8,
   CMD_WR_DESCR       = 9,
+  CMD_CUSTOM         = 10,
 };
 
 //##############################################################################
@@ -71,7 +72,8 @@ class Hb_cmd{
     }msg;
     uchar       rply_tmout;
     uint        ignore_collect;   // in 10 ms ticks
-    hb_msg_t    reply;       
+    hb_msg_t    reply;    
+    uchar       rply_unknown(hb_msg_t* rxmsg, hb_msg_t* rply);   
     uchar       rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_status(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_collect(hb_msg_t* rxmsg, hb_msg_t* rply);
@@ -82,6 +84,7 @@ class Hb_cmd{
     uchar       rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_rd_descr(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_wr_descr(hb_msg_t* rxmsg, hb_msg_t* rply);    
+    uchar       rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply);    
 };
 extern Hb_cmd HBcmd;
 

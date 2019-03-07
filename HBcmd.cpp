@@ -92,7 +92,8 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
                 case CMD_BEEP:      res = rply_beep(rxmsg, &reply);     break;
                 case CMD_RD_DESCR:  res = rply_rd_descr(rxmsg, &reply); break;
                 case CMD_WR_DESCR:  res = rply_wr_descr(rxmsg, &reply); break;
-                default:  break;
+                case CMD_CUSTOM:    res = rply_custom(rxmsg, &reply);   break;
+                default:            res = rply_unknown(rxmsg, &reply);  break;
             }
             if (READY == res)
             {
@@ -123,6 +124,16 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
         rxmsg->busy = 0;
     }
     return NULL; 
+}
+
+// =====================================  
+// Unknown command
+// =====================================  
+uchar Hb_cmd::rply_unknown(hb_msg_t* rxmsg, hb_msg_t* rply)
+{
+    copy_msg_hdr(rxmsg, 0, 7, rply);
+    add_txmsg_uchar(rply,  ERR_UNKNOWN);  
+    return READY;
 }
 
 // =====================================  
@@ -346,6 +357,29 @@ uchar Hb_cmd::rply_wr_descr(hb_msg_t* rxmsg, hb_msg_t* rply)
     {
         add_txmsg_uchar(rply,  ERR);
     }
+    return READY;
+}
+
+
+// =====================================  
+// Reply C_CMD
+// =====================================  
+uchar Hb_cmd::rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply)
+{
+    copy_msg_hdr(rxmsg, 0, 7, rply); 
+    jsonBuf.clear();            
+    JsonObject& root = jsonBuf.parseObject(rxmsg->buf+8);
+    if (root.success())
+    {
+        add_txmsg_uchar(rply,  OK);
+        /*
+         * whatewer is required   
+         */        
+    }
+    else
+    {
+        add_txmsg_uchar(rply,  ERR);
+    }    
     return READY;
 }
 
