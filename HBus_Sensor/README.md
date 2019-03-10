@@ -1,6 +1,6 @@
 # HBus Sensor
 
-A universal HBus sensor module for various applications.
+A universal HBus sensor module for various applications. It includes:
   * 1-Wire bus for Dallas DS18S20 temperature sensors.
   * Temperature/humidity/pressure sensor BMP280, or any other I2C sensor powered by 3.3V.
   * Four generic input for resistive sensors, such as:
