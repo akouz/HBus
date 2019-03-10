@@ -8,3 +8,5 @@ A universal HBus sensor module for various applications. It includes:
     * soil moisture sensors
     * water leakage sensors
     * intrusion detectors 
+
+Double sided PCB 50x50 mm.
