@@ -1,1 +1,1 @@
-# HBus 40channel MOSFET Driver
+# HBus 4-channel MOSFET Driver
