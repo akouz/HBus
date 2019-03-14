@@ -1,3 +1,3 @@
 # Autonomous Power Meter
 
-FastLed library must be installed.
+[FastLed](https://github.com/FastLED/FastLED) library must be installed.
