@@ -13,7 +13,7 @@ NodeTest.exe is a Windows application to test and to configure nodes. NodeTest u
   * Select COM port connected to HBus. 
 ![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1.png)
   * Assign NodeTest Own ID. In the sample shown NodeTest ID is set to 0xB055.
-![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1.png)
+![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2.png)
   * When NodeTest closed, it stores its settings in .ini files. 
 
 
