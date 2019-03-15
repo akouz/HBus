@@ -53,6 +53,10 @@ Many CAN drivers has embedded mechanism to prevent long dominant state. If domin
 
 Transcevers with slope control produce less noise on the bus, ie have better EMC.
 
+# HBus protocol
+
+Current firmware revision 0.6.
+
 ## Byte-stuffing
 
 Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The following byte pairs are defined: 
