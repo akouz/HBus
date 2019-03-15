@@ -9,12 +9,17 @@
 
 NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeTest uses a USB-UART bridge with CAN transceiver. It could be a dedicated galvanically isolated [HBus USB bridge](https://github.com/akouz/HBus/tree/master/HBus_USB_Bridge), or a cheap [generic USB-UART bridge](https://www.ebay.com.au/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=usb+to+uart+bridge+board&_sacat=0&LH_TitleDesc=0&ul_noapp=true&_odkw=usb+to+uart+bridge) with a [CAN transceiver board](https://www.amazon.com/SN65HVD230-CAN-Board-Communication-Development/dp/B00KM6XMXO). 
 
-## Initial settings
+## 1. Initial settings
   * Select COM port connected to HBus. 
-![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1.png)
+![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_1.png)
   * Assign NodeTest Own ID. In the sample shown NodeTest ID is set to 0xB055.
-![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2.png)
+![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_2.png)
   * When NodeTest closed, it stores its settings in .ini files. 
+
+## 2. Discover HBus nodes
+  * Connect HBus node to network. The shown sample node generates debug messages at power-up.
+![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_1.png)
+
 
 
   * After reset node issued a splash screen with ASCII text. For debug purposes, NodeTest prints all data appeared between HBus messages. If data bytes can be represented as visible ASCII chars, nodeTest prints ASCII chars, otherwise it prints hex value in square brackets. NodeTest marks these prints with " - dbg " prefix.
