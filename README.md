@@ -233,6 +233,8 @@ Request from Node A to Node B
 <td>[13]</td>
 <td>[14]</td>
 <td>[15]</td>
+<td>[16]</td>
+<td>[17]</td>
 </tr></thead>
 <tbody><tr>
 <td>0x81</td>
@@ -248,6 +250,8 @@ Request from Node A to Node B
 <td>BootRevMin</td>
 <td>SwRevMaj</td>
 <td>SwRevMin</td>
+<td>HbusRevMaj</td>
+<td>HbusRevMin</td>
 </tr></tbody></table>
 
 ## [2] STATUS
