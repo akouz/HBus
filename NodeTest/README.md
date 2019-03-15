@@ -11,14 +11,14 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
 
 ## 1. Initial settings
   * Select COM port connected to HBus. 
-![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_1.png)
+![Pic1_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_1.png)
   * Assign NodeTest Own ID. In the sample shown NodeTest ID is set to 0xB055.
-![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_2.png)
+![Pic1_2](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_2.png)
   * When NodeTest closed, it stores its settings in .ini files. 
 
 ## 2. Discover HBus nodes
   * Connect HBus node to network. The shown sample node generates debug messages at power-up.
-![Pic1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_1.png)
+![Pic2_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_1.png)
 
 
 
