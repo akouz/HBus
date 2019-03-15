@@ -1,6 +1,5 @@
 /*
  * file     HBmqtt.h 
- * Rev      1.0 dated 11/2/2019
  * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -31,21 +30,8 @@
 // Inc                                              
 //##############################################################################
 
-#include  "common.h"
+#include  "HBcommon.h"
 
-//##############################################################################
-// Def
-//##############################################################################
-
-enum{
-    PUBLISH     = 0x0C,
-    MAX_TOPIC   = 4,
-        
-    TOPIC1      = 101,
-    TOPIC2      = 102,
-    TOPIC3      = 103,
-    TOPIC4      = 201,
-};
 
 //##############################################################################
 // Class
@@ -55,21 +41,25 @@ class HB_mqtt{
     public:
                 HB_mqtt(void);
     hb_msg_t    mqmsg;
-    uint        topic[MAX_TOPIC];   // list of topics  
-    float       value[MAX_TOPIC];   // topic values
-    uchar       valid[MAX_TOPIC];   // indicate valid value              
-    StaticJsonBuffer<128> jsonBuf;
+//    uint        topic[MAX_TOPIC];           // list of topics  
+    float       value[MAX_TOPIC];           // topic values
+    uchar       valid[MAX_TOPIC];           // indicate valid value
+    void        set_descriptor(uint* descr);
+    uint        get_topic(uchar tpc_i);     // get topic value               
     char        rd_msg(hb_msg_t* msg);
     uchar       make_msg(uchar topic_i);    
     
     private:
+    uint*       descriptor;                 // list of topics 
     char        is_topic(uint tpc);
     uint        MsgID; 
-    ulong       MsgID_cnt;      // count all received MQTT messages 
+    ulong       MsgID_cnt;                  // count all received MQTT messages 
     uint        MsgID_err_cnt;
     void        get_MsgID(uint msg_id); 
 };    
 
 extern HB_mqtt HBmqtt;
+
+
 
 #endif /* __HB_MQTT_H */

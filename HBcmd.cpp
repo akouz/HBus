@@ -1,6 +1,5 @@
 /*
  * File     HBcmd.cpp
- * Rev      1.0 dated 26/12/2018
  * Target   Arduino 
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -28,7 +27,7 @@
 // Inc
 //##############################################################################
 
-#include  "common.h"
+#include  "HBcommon.h"
 #include  "HBmqtt.h"
 #include  "HBcmd.h"
 
@@ -53,6 +52,16 @@ Hb_cmd::Hb_cmd(void)
     own.id[0] = EEPROM.read(EE_OWN_ID+1);
     reply.len = 0;
     reply.all = 0;
+    descriptor = NULL;
+    custom_cmd = NULL;
+}
+
+// =====================================  
+// Set descriptor required for REV command
+// =====================================  
+void Hb_cmd::set_descriptor(uchar* descr)
+{
+    descriptor = descr;   // 
 }
 
 // =====================================  
@@ -143,14 +152,19 @@ uchar Hb_cmd::rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
     copy_msg_hdr(rxmsg, 0, 7, rply);
     add_txmsg_uchar(rply,  OK);
-    add_txmsg_uchar(rply, DEV_TYPE);
-    add_txmsg_uchar(rply, DEV_MODEL); 
-    add_txmsg_uchar(rply, HW_REV_MAJ); 
-    add_txmsg_uchar(rply, HW_REV_MIN);
-    add_txmsg_uchar(rply, BT_REV_MAJ);
-    add_txmsg_uchar(rply, BT_REV_MIN);
-    add_txmsg_uchar(rply, SW_REV_MAJ);
-    add_txmsg_uchar(rply, SW_REV_MIN);
+    for (uchar i=0; i<8; i++)
+    {
+        if (descriptor) // if descriptor supplied
+        {
+            add_txmsg_uchar(rply, descriptor[i]);
+        }
+        else
+        {
+            add_txmsg_uchar(rply, 0);
+        }    
+    }
+    add_txmsg_uchar(rply, HB_REV_MAJ);   // HBus revision specified separately
+    add_txmsg_uchar(rply, HB_REV_MIN);
     return READY;           
 }
 
@@ -159,6 +173,7 @@ uchar Hb_cmd::rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
+    uint tpc;
     copy_msg_hdr(rxmsg, 0, 7, rply);
     if (DF_STATUS == 1) // DF = JSON 
     {
@@ -169,10 +184,11 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_z_str(rply, buf);
         for (uchar i=0; i< MAX_TOPIC; i++)
         {
+            tpc = HBmqtt.get_topic(i); 
             if (i < MAX_TOPIC-1)        
-                snprintf(buf, sizeof(buf),"%d,", HBmqtt.topic[i]);
+                snprintf(buf, sizeof(buf),"%d,", tpc);
             else
-                snprintf(buf, sizeof(buf),"%d]", HBmqtt.topic[i]);
+                snprintf(buf, sizeof(buf),"%d]", tpc);
             add_txmsg_z_str(rply, buf);
         }
         // list all topics values
@@ -195,8 +211,9 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_uchar(rply, MAX_TOPIC);
         for (uchar i=0; i<MAX_TOPIC; i++)
         {
-            add_txmsg_uchar(rply, (uchar)(HBmqtt.topic[i] >> 8));
-            add_txmsg_uchar(rply, (uchar)HBmqtt.topic[i]);
+            tpc = HBmqtt.get_topic(i); 
+            add_txmsg_uchar(rply, (uchar)(tpc >> 8));
+            add_txmsg_uchar(rply, (uchar)tpc);
         }
     }
     return READY;           
@@ -360,27 +377,30 @@ uchar Hb_cmd::rply_wr_descr(hb_msg_t* rxmsg, hb_msg_t* rply)
     return READY;
 }
 
-
 // =====================================  
 // Reply C_CMD
 // =====================================  
 uchar Hb_cmd::rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
-    copy_msg_hdr(rxmsg, 0, 7, rply); 
-    jsonBuf.clear();            
-    JsonObject& root = jsonBuf.parseObject(rxmsg->buf+8);
-    if (root.success())
+    copy_msg_hdr(rxmsg, 0, 7, rply);
+    if (custom_cmd)
     {
         add_txmsg_uchar(rply,  OK);
-        /*
-         * whatewer is required   
-         */        
+        custom_cmd(rxmsg, rply);  // whatever defined
     }
     else
     {
-        add_txmsg_uchar(rply,  ERR);
+        add_txmsg_uchar(rply,  ERR);    // custom command not defined
     }    
     return READY;
+}
+
+// =====================================  
+// Set custom command 
+// =====================================  
+void  Hb_cmd::set_custom_cmd(void (*c_cmd)(hb_msg_t* msg, hb_msg_t* rply))
+{
+    custom_cmd = c_cmd;   // set user-defined custom command
 }
 
 // =====================================  

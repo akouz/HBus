@@ -1,6 +1,5 @@
 /*
  * File     HBus.h
- * Rev      1.0 dated 20/02/2019
  * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -30,8 +29,7 @@
 // Inc
 //##############################################################################
 
-#include "common.h"
-#include "coos.h"
+#include "HBcommon.h"
 #include "HBrxtx.h" 
 #include "HBcmd.h"
 #include "HBmqtt.h"
@@ -41,6 +39,6 @@
 //##############################################################################
 
 void coos_task_HBus_rxtx(void);
-void coos_task_tick10ms(void);
+void coos_task_tick1ms(void);
 
 #endif /* __HBUS_H */

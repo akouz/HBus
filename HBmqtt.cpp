@@ -1,6 +1,5 @@
 /*
  * File     HBmqtt.cpp 
- * Rev      1.0 dated 8/1/2019
  * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -31,12 +30,6 @@
 #include "HBmqtt.h"
 #include "HBcmd.h"
 
-
-//##############################################################################
-// Def
-//##############################################################################
-
-
 //##############################################################################
 // Var
 //##############################################################################
@@ -54,10 +47,7 @@ HB_mqtt::HB_mqtt(void)
 {
     mqmsg.all = 0;
     mqmsg.len = 0;
-    topic[0] = TOPIC1;
-    topic[1] = TOPIC2;
-    topic[2] = TOPIC3;
-    topic[3] = TOPIC4;
+    descriptor = NULL;
     MsgID = 1;
     MsgID_cnt = 0;  
     MsgID_err_cnt = 0;  
@@ -68,15 +58,39 @@ HB_mqtt::HB_mqtt(void)
 }
 
 // =============================================
+// Set topics descriptor
+// =============================================
+void  HB_mqtt::set_descriptor(uint* descr)
+{
+    descriptor = descr;
+}
+
+// =============================================
+// Get topic from descriptor
+// =============================================
+uint HB_mqtt::get_topic(uchar tpc_i)
+{
+    if (descriptor)
+    {
+        return descriptor[tpc_i];
+    }
+    else
+        return 0;
+}
+
+// =============================================
 // Is topic in the list of topics?  
 // =============================================
 char HB_mqtt::is_topic(uint tpc)
 {
-    for (uchar i=0; i<MAX_TOPIC; i++)
+    if (descriptor) // if topic descriptor was set
     {
-        if (tpc == topic[i])
+        for (uchar i=0; i<MAX_TOPIC; i++)
         {
-            return (char)i;
+            if (tpc == descriptor[i])
+            {
+                return (char)i;
+            }
         }
     }
     return -1;
@@ -137,6 +151,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
 // =============================================
 uchar HB_mqtt::make_msg(uchar topic_i)
 {
+    uint tpc;
     mqmsg.valid = 0;
     if (topic_i < MAX_TOPIC) 
     {
@@ -145,14 +160,15 @@ uchar HB_mqtt::make_msg(uchar topic_i)
         add_txmsg_uchar(&mqmsg, nonce);        
         add_txmsg_uchar(&mqmsg, HBcmd.own.id[1]);
         add_txmsg_uchar(&mqmsg, HBcmd.own.id[0]);
-        add_txmsg_uchar(&mqmsg, (uchar)(topic[topic_i] >> 8));
-        add_txmsg_uchar(&mqmsg, (uchar)(topic[topic_i]));
+        tpc = get_topic(topic_i);
+        add_txmsg_uchar(&mqmsg, (uchar)(tpc >> 8));
+        add_txmsg_uchar(&mqmsg, (uchar)tpc);
         MsgID = (MsgID < 0xFFFE)? MsgID+1 : 1;          
         add_txmsg_uchar(&mqmsg, (uchar)(MsgID >> 8));
         add_txmsg_uchar(&mqmsg, (uchar)(MsgID));                
         add_txmsg_uchar(&mqmsg, 1);    // JSON
         char buf[32];
-        sprintf(buf,"{topic:%d,val:", topic[topic_i]);
+        sprintf(buf,"{topic:%d,val:", tpc);
         add_txmsg_z_str(&mqmsg, buf);
         dtostrf(value[topic_i], 4,2, buf);
         add_txmsg_z_str(&mqmsg, buf);

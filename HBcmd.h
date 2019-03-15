@@ -1,6 +1,5 @@
 /*
  * File     HBcmd.h
- * Rev      1.0 dated 26/12/2018
  * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -31,7 +30,7 @@
 // Inc                                              
 //##############################################################################
 
-#include  "common.h"
+#include  "HBcommon.h"
 
 //##############################################################################
 // Inc                                              
@@ -61,17 +60,20 @@ class Hb_cmd{
         uint    ID;
         uchar   id[2];
     }own;
-    uint        ignore_traffic;            // in 10 ms ticks
+    uint        ignore_traffic;                 // in 10 ms ticks
+    void        set_descriptor(uchar* descr);   // 8-bytes long descriptor
     hb_msg_t*   process_rx_cmd(hb_msg_t* rxmsg);
+    void        set_custom_cmd(void (*c_cmd)(hb_msg_t* msg, hb_msg_t* rply));
     void        tick10ms(void);
 
   private:
+    uchar*      descriptor;           // HBus descriptor 
     union{
         uint ID;
         uchar id[2];
     }msg;
     uchar       rply_tmout;
-    uint        ignore_collect;   // in 10 ms ticks
+    uint        ignore_collect;         // in 10 ms ticks
     hb_msg_t    reply;    
     uchar       rply_unknown(hb_msg_t* rxmsg, hb_msg_t* rply);   
     uchar       rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply);
@@ -84,7 +86,8 @@ class Hb_cmd{
     uchar       rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_rd_descr(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_wr_descr(hb_msg_t* rxmsg, hb_msg_t* rply);    
-    uchar       rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply);    
+    uchar       rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply);
+    void        (*custom_cmd)(hb_msg_t* msg, hb_msg_t* rply); // user-defined custom command    
 };
 extern Hb_cmd HBcmd;
 
