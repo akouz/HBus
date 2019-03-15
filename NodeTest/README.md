@@ -7,7 +7,7 @@
 
 ## Scope
 
-NodeTest.exe is a Windows application to test and to configure nodes. NodeTest uses a USB-UART bridge with CAN transceiver. It could be a dedicated gaslvanically isolated [HBus USB bridge](https://github.com/akouz/HBus/tree/master/HBus_USB_Bridge), or a cheap [generic USB-UART bridge](https://www.ebay.com.au/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=usb+to+uart+bridge+board&_sacat=0&LH_TitleDesc=0&ul_noapp=true&_odkw=usb+to+uart+bridge) with a [CAN transceiver board](https://www.amazon.com/SN65HVD230-CAN-Board-Communication-Development/dp/B00KM6XMXO). 
+NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeTest uses a USB-UART bridge with CAN transceiver. It could be a dedicated gaslvanically isolated [HBus USB bridge](https://github.com/akouz/HBus/tree/master/HBus_USB_Bridge), or a cheap [generic USB-UART bridge](https://www.ebay.com.au/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=usb+to+uart+bridge+board&_sacat=0&LH_TitleDesc=0&ul_noapp=true&_odkw=usb+to+uart+bridge) with a [CAN transceiver board](https://www.amazon.com/SN65HVD230-CAN-Board-Communication-Development/dp/B00KM6XMXO). 
 
 ## Initial settings
   * Select COM port connected to HBus. 
