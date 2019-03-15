@@ -1,7 +1,8 @@
 # NodeTest
 
-Current revision 1.05
-Note: NodeTest compiled by Lazarus 1.4.2; Cportlaz_v1.0.0 must be installed. 
+#### Notes:
+  * Current revision 1.05
+  * NodeTest compiled by Lazarus 1.4.2; Cportlaz_v1.0.0 must be installed. Newer revisions of Lazarus do not work with Cportlaz.
 
 ## Scope
 
