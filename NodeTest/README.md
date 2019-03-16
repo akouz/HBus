@@ -20,7 +20,7 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
   * Connect HBus node to network. After reset the sample node issued a splash screen with ASCII text. For debug purposes, NodeTest prints all data appeared between HBus messages. If data bytes can be represented as visible ASCII chars, nodeTest prints ASCII chars, otherwise it prints hex value in square brackets. NodeTest marks these prints with " - dbg " prefix.
 ![Pic2_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_1.png)
   * At splash screen the node reports its ID, it is 0xF251. First hex digit "F" indicates that node ID is temporary. After every reset node changes its temporary ID randomly.
-  * NodeTest issues COLLECT command, its code is 0x03. NodeTest own ID os 0xB055. Replies should be within 32 time slots 10 ms each.
+  * NodeTest issues COLLECT command, its code is 0x03, source node ID 0xB055. Replies should be within 32 time slots 10 ms each.
   * So far only one reply arrived. Reply code is 0x83. It was issued by node 0xF251 to node 0xB055.  
 ![Pic2_2](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_2.png)
   * NodeTest issued SET_ID command (code 0x05) to node 0xF251. New ID is 0x1234.
