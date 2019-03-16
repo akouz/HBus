@@ -42,5 +42,6 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
   * Select MQTT tab and issue MQTT message. Issuing node ID 0xB055, eg it is NodeTest. Topic 101, value 12.3.
   * Select HBus tab and issue STATUS command to node 0x1234.  In the reply node 0x1234 reports that its topic 101 value is 12.3.
   * Topic 101 value becomes valid. Node sketch start broadcasting its valid topic values, issuing node 0x1234, topic 101, value 12.3. 
+  
 ![Pic4_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic4_1.png)
   
