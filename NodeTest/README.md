@@ -28,7 +28,7 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
 ![Pic2_3](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_3.png)
 
 ## 3. Explore HBus node and set description
-  * Double click to NodeTest list box to it.
+  * Double click to NodeTest list box to clear it.
   * NodeTest issues REV command to node 0x1234, code 0x01. Node replies DevType 2, DevModel 1, h/w revision 0.1, bootloader revision 0.1, s/w revision 0.1, HBus library revision 0.6
   * NodeTest issues STATUS command, code 0x02. Node replies list of topics and list of topic values. 
   * NodeTest issues BEEP command, code 0x07, with parameter 0x02. Node blinks its LED for 2 seconds.
