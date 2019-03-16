@@ -27,14 +27,13 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
   * Node replied OK, reply code 0x85. Its ID now is set to 0x1234. It is a permanent ID.
 ![Pic2_3](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_3.png)
 
-
-![Pic3](https://github.com/akouz/HBus/blob/master/Doc/pic3.png)
-
-  * Double click to NodeTest list box clears it.
-  * NodeTest issues REV command to node 0x1234, code 0x01. Node replies DevType 2, DevModel 1, h/w revision 0.1, bootloader revision 0.1, s/w revision 0.3.
-  * NodeTest issues STATUS command, code 0x02. Node replies list of topics and list of topic values.
+## 3. Explore HBus node and set description
+  * Double click to NodeTest list box to it.
+  * NodeTest issues REV command to node 0x1234, code 0x01. Node replies DevType 2, DevModel 1, h/w revision 0.1, bootloader revision 0.1, s/w revision 0.1, HBus library revision 0.6
+  * NodeTest issues STATUS command, code 0x02. Node replies list of topics and list of topic values. 
   * NodeTest issues BEEP command, code 0x07, with parameter 0x02. Node blinks its LED for 2 seconds.
   * NodeTest issies RD_DESCR command, code 0x08. Node replies zero length string.
   * NodeTest issies WR_DESCR command, code 0x09, with text string "Demo node", string length 9 bytes. Node replied OK.
   * NodeTest issies RD_DESCR command, code 0x08. Node replies with string "Demo node".
+![Pic3_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic3_1.png)
   
