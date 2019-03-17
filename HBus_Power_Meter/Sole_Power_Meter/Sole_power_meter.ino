@@ -2,7 +2,7 @@
 // Project   Sole Power Meter, part of HBus project https://github.com/akouz/HBus 
 // Author    Alex Kouznetsov
 // Rev       1.0 dated 17/03/2019
-// Target    Arduino Pro Mini
+// Target    Arduino Pro Mini on top of https://github.com/akouz/HBus/tree/master/HBus_Power_Meter board
 // File      Sole_power_meter.ino
 // License   MIT, https://github.com/akouz/HBus/blob/master/LICENSE
 // ===========================================================================
