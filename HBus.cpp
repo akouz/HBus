@@ -159,9 +159,9 @@ void coos_task_HBus_rxtx(void)
                                         }
                                         else    // echo mismatch
                                         {
-                                            COOS_DELAY(10);
                                             Serial.end();
                                             Serial.begin(19200);                                            
+                                            COOS_DELAY(10);
                                         }                                                                           
                                     } // if tx started
                                 } // if pause on the bus                                 
