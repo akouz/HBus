@@ -40,7 +40,7 @@ uint led_cnt;     // until LED switched off, in 10 ms ticks
 
 StaticJsonBuffer <128> jsonBuf;
 
-Coos <COOS_TASKS> coos;  // declare cooperative operating system
+Coos <COOS_TASKS, 1> coos;  // declare cooperative operating system
 
 //##############################################################################
 // Func
