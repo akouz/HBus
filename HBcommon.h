@@ -138,7 +138,7 @@ extern uint node_seed;
 extern uint led_cnt;
 
 extern StaticJsonBuffer<128> jsonBuf;
-extern Coos <COOS_TASKS> coos;
+extern Coos <COOS_TASKS, 1> coos;
 
 //##############################################################################
 // Func
