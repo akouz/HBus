@@ -22,3 +22,7 @@ Every 3 LEDs in full brightness indicate 200W of power, half brightness indicate
 ![Pic1](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/1.jpg)
 
 If device connected to HBus network, it also regularly broadcasts measured power in MQTT mode. With CT 2000:1  rated for 50A or 100A Power Meter can measure power in the range from -10kW to +10kW. 
+
+HBus Power Meter employs double sided PCB, dimensions 50x70 mm. Assembled board rev 1.0 shown:
+
+![Pic3](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/Board_rev_1_0.jpg)
