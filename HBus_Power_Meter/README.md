@@ -26,3 +26,7 @@ If device connected to HBus network, it also regularly broadcasts measured power
 HBus Power Meter employs double sided PCB, dimensions 50x70 mm. Assembled board rev 1.0 shown:
 
 ![Pic3](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/Board_rev_1_0.jpg)
+
+LED Strip Driver board 25x50 mm:
+
+![Pic4](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/Strip_drv_rev_1_0.jpg)
