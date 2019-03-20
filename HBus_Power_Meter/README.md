@@ -30,3 +30,9 @@ HBus Power Meter employs double sided PCB, dimensions 50x70 mm. Assembled board 
 LED Strip Driver board 25x50 mm:
 
 ![Pic4](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/Strip_drv_rev_1_0.jpg)
+
+Sketch rev 0.1 with NodeTest, no CT connected:
+
+![Pic5](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/NodeTest_rev_0_1.jpg)
+
+Node promptly reports power changes and mains connection/disconnection. Also it regularly broadcasts power and mains presence. Please see the sketch for details. 
