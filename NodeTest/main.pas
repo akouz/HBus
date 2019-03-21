@@ -75,6 +75,7 @@ type
     LB : TListBox;
     PageControl1 : TPageControl;
     Panel1 : TPanel;
+    Timer1sec : TTimer;
     TsHBus : TTabSheet;
     TabSheet2 : TTabSheet;
     Timer10ms : TTimer;
@@ -99,11 +100,13 @@ type
     procedure Label2DblClick(Sender : TObject);
     procedure LBDblClick(Sender : TObject);
     procedure Timer10msTimer(Sender : TObject);
+    procedure Timer1secTimer(Sender : TObject);
   private
     { private declarations }
-    ComPort : string;
+    ComPortStr : string;
     NodeID : word;
     NewID : word;
+    WasConnected : boolean;
   public
     { public declarations }
     function StrToHex(s : string; txt_i : byte) : string;
@@ -154,7 +157,7 @@ begin
       CbPorts.AddItem(s, nil);
       if CbPorts.ItemIndex < 0 then
         CbPorts.ItemIndex := 0;
-      if s = ComPort then
+      if s = ComPortStr then
         CbPorts.ItemIndex := cnt;
       inc(cnt);
     end;
@@ -179,45 +182,65 @@ var i, cnt : integer;
     rx : THbMsg;
     msg_id : word;
 begin
-  HBcmd.Tick10ms;
-  HB.Tick10ms;
-  rx := HB.Rx;
-  // debug messages
-  cnt := HB.DbgList.Count;
-  if (cnt > 0) then begin
-    for i:=0 to cnt-1 do
-      LB.Items.Add(' - dbg: '+HB.DbgList.Strings[i]);
-    for i:=0 to cnt-1 do
-      HB.DbgList.Delete(cnt-1-i);
-  end;
-  // dump
-  cnt := HB.DampList.Count;
-  if (cnt > 0) then begin
-    if (cnt > 0) then begin
-      if CbDamp.Checked then begin
-        for i:=0 to cnt-1 do
-          LB.Items.Add(' --- bus: '+HB.DampList.Strings[i]);
-      end;
-      for i:=0 to cnt-1 do
-        HB.DampList.Delete(cnt-1-i);
+   if HB.ComPort.Connected then begin
+     try
+       HBcmd.Tick10ms;
+        HB.Tick10ms;
+        rx := HB.Rx;
+        // debug messages
+        cnt := HB.DbgList.Count;
+        if (cnt > 0) then begin
+          for i:=0 to cnt-1 do
+            LB.Items.Add(' - dbg: '+HB.DbgList.Strings[i]);
+          for i:=0 to cnt-1 do
+            HB.DbgList.Delete(cnt-1-i);
+        end;
+        // dump
+        cnt := HB.DampList.Count;
+        if (cnt > 0) then begin
+          if (cnt > 0) then begin
+            if CbDamp.Checked then begin
+              for i:=0 to cnt-1 do
+                LB.Items.Add(' --- bus: '+HB.DampList.Strings[i]);
+            end;
+            for i:=0 to cnt-1 do
+              HB.DampList.Delete(cnt-1-i);
+          end;
+        end;
+        if rx.valid then begin
+          if (rx.hb = false) and (rx.err = false) then begin
+            msg_id := HB.MsgID;   // received
+            if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $FFF0) and (msg_id < $10)) then begin
+               HBcmd.MsgID := msg_id +1;
+               if (HBcmd.MsgID > $FFF0) or (HBcmd.MsgID = 0) then
+                 HBcmd.MsgID := 1;
+               EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
+            end;
+          end;
+          PrintHbMsg(rx);
+        end;
+        if HB.TxStatus = 2 then begin
+        // LB.Items.Add('Echo OK');
+        HB.TxStatus := 0;
+        end;
+    except
+      if HB.ComPort.Connected then
+        HB.ComPort.Connected := false;
+      HB.PortOk := false;
     end;
   end;
-  if rx.valid then begin
-    if (rx.hb = false) and (rx.err = false) then begin
-      msg_id := HB.MsgID;   // received
-      if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $FFF0) and (msg_id < $10)) then begin
-         HBcmd.MsgID := msg_id +1;
-         if (HBcmd.MsgID > $FFF0) or (HBcmd.MsgID = 0) then
-           HBcmd.MsgID := 1;
-         EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
-      end;
-    end;
-    PrintHbMsg(rx);
+end;
+
+// =====================================================
+// 1 sec
+// =====================================================
+procedure TForm1.Timer1secTimer(Sender : TObject);
+begin
+  if (not HB.ComPort.Connected) and (not WasConnected) then begin
+    Label2DblClick(Sender);
+    CbPortsChange(Sender);
   end;
-  if HB.TxStatus = 2 then begin
-    // LB.Items.Add('Echo OK');
-    HB.TxStatus := 0;
-  end;
+  WasConnected := HB.ComPort.Connected;
 end;
 
 // =====================================================
@@ -297,7 +320,7 @@ procedure TForm1.FormCreate(Sender : TObject);
 var ini : TIniFile;
 begin
   ini := TIniFile.Create('NodeTest.ini');
-  ComPort := AnsiUpperCase(ini.ReadString('Serial','Port','COM1'));
+  ComPortStr := AnsiUpperCase(ini.ReadString('Serial','Port','COM1'));
   NodeID := ini.ReadInteger('Node','ID',$FFFF);
   EdTopic.Text := ini.ReadString('MQTT','topic','101');
   EdTopicVal.Text := ini.ReadString('MQTT','val','12.3');
@@ -305,7 +328,7 @@ begin
   EdNode.Text := '0x' + IntToHex(NodeID,4);
   EdNewID.Text := EdNode.Text;
   Label2DblClick(Sender); // select COM port
-  HB := THbRxtx.Create(ComPort);
+  HB := THbRxtx.Create(ComPortStr);
   if HB.ComPort.Connected then
     Label3.Caption:='Connected'
   else
@@ -322,7 +345,8 @@ procedure TForm1.FormDestroy(Sender : TObject);
 var ini : TIniFile;
 begin
   ini := TIniFile.Create('NodeTest.ini');
-  ini.WriteString('Serial','Port',AnsiUpperCase(ComPort));
+  if HB.ComPort.Connected then
+    ini.WriteString('Serial','Port',AnsiUpperCase(ComPortStr));
   ini.WriteInteger('Node','ID',NodeID);
   ini.WriteString('MQTT','topic',EdTopic.Text);
   ini.WriteString('MQTT','val',EdTopicVal.Text);
@@ -336,20 +360,23 @@ end;
 // =====================================================
 procedure TForm1.CbPortsChange(Sender : TObject);
 begin
-  ComPort := CbPorts.Text;
+  ComPortStr := CbPorts.Text;
   if HB.ComPort.Connected then begin
     HB.FlushTx;
     HB.ComPort.Close;
   end;
   Label3.Caption:='Disonnected';
-  HB.ComPort.Port := ComPort;
-  try
-    HB.ComPort.Open;
-    if HB.ComPort.Connected then
-      Label3.Caption:='Connected';
-  except
-    on EComPort do begin
-      HB.ComPort.Connected := false;
+  if Trim(ComPortStr) <> '' then begin
+    HB.ComPort.Port := ComPortStr;
+    try
+      HB.PortOk := true;
+      HB.ComPort.Open;
+      if HB.ComPort.Connected then
+        Label3.Caption:='Connected';
+    except
+      if HB.ComPort.Connected then
+        HB.ComPort.Connected := false;
+      HB.PortOk := false;
     end;
   end;
   HB.FlushRx;

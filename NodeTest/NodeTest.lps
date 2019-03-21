@@ -4,13 +4,13 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="9">
+    <Units Count="13">
       <Unit0>
         <Filename Value="NodeTest.lpr"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="72" Y="21"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="142"/>
       </Unit0>
       <Unit1>
         <Filename Value="main.pas"/>
@@ -18,10 +18,9 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="237"/>
-        <CursorPos X="65" Y="260"/>
-        <UsageCount Value="134"/>
+        <TopLine Value="206"/>
+        <CursorPos X="11" Y="226"/>
+        <UsageCount Value="142"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -30,22 +29,24 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="19"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="142"/>
       </Unit2>
       <Unit3>
         <Filename Value="HBrxtxU.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="335"/>
-        <CursorPos X="107" Y="415"/>
-        <UsageCount Value="66"/>
+        <TopLine Value="464"/>
+        <CursorPos X="73" Y="483"/>
+        <UsageCount Value="70"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="1601"/>
-        <CursorPos X="83" Y="1627"/>
-        <UsageCount Value="8"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="1913"/>
+        <CursorPos Y="1934"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32listsl.inc"/>
@@ -59,7 +60,7 @@
         <EditorIndex Value="2"/>
         <TopLine Value="311"/>
         <CursorPos X="25" Y="322"/>
-        <UsageCount Value="61"/>
+        <UsageCount Value="65"/>
         <Loaded Value="True"/>
       </Unit6>
       <Unit7>
@@ -72,133 +73,160 @@
       </Unit7>
       <Unit8>
         <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="3243"/>
         <CursorPos Y="3278"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit8>
+      <Unit9>
+        <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32object.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="368"/>
+        <CursorPos Y="388"/>
+        <UsageCount Value="10"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="C:\Tools\Lazarus\lcl\include\application.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1379"/>
+        <CursorPos Y="1402"/>
+        <UsageCount Value="10"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="C:\Tools\Lazarus\components\lazutils\winlazutf8.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="194"/>
+        <CursorPos X="57" Y="214"/>
+        <UsageCount Value="10"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32memostrings.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="255"/>
+        <CursorPos X="97" Y="272"/>
+        <UsageCount Value="10"/>
+      </Unit12>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="410" Column="41" TopLine="390"/>
+        <Caret Line="524" TopLine="516"/>
       </Position1>
       <Position2>
-        <Filename Value="main.pas"/>
-        <Caret Line="125" Column="16" TopLine="112"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="539" TopLine="516"/>
       </Position2>
       <Position3>
-        <Filename Value="main.pas"/>
-        <Caret Line="514" Column="3" TopLine="524"/>
+        <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
+        <Caret Line="1622" TopLine="1601"/>
       </Position3>
       <Position4>
-        <Filename Value="main.pas"/>
-        <Caret Line="398" TopLine="387"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="567" TopLine="541"/>
       </Position4>
       <Position5>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="345" Column="74" TopLine="316"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="570" TopLine="544"/>
       </Position5>
       <Position6>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="72" Column="18" TopLine="58"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="611" Column="12" TopLine="73"/>
       </Position6>
       <Position7>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="69" Column="75" TopLine="58"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="229"/>
       </Position7>
       <Position8>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="72" Column="22" TopLine="58"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="373" Column="25" TopLine="339"/>
       </Position8>
       <Position9>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="140" Column="25" TopLine="120"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="370" Column="40" TopLine="340"/>
       </Position9>
       <Position10>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="199" Column="15" TopLine="164"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="375" Column="11" TopLine="340"/>
       </Position10>
       <Position11>
         <Filename Value="main.pas"/>
-        <Caret Line="397" TopLine="387"/>
+        <Caret Line="226" Column="11" TopLine="206"/>
       </Position11>
       <Position12>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3257" TopLine="3239"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="356" Column="95" TopLine="340"/>
       </Position12>
       <Position13>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3260" TopLine="3239"/>
+        <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
+        <Caret Line="1309" TopLine="1288"/>
       </Position13>
       <Position14>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3261" TopLine="3239"/>
+        <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
+        <Caret Line="1622" TopLine="1601"/>
       </Position14>
       <Position15>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3262" TopLine="3239"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="569" TopLine="549"/>
       </Position15>
       <Position16>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3278" TopLine="3243"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="572" TopLine="549"/>
       </Position16>
       <Position17>
-        <Filename Value="main.pas"/>
-        <Caret Line="398" TopLine="387"/>
+        <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
+        <Caret Line="1937" Column="89" TopLine="1913"/>
       </Position17>
       <Position18>
-        <Filename Value="main.pas"/>
-        <Caret Line="401" Column="26" TopLine="387"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="573" TopLine="549"/>
       </Position18>
       <Position19>
-        <Filename Value="main.pas"/>
-        <Caret Line="397" TopLine="387"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="576" TopLine="549"/>
       </Position19>
       <Position20>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3257" TopLine="3243"/>
+        <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
+        <Caret Line="1934" TopLine="1913"/>
       </Position20>
       <Position21>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3260" TopLine="3243"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="228" TopLine="208"/>
       </Position21>
       <Position22>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3261" TopLine="3243"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="231" TopLine="208"/>
       </Position22>
       <Position23>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3262" TopLine="3243"/>
+        <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
+        <Caret Line="1622" TopLine="1601"/>
       </Position23>
       <Position24>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <Caret Line="3278" TopLine="3243"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="569" TopLine="549"/>
       </Position24>
       <Position25>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="330" TopLine="308"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="572" TopLine="549"/>
       </Position25>
       <Position26>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="331" TopLine="308"/>
+        <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
+        <Caret Line="1937" Column="87" TopLine="1913"/>
       </Position26>
       <Position27>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="141" TopLine="120"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="229" TopLine="208"/>
       </Position27>
       <Position28>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="142" TopLine="120"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="381" TopLine="341"/>
       </Position28>
       <Position29>
-        <Filename Value="HBcmdU.pas"/>
-        <Caret Line="143" Column="99" TopLine="120"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="572" TopLine="549"/>
       </Position29>
       <Position30>
-        <Filename Value="main.pas"/>
-        <Caret Line="397" TopLine="387"/>
+        <Filename Value="HBrxtxU.pas"/>
+        <Caret Line="595" Column="5" TopLine="562"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

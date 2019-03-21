@@ -3,7 +3,7 @@ object Form1: TForm1
   Height = 376
   Top = 239
   Width = 769
-  Caption = 'NodeTest rev 1.05'
+  Caption = 'NodeTest rev 1.06'
   ClientHeight = 376
   ClientWidth = 769
   OnCreate = FormCreate
@@ -366,6 +366,11 @@ object Form1: TForm1
     Interval = 10
     OnTimer = Timer10msTimer
     left = 516
+    top = 45
+  end
+  object Timer1sec: TTimer
+    OnTimer = Timer1secTimer
+    left = 600
     top = 45
   end
 end

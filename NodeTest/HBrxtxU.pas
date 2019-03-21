@@ -35,7 +35,7 @@ interface
 //##############################################################################
 
 uses
-  Classes, SysUtils, CPort;
+  Classes, SysUtils, Dialogs, CPort;
 
 const
   _ESC          = $1B;
@@ -98,6 +98,7 @@ type
     procedure FDecode(ss: string);
   public
     ComPort: TComPort;
+    PortOk : boolean;
     ErrCnt:  integer;       // errors while receiving
     NoRx:    boolean;       // no receiption
     DbgList : TStringList;
@@ -468,17 +469,26 @@ function THbRxtx.Tx(msg: THbMsg): string;
 var s : string;
 begin
   result := '';
-  if not FTxBusy then begin
-    if msg.hb then
-      s := FEncodeHB(msg.s)
-    else
-      s := FEncodeMQ(msg.s);
-    if s <> '' then begin
-      ComPort.WriteStr(s);
-      TxStatus := 1;
-      result := s;
+  if ComPort.Connected and PortOk then begin
+    try
+      if not FTxBusy then begin
+        if msg.hb then
+          s := FEncodeHB(msg.s)
+        else
+          s := FEncodeMQ(msg.s);
+        if s <> '' then begin
+          ComPort.WriteStr(s);
+          TxStatus := 1;
+          result := s;
+        end;
+      end;
+    except
+      if ComPort.Connected then
+        ComPort.Connected:=false;
+      PortOk := false;
     end;
-  end;
+  end else
+    ShowMessage('COM port not connected');
 end;
 
  // =====================================  
@@ -511,51 +521,59 @@ procedure THbRxtx.Tick10ms;
 var len : integer;
     s : string;
 begin
-  // Tx
-  if (Fsent <> '') and (FTxTmout > 0) then  begin
-    Dec(FTxTmout);
-    if FTxTmout = 0 then begin
-      if FRtrCnt < 4 then begin
-        Inc(FRtrCnt);
-        FTxTmout := TX_TMOUT;
-        Fsent := FAddPriority(Fsent);
-        ComPort.WriteStr(Fsent);
-      end else  begin
-        FlushTx;
-        NoRx := True;
+  if ComPort.Connected and PortOk then begin
+    try
+      // Tx
+      if (Fsent <> '') and (FTxTmout > 0) then  begin
+        Dec(FTxTmout);
+        if FTxTmout = 0 then begin
+          if FRtrCnt < 4 then begin
+            Inc(FRtrCnt);
+            FTxTmout := TX_TMOUT;
+            Fsent := FAddPriority(Fsent);
+            ComPort.WriteStr(Fsent);
+          end else  begin
+            FlushTx;
+            NoRx := True;
+          end;
+        end;
       end;
+      // Rx
+      if (FGateTmout < 1000) then
+         inc(FGateTmout);
+      if (FGateTmout > 20) then // after 200 ms
+        FGate := false;         // gate is expired
+      len := ComPort.InputCount;
+      if len > 0 then begin
+         ComPort.ReadStr(s, len);
+         FDecode(s);
+      end;
+      // Debug
+      if (FStr <> '') or (FLastValid) then begin
+        inc(FStr_tmout);
+        if FStr_tmout > 100 then begin
+          if FLastValid then
+             FAddDebugStr(FLast);
+          DbgList.Add(FStr);
+          FLastValid := false;
+          FStr := '';
+          FStr_tmout := 0;
+        end;
+      end;
+      // Dump
+      inc(FDampPause);
+      if (FDampPause > 100) and (FDampHex <> '') then begin
+        FDampPause := 0;
+        DampList.Add(FDampHex+FDampStr);
+        FDampCnt := 0;
+        FDampHex := '';
+        FDampStr := '';
+      end;
+    except
+      if ComPort.Connected then
+         ComPort.Connected:=false;
+      PortOk := false;
     end;
-  end;
-  // Rx
-  if (FGateTmout < 1000) then
-     inc(FGateTmout);
-  if (FGateTmout > 20) then // after 200 ms
-    FGate := false;         // gate is expired
-  len := ComPort.InputCount;
-  if len > 0 then begin
-     ComPort.ReadStr(s, len);
-     FDecode(s);
-  end;
-  // Debug
-  if (FStr <> '') or (FLastValid) then begin
-    inc(FStr_tmout);
-    if FStr_tmout > 100 then begin
-      if FLastValid then
-         FAddDebugStr(FLast);
-      DbgList.Add(FStr);
-      FLastValid := false;
-      FStr := '';
-      FStr_tmout := 0;
-    end;
-  end;
-  // Dump
-  inc(FDampPause);
-  if (FDampPause > 100) and (FDampHex <> '') then begin
-    FDampPause := 0;
-    DampList.Add(FDampHex+FDampStr);
-    FDampCnt := 0;
-    FDampHex := '';
-    FDampStr := '';
   end;
 end;
 
@@ -570,11 +588,12 @@ begin
   ComPort.StopBits := sbOneStopBit;
   ComPort.Port := port;
   try
+    PortOk := true;
     ComPort.Open;
   except
-    on EComPort do begin
+    if ComPort.Connected then
       ComPort.Connected := false;
-    end;
+    PortOk := false;
   end;
   FlushTx;
   FlushRx;
