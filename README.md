@@ -3,6 +3,13 @@
   * [HBus mode (config and control messages)](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages)
   * [MQTT mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
   * [NodeTest](https://github.com/akouz/HBus/blob/master/NodeTest/)
+  * Devices:
+    * [USB Bridge](https://github.com/akouz/HBus/tree/master/HBus_USB_Bridge)
+    * [WiFi Gateway](https://github.com/akouz/HBus/tree/master/HBus_WiFi_Gateway)
+    * [Power Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter)
+    * [4-channel Relay Output](https://github.com/akouz/HBus/tree/master/HBus_Relay4)
+    * [4-channel MOSFET Oputput](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4)
+    * [Sensor Input](https://github.com/akouz/HBus/tree/master/HBus_Sensor)
  
 ## Introduction
 
