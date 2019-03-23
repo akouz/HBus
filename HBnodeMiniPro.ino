@@ -56,8 +56,8 @@ const uchar node_descr[8] = {
 1,  // h/w rev minor
 0,  // boot rev major
 1,  // boot rev minor
-0,  // s/w rev major
-1   // s/w rev minor
+0,  // sketch rev major
+1   // sketch rev minor
 };
 
 // -----------------------------------
@@ -73,16 +73,17 @@ const uint topic_descr[MAX_TOPIC] = {
 //##############################################################################
 
 // ========================================
-// Broadcast topic values: if node has permanent ID (eg if node configured)   
+// Broadcast topic values    
 // ========================================
-// then every 10 sec prepare MQTT message with next topic value 
+// if node has permanent ID (eg if node configured) then every 10 sec 
+// check next topic and broadcast its value if value is valid  
 void coos_task_broadcast(void)
 {
     static uchar topic_i = 0;
     while(1)
     {
         COOS_DELAY(10000);  // pause 10 sec (10,000 ms)
-        if ((HBcmd.own.ID & 0xF000) != 0xF000) // if not temporary ID
+        if (HBcmd.own.ID < 0xF000) // if not a temporary ID
         {
             if (HBmqtt.valid[topic_i])   // broadcast only valid values
             {
@@ -159,7 +160,7 @@ void setup()
 void loop()
 {  
     coos.run();  // Coos scheduler 
-    wdt_reset(); // service watchdog, it supposed to happen in few ms in worst case
+    wdt_reset(); // service watchdog, it supposed to happen every ms, or few ms in a worst case
 }
 
 /* EOF */

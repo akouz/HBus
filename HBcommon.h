@@ -42,6 +42,7 @@
 
 // rev 0.6  -   15/03/2019, refactoring, use installed library <coos.h>, use
 //              descriptors for HBcmd and HBmqtt; remove local file revisions
+// rev 0.7  -   16/03/2019, report value as 0 (no decimal point) if it is not valid
 
 //##############################################################################
 // Def
@@ -51,7 +52,7 @@ enum{
 
     // HBus revision
     HB_REV_MAJ      = 0,
-    HB_REV_MIN      = 6,     
+    HB_REV_MIN      = 7,     
 
     // coos
     COOS_TASKS      = 6,   // this node uses up to 6 coos tasks            

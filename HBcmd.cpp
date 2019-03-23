@@ -194,9 +194,17 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         // list all topics values
         snprintf(buf, sizeof(buf),",values:[");
         add_txmsg_z_str(rply, buf);
-        for (uchar i=0; i< MAX_TOPIC; i++)
+        for (uchar i=0; i<MAX_TOPIC; i++)
         {
-            dtostrf(HBmqtt.value[i], 4,2, buf);
+            if (HBmqtt.valid[i])
+            {
+                dtostrf(HBmqtt.value[i], 4,2, buf);
+            }
+            else
+            {
+                buf[0] = '0';
+                buf[1] = 0;
+            }
             add_txmsg_z_str(rply, buf);         
             if (i < MAX_TOPIC-1)        
                 add_txmsg_uchar(rply, ',');

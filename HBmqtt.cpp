@@ -152,6 +152,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
 uchar HB_mqtt::make_msg(uchar topic_i)
 {
     uint tpc;
+    char buf[32];
     mqmsg.valid = 0;
     if (topic_i < MAX_TOPIC) 
     {
@@ -167,10 +168,17 @@ uchar HB_mqtt::make_msg(uchar topic_i)
         add_txmsg_uchar(&mqmsg, (uchar)(MsgID >> 8));
         add_txmsg_uchar(&mqmsg, (uchar)(MsgID));                
         add_txmsg_uchar(&mqmsg, 1);    // JSON
-        char buf[32];
         sprintf(buf,"{topic:%d,val:", tpc);
         add_txmsg_z_str(&mqmsg, buf);
-        dtostrf(value[topic_i], 4,2, buf);
+        if (valid[topic_i])
+        {
+            dtostrf(value[topic_i], 4,2, buf);
+        }
+        else
+        {
+            buf[0] = '0';
+            buf[1] = 0;
+        }        
         add_txmsg_z_str(&mqmsg, buf);
         add_txmsg_uchar(&mqmsg, '}'); 
         finish_txmsg(&mqmsg);
