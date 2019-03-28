@@ -10,7 +10,8 @@
     * [4-channel Relay Output](https://github.com/akouz/HBus/tree/master/HBus_Relay4)
     * [4-channel MOSFET Oputput](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4)
     * [Sensor Input](https://github.com/akouz/HBus/tree/master/HBus_Sensor)
- 
+    * [PIR Sensor](https://github.com/akouz/HBus/tree/master/HBus_PIR_Sensor)
+    
 ## Introduction
 
 HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transceiver. Once configured, HBus system is self-contained, eg it can operate without any host or server, like KNX, C-Bus or Velbus. 
