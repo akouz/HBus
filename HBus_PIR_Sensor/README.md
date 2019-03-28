@@ -1,6 +1,6 @@
  # HBus PIR Sensor
  
-   * PIR sensor HC-SR501, or microvawe radar sensor RCWL-0516, or both
+   * PIR sensor HC-SR501, or microwave radar sensor RCWL-0516, or both
    * LDR for ambient light level measurement
    * Optional 1-Wire for temperature sensors
    * Oputput:
