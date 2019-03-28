@@ -8,9 +8,9 @@
     * [WiFi Gateway](https://github.com/akouz/HBus/tree/master/HBus_WiFi_Gateway)
     * [Power Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter)
     * [4-channel Relay Output](https://github.com/akouz/HBus/tree/master/HBus_Relay4)
-    * [4-channel MOSFET Oputput](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4)
+    * [4-channel N-MOSFET Output](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4)
     * [Sensor Input](https://github.com/akouz/HBus/tree/master/HBus_Sensor)
-    * [PIR Sensor](https://github.com/akouz/HBus/tree/master/HBus_PIR_Sensor)
+    * [PIR Sensor Input with 3-channel P-MOSFET Output](https://github.com/akouz/HBus/tree/master/HBus_PIR_Sensor)
     
 ## Introduction
 
