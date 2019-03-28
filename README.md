@@ -63,7 +63,7 @@ Transceivers with slope control produce less noise on the bus, ie have better EM
 
 # HBus protocol
 
-Current firmware revision 0.6.
+Current firmware revision 0.7.
 
 ## Byte-stuffing
 
