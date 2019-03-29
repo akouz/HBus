@@ -6,3 +6,7 @@
   * Optional photoresistor input for ambient light sensing
   * Optional 1-Wire bus for DS18B20 temperature sensors
   * Double sided PCB 50x70 mm
+
+![Pic1](https://github.com/akouz/HBus/blob/master/HBus_MOSFET4/PIC/HBus_MOSFETdrv4.jpg)
+
+Board with only one channel CH1 assembled.
