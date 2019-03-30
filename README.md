@@ -39,9 +39,11 @@ Wiring made by Cat5/Cat6 cables. Twisted pairs used as follows:
 
 Free topology is allowed. Total length of cables should not exceed 500 m. A single terminating resistor 100 Ohm should be placed somwhere in a middle of the network.
 
-Cat5/Cat6 cables have limited current carrying capability. To prevent fire in case of short circuit, power supply +12V connected to the bus should have current limit at no more than 2A. In simplest case use a 1A...2A fuse. 
+Cat5/Cat6 cables have limited current carrying capability. To prevent fire in case of short circuit, power supply +12V connected to the bus should have current limit or a [slow-blow fuse.](https://electronics.stackexchange.com/questions/25055/slow-blow-vs-fast-acting-fuse) Cat5/Cat6 single core cable has wires 0.5 mm diameter or 24 AWG (0.511 mm diameter). Single [AWG24 wire can carry 2..3.5 A](https://en.wikipedia.org/wiki/American_wire_gauge), depending on allowed temerature rise. For a short time AWG24 can carry 5A or more, but cable insulation material will be degraded rapidly. 
 
-More expensive EIB/KNX cable can be used too.
+Thus, when 2 wires in parallel are used for power distribution, Cat5/Cat6 can carry up to 4..7 A of current. However, it would be a bit risky, because it is hard to quarantee that both cores are always connected. Safe and reliable applications should not distribute more than 3A via Cat5/Cat6 cable, even when 2 or 3 cores connected in parallel.
+
+More expensive EIB/KNX cable can be used too. With 0.8 mm wires it can reliably distribute [up to 10A of current.](https://en.wikipedia.org/wiki/American_wire_gauge)
 
 ## CAN driver restrictions
 
