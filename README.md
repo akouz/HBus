@@ -43,7 +43,7 @@ Cat5/Cat6 cables have limited current carrying capability. To prevent fire in ca
 
 Thus, when 2 wires in parallel are used for power distribution, Cat5/Cat6 can carry up to 4..7 A of current. However, it would be a bit risky, because it is hard to quarantee that both cores are always connected. Safe and reliable applications should not distribute more than 3 A via Cat5/Cat6 cable, even when 2 or 3 cores connected in parallel.
 
-More expensive EIB/KNX cable can be used too. With 0.8 mm wires it can reliably distribute [up to 10A of current.](https://en.wikipedia.org/wiki/American_wire_gauge)
+More expensive EIB/KNX cable can be used too. With 0.8 mm wires it can safely distribute [up to 10A of current.](https://en.wikipedia.org/wiki/American_wire_gauge)
 
 ## CAN driver restrictions
 
