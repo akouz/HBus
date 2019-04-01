@@ -1,6 +1,7 @@
 # 4-channel MOSFET Output
 
   * 4 galvanically isolated outputs, IRF540 MOSFETs
+  * MOSFET output designed for 1 kHz PWM
   * Output supply voltage 10...30 Vdc
   * Arduino detects presence of MOSFET supply voltage
   * Optional photoresistor input for ambient light sensing
