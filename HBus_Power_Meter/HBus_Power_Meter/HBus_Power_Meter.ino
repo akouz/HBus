@@ -88,14 +88,14 @@
 // -----------------------------------
 // must be 8 bytes long
 const uchar node_descr[8] = {
-2,  // device type      - node
-2,  // device model     - Power Meter
+5,  // device type      - I/O
+1,  // device model     - Power Meter
 1,  // h/w rev major
 1,  // h/w rev minor
 0,  // boot rev major
 1,  // boot rev minor
 0,  // sketch rev major
-1   // sketch rev minor
+2   // sketch rev minor
 };
 
 // -----------------------------------
@@ -103,8 +103,8 @@ const uchar node_descr[8] = {
 // -----------------------------------
 //  MAX_TOPIC defined in HBcommon.h, there are 4 topics in this demo
 const uint topic_descr[MAX_TOPIC] = {
-501,     // mains voltage 
-502,     // household power and solar power
+1001,     // mains voltage 
+1002,     // household power and solar power
 };
 
 //##############################################################################
