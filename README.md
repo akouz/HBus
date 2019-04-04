@@ -728,17 +728,29 @@ Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN 
 </tr><tr>
 <td>100...499</td>
 <td>system</td>
+</tr><tr>
+<td>500...999</td>
+<td>errors, integrity checks</td>
+</tr><tr>
+<td>--500...599</td>
+<td>--mains and power supply failures</td>
+</tr><tr>
+<td>--600...699</td>
+<td>--wiring failures</td>
+</tr><tr>
+<td>--700...799</td>
+<td>--signal propagation failures</td>
+</tr><tr>
+<td>1000...1999</td>
+<td>sensors, measured values</td>
+</tr><tr>
+<td>--1000...1099</td>
+<td>--temperature</td>
+</tr><tr>
+<td>--1100...1199</td>
+<td>--humidity, moisture</td>
+</tr><tr>
 </tr></tbody></table>
- 
- 
-100...499	- system
-500...999	- errors, integrity checks
-  500...599	-- mains and power supply failures
-  600...699	-- wiring failures 
-  700...799	-- signal propagation failures
-1000...1999	- sensors, measured values
-  1000...1099	-- temperature
-  1100...1199	-- humidity, moisture
   1200...1299	-- ambient light
   1300...1399	-- movement detectors
   1400...1499	-- gas
