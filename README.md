@@ -682,6 +682,7 @@ Rply  is an optional reply.
 
 # MQTT mode (broadcast messages)
 
+## Message structure
 In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
 
 Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN clause 5.4.12. Message structure is as follows:
@@ -714,3 +715,33 @@ Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN 
     * 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md) 
     * other - TBD.
     
+## Proposed topics
+
+<table>
+<thead><tr>
+<th>range</th>
+<th>description</th>
+</tr></thead>
+<tbody><tr>
+<td>0...99</td>
+<td>reserved</td>
+</tr><tr>
+<td>100...499</td>
+<td>system</td>
+</tr></tbody></table>
+ 
+ 
+100...499	- system
+500...999	- errors, integrity checks
+  500...599	-- mains and power supply failures
+  600...699	-- wiring failures 
+  700...799	-- signal propagation failures
+1000...1999	- sensors, measured values
+  1000...1099	-- temperature
+  1100...1199	-- humidity, moisture
+  1200...1299	-- ambient light
+  1300...1399	-- movement detectors
+  1400...1499	-- gas
+2000...2999	- lights (virtual wires)
+  2000...2099	--- outside lights
+  2100...2199
