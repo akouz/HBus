@@ -750,10 +750,21 @@ Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN 
 <td>--1100...1199</td>
 <td>--humidity, moisture</td>
 </tr><tr>
+<td>--1200...1299</td>
+<td>--ambient light</td>
+</tr><tr>
+<td>--1300...1399</td>
+<td>--movement detectors</td>
+</tr><tr>
+<td>--1400...1499</td>
+<td>--gas sensors</td>
+</tr><tr>
+<td>2000...2999</td>
+<td>lights (virtual wires)</td>
+</tr><tr>
+<td>--2000...2099</td>
+<td>--outside lights</td>
+</tr><tr>
+<td>--2100...2199</td>
+<td>--indoor lights</td>
 </tr></tbody></table>
-  1200...1299	-- ambient light
-  1300...1399	-- movement detectors
-  1400...1499	-- gas
-2000...2999	- lights (virtual wires)
-  2000...2099	--- outside lights
-  2100...2199
