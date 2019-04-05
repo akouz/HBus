@@ -1,7 +1,7 @@
 # HBus
 
   * [HBus mode (config and control messages)](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages)
-  * [MQTT mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
+  * [MQTT mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-mode-broadcast-messages)
   * [NodeTest](https://github.com/akouz/HBus/blob/master/NodeTest/)
   * Devices:
     * [USB Bridge](https://github.com/akouz/HBus/tree/master/HBus_USB_Bridge) 
