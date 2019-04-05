@@ -1,7 +1,7 @@
  # White LED strip
  
 This sketch combines functions of light sensor and movement detector:
-  * In the evening it set LED strip on for 4 hours at half brightness
+  * In the evening it set LED strip on for 4 hours at half brightness. PWM frequency 125 Hz.
   * If a movement detected while it is dark then LED strip is set to full brightness for 1 min; it is retriggered by every detected movement
   
 Apart from "visual" functions, sketch sends the following report to HBus:
@@ -10,4 +10,4 @@ Apart from "visual" functions, sketch sends the following report to HBus:
   * topic 2000 - LED strip light level,  value in the range 0...1.0 reflect PWM output at channel CH1
   * topic 500 - integrity check: set to 1.0 if there is no MOSFET voltage detected, or to 0 if MOSFET voltage is OK
 
-Topics reported promply on change, as well as merely updated every 10 min
+Topics reported promply on change, as well as merely updated every 10 min. 
