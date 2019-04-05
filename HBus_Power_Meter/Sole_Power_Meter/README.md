@@ -1,4 +1,4 @@
-# Sole_Power_Meter
+# Sole_power_meter
 
 Sketch for a stand-alone power meter, HBus not used.
 
