@@ -260,8 +260,10 @@ void coos_task_PWM(void)
 void coos_task_LED_strip(void)
 {
     static uchar LED_on = 0;
+    uchar prompt;
     while(1)
     {
+        prompt = 0;
         if ((bright) && (HBmqtt.value[PHOTO_I] > 1.1) && (LED_timer == 0))
         {
 #ifdef DEBUG        
@@ -274,16 +276,14 @@ void coos_task_LED_strip(void)
             if (LED_on)
             {
                 LED_on = 0;
-                HBmqtt.value[LED_I] = 0;
-                HBmqtt.make_msg(LED_I);
+                prompt = 1;
             }
         }
         if ((bright == 0) && (LED_timer) && (LED_on == 0))
         {
-            HBmqtt.value[LED_I] = 1.0;
             HBmqtt.valid[LED_I] = 1;
-            HBmqtt.make_msg(LED_I);
             LED_on = 1;
+            prompt = 1;
 #ifdef DEBUG        
             Serial.print("LED on");
 #endif            
@@ -307,13 +307,21 @@ void coos_task_LED_strip(void)
         {
             if (--LED_timer == 0)
             {
-                LED_on = 0;
-                HBmqtt.value[LED_I] = 0;
-                HBmqtt.make_msg(LED_I);
+                LED_on = 0;  
+                if (PIR_cnt == 0)
+                {
+                    PWM[0] = 0;
+                }             
+                prompt = 1;
 #ifdef DEBUG        
                 Serial.print("LED timer off");
 #endif                
             }
+        }
+        HBmqtt.value[LED_I] = PWM[0] / 8.0;
+        if (prompt)
+        {
+            HBmqtt.make_msg(LED_I);
         }
         COOS_DELAY(1000);
     }
