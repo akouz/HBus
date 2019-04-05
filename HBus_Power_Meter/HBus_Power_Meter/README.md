@@ -1,3 +1,3 @@
-# HBus_power_meter
+# HBus_Power_Meter
 #### rev 0.1
 
