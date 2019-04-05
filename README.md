@@ -10,6 +10,8 @@
     * [4.1] [4-channel Relay Output](https://github.com/akouz/HBus/tree/master/HBus_Relay4)
     * [4.2] [4-channel N-MOSFET Output](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4)
     * [5.1] [Power Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter)
+      * Sketch [Sole_Power_Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter/Sole_Power_Meter)
+      * Sketch [HBus_Power_Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter/HBus_Power_Meter)
     * [5.2] [PIR Sensor Input with 3-channel P-MOSFET Output](https://github.com/akouz/HBus/tree/master/HBus_PIR_Sensor)
     
 ## Introduction
