@@ -1,6 +1,6 @@
  # White LED strip
  
-I have a white LED strip at entry door. This sketch combines functions of light sensor and movement detector:
+This sketch combines functions of light sensor and movement detector:
   * In the evening it set LED strip on for 4 hours at half brightness
   * If a movement detected while it is dark then LED strip is set to full brightness for 1 min; it is retriggered by every detected movement
   
