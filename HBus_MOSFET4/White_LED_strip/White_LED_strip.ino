@@ -36,6 +36,9 @@
 //##############################################################################
 
 // #define DEBUG
+// #define DEBUG_PRINT
+// #define DEBUG_PWM
+
 
 #ifndef BUILTIN_LED
   #define BUILTIN_LED   13
@@ -268,10 +271,12 @@ void coos_task_LED_strip(void)
         {
 #ifdef DEBUG        
             LED_timer = 60; // 1 min
-            Serial.print("LED timer charged");
 #else            
             LED_timer = 3600*4; // 4 hours
-#endif            
+#endif
+#ifdef DEBUG_PRINT            
+            Serial.print("LED timer charged");
+#endif
             PWM[0] = 0;  
             if (LED_on)
             {
@@ -284,7 +289,7 @@ void coos_task_LED_strip(void)
             HBmqtt.valid[LED_I] = 1;
             LED_on = 1;
             prompt = 1;
-#ifdef DEBUG        
+#ifdef DEBUG_PRINT        
             Serial.print("LED on");
 #endif            
         }
@@ -313,7 +318,7 @@ void coos_task_LED_strip(void)
                     PWM[0] = 0;
                 }             
                 prompt = 1;
-#ifdef DEBUG        
+#ifdef DEBUG_PRINT        
                 Serial.print("LED timer off");
 #endif                
             }
@@ -338,17 +343,19 @@ void coos_task_broadcast(void)
     {
 #ifdef DEBUG
         COOS_DELAY(10000);      // 10 sec
+#else
+        for (i=0; i<600; i++)    // 600 sec = 10 min  
+        {
+            COOS_DELAY(1000);   // 1 sec
+        }        
+#endif        
+#ifdef DEBUG_PWM
         Serial.print(" PWM=");
         for (uchar i=0; i<4; i++)
         {
             Serial.print(PWM[i]);
             Serial.print(" ");
         }
-#else
-        for (i=0; i<600; i++)    // 600 sec = 10 min  
-        {
-            COOS_DELAY(1000);   // 1 sec
-        }        
 #endif        
         if (HBcmd.own.ID < 0xF000) // if not a temporary ID
         {
