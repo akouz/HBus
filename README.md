@@ -9,7 +9,7 @@
     * [3.1] [Sensor Input](https://github.com/akouz/HBus/tree/master/HBus_Sensor)
     * [4.1] [4-channel Relay Output](https://github.com/akouz/HBus/tree/master/HBus_Relay4)
     * [4.2] [4-channel N-MOSFET Output](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4)
-      * Sketch [HBus_LED_strip](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4/White_LED_strip)
+      * Sketch [White_LED_strip](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4/White_LED_strip)
     * [5.1] [Power Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter)
       * Sketch [Sole_Power_Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter/Sole_Power_Meter)
       * Sketch [HBus_Power_Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter/HBus_Power_Meter)
