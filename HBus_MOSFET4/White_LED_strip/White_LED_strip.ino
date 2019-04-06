@@ -35,9 +35,9 @@
 // Def
 //##############################################################################
 
-// #define DEBUG
-// #define DEBUG_PRINT
-// #define DEBUG_PWM
+//#define DEBUG
+//#define DEBUG_PRINT
+//#define DEBUG_PWM
 
 
 #ifndef BUILTIN_LED
@@ -253,6 +253,10 @@ void coos_task_PWM(void)
         }
         COOS_DELAY(1);      // 1 ms
         cnt = (cnt+1) & 7;  // period 8 ms
+        if (cnt == 0)
+        {
+            PWM[0] = (uchar)(8*HBmqtt.value[LED_I]);            
+        }
     }
 }
 // ========================================
@@ -277,7 +281,7 @@ void coos_task_LED_strip(void)
 #ifdef DEBUG_PRINT            
             Serial.print("LED timer charged");
 #endif
-            PWM[0] = 0;  
+            HBmqtt.value[LED_I] = 0;  
             if (LED_on)
             {
                 LED_on = 0;
@@ -295,17 +299,17 @@ void coos_task_LED_strip(void)
         }
         if (LED_on)
         {
-            PWM[0] = (PIR_cnt)? 8 : 4;                 
+            HBmqtt.value[LED_I] = (PIR_cnt)? 1.0 : 0.5;                 
         }
         else 
         {   
             if (bright)
             { 
-                PWM[0] = 0;     // do not switch LED strip ON
+                HBmqtt.value[LED_I] = 0;     // do not switch LED strip ON
             }
             else
             {
-                PWM[0] = (PIR_cnt)? 6 : 0;
+                HBmqtt.value[LED_I] = (PIR_cnt)? 0.75 : 0;
             }                 
         }
         if ((LED_timer) && (LED_on))
@@ -315,7 +319,7 @@ void coos_task_LED_strip(void)
                 LED_on = 0;  
                 if (PIR_cnt == 0)
                 {
-                    PWM[0] = 0;
+                    HBmqtt.value[LED_I] = 0;
                 }             
                 prompt = 1;
 #ifdef DEBUG_PRINT        
@@ -389,9 +393,9 @@ void print_hdr_txt(uint ID)
     Serial.print('.');    
     Serial.print(node_descr[3]);
     Serial.print(txt2);
-    Serial.print(node_descr[5]);
-    Serial.print('.');    
     Serial.print(node_descr[6]);
+    Serial.print('.');    
+    Serial.print(node_descr[7]);
     Serial.print(txt3);
     Serial.println(ID, HEX);
 }
