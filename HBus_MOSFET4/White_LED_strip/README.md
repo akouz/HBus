@@ -11,3 +11,5 @@ Apart from "visual" functions, sketch sends the following report to HBus:
   * topic 500 - integrity check: set to 1.0 if there is no MOSFET voltage detected, or to 0 if MOSFET voltage is OK
 
 Topics reported promply on change, as well as merely updated every 10 min. 
+
+By setting topic 2000 value, it is possdible to control LED strip remotely.
