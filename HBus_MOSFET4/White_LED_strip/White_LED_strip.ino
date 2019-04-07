@@ -78,12 +78,12 @@ enum{
 const uchar node_descr[8] = {
 2,  // device type
 2,  // device model   - white LED strip controller
-0,  // h/w rev major
-1,  // h/w rev minor
+1,  // h/w rev major
+0,  // h/w rev minor
 0,  // boot rev major
 1,  // boot rev minor
 1,  // sketch rev major
-0   // sketch rev minor
+1   // sketch rev minor
 };
 
 // -----------------------------------
@@ -106,6 +106,9 @@ uint  PIR_cnt = 0;
 uchar bright = 0;
 uint  LED_timer = 0;
 uchar PWM[4];
+uchar timer_out = 0;    // LED timer output, %
+uchar PIR_out = 0;      // PIR sensor output, %
+uchar LED_prompt = 0;  
 
 //##############################################################################
 // Func
@@ -170,28 +173,30 @@ void coos_task_PIR(void)
 #else
             PIR_cnt = 600;    // movement detected, (re)triggered for 1 min
 #endif            
-            HBmqtt.value[PIR_I] = (float)PIR_cnt;        
+            HBmqtt.value[PIR_I] = PIR_cnt/10.0;        
             HBmqtt.valid[PIR_I] = 1; 
             digitalWrite(LED, HIGH);
             HBmqtt.make_msg(PIR_I);   // send value promptly
             if (bright == 0) // when dark
             {
-                if (LED_timer)
+                if (PIR_out == 0)
                 {
-                    PWM[0] = 8; // full brightness 
-                }
-                else
-                {
-                    PWM[0] = 6;  
-                }
+                    LED_prompt = 1;
+                }                
+                PIR_out = 75;    // brightness 75%
             }
         }
         else if (PIR_cnt)
         {
             PIR_cnt--;
-            HBmqtt.value[PIR_I] = (float)PIR_cnt;        
+            HBmqtt.value[PIR_I] = PIR_cnt/10.0;        
             if (PIR_cnt == 0)
             {
+                if (PIR_out)
+                {
+                    LED_prompt = 1;
+                }                
+                PIR_out = 0;
                 digitalWrite(LED, LOW);
                 HBmqtt.make_msg(PIR_I);   // send value promptly
             }
@@ -253,9 +258,23 @@ void coos_task_PWM(void)
         }
         COOS_DELAY(1);      // 1 ms
         cnt = (cnt+1) & 7;  // period 8 ms
-        if (cnt == 0)
+        // --------------------------------
+        // combine PIR and timer outputs
+        // --------------------------------
+        if (cnt == 0)   // once in 8 ms
         {
-            PWM[0] = (uchar)(8*HBmqtt.value[LED_I]);            
+            if (LED_prompt)  // either PIR or timer prompt
+            {
+                HBmqtt.value[LED_I] = (timer_out + PIR_out)/100.0;
+                if (HBmqtt.value[LED_I] > 1.0)
+                {
+                    HBmqtt.value[LED_I] = 1.0;
+                } 
+                HBmqtt.make_msg(LED_I);
+            }
+            LED_prompt = 0; 
+            // LED strip connected to CH4           
+            PWM[3] = (uchar)(8*HBmqtt.value[LED_I]);    // can be set externally            
         }
     }
 }
@@ -281,56 +300,37 @@ void coos_task_LED_strip(void)
 #ifdef DEBUG_PRINT            
             Serial.print("LED timer charged");
 #endif
-            HBmqtt.value[LED_I] = 0;  
+            timer_out = 0;  
             if (LED_on)
             {
                 LED_on = 0;
-                prompt = 1;
+                LED_prompt = 1;
             }
         }
         if ((bright == 0) && (LED_timer) && (LED_on == 0))
         {
             HBmqtt.valid[LED_I] = 1;
             LED_on = 1;
-            prompt = 1;
+            LED_prompt = 1;
 #ifdef DEBUG_PRINT        
             Serial.print("LED on");
 #endif            
         }
         if (LED_on)
         {
-            HBmqtt.value[LED_I] = (PIR_cnt)? 1.0 : 0.5;                 
-        }
-        else 
-        {   
-            if (bright)
-            { 
-                HBmqtt.value[LED_I] = 0;     // do not switch LED strip ON
-            }
-            else
-            {
-                HBmqtt.value[LED_I] = (PIR_cnt)? 0.75 : 0;
-            }                 
+            timer_out = 50;     // brightness 50%            
         }
         if ((LED_timer) && (LED_on))
         {
             if (--LED_timer == 0)
             {
-                LED_on = 0;  
-                if (PIR_cnt == 0)
-                {
-                    HBmqtt.value[LED_I] = 0;
-                }             
-                prompt = 1;
+                LED_on = 0;
+                timer_out = 0;  
+                LED_prompt = 1;
 #ifdef DEBUG_PRINT        
                 Serial.print("LED timer off");
 #endif                
             }
-        }
-        HBmqtt.value[LED_I] = PWM[0] / 8.0;
-        if (prompt)
-        {
-            HBmqtt.make_msg(LED_I);
         }
         COOS_DELAY(1000);
     }
