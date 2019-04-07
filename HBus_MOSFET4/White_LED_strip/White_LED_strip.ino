@@ -279,7 +279,7 @@ void coos_task_PWM(void)
     }
 }
 // ========================================
-// Control LED strip at CH1   
+// Control LED strip
 // ========================================
 // if it is dark then switch LED strip for half brightness for 4 hours
 // if movement detected set full brightness  
