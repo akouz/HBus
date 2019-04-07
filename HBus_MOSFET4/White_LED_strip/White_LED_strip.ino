@@ -53,9 +53,9 @@ enum{
     LED1    = 7, 
     LED2    = 8,
     CH1     = 9,
-    CH2     = 10,
+    CH2     = 12,
     CH3     = 11,
-    CH4     = 12,
+    CH4     = 10,
     
     PIR     = 2,  // microwave movement sensor RCWL-0516 at D2
     
@@ -121,8 +121,10 @@ void coos_task_photo(void)
 {
     static uchar cnt = 0;
     static uint sum = 0;
-    static uint lvl = 0;
+    static uint lvl = 1600;     
     float val;
+    bright = 1;
+    HBmqtt.value[PHOTO_I] = 1.5;
     while(1)
     {
         sum += analogRead(LDR);
@@ -225,6 +227,23 @@ void coos_task_PIR(void)
     }
 }
 // ========================================
+// Write to MOSFET channel
+// ========================================
+uchar ch_no(uchar ch_index)
+{
+    switch(ch_index)
+    {
+    case 0: 
+        return CH1; break;
+    case 1: 
+        return CH2; break;
+    case 2: 
+        return CH3; break;
+    default: 
+        return CH4; break;
+    }
+}
+// ========================================
 // PWM for MOSFET outputs   
 // ========================================
 void coos_task_PWM(void)
@@ -237,22 +256,22 @@ void coos_task_PWM(void)
         {
             if (PWM[i] == 0)        // if MOSFET is always OFF
             {
-                digitalWrite(CH1+i, HIGH);
+                digitalWrite(ch_no(i), HIGH);
             }
             else if (PWM[i] >= 7)  // if MOSFET is always ON
             {
-                digitalWrite(CH1+i, LOW);
+                digitalWrite(ch_no(i), LOW);
             }
             else  // pulsed output, 125 Hz
             {
                 pwm =  7 - ((2*i + cnt) & 7);    // spread pulses
                 if (pwm == 0)
                 {
-                    digitalWrite(CH1+i, HIGH);   // finish pulse 
+                    digitalWrite(ch_no(i), HIGH);   // finish pulse 
                 }
                 else if (PWM[i] == pwm)
                 {
-                    digitalWrite(CH1+i, LOW);   // start pulse
+                    digitalWrite(ch_no(i), LOW);   // start pulse
                 }                 
             }                            
         }
