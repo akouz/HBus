@@ -83,7 +83,7 @@ const uchar node_descr[8] = {
 0,  // boot rev major
 1,  // boot rev minor
 1,  // sketch rev major
-1   // sketch rev minor
+2   // sketch rev minor
 };
 
 // -----------------------------------
@@ -158,17 +158,19 @@ void coos_task_PIR(void)
 {
     static uchar edge = 0xFF;
     static uchar vfail;
+    static uchar deadtime = 0;
     vfail = (digitalRead(VCHK))? 0xFF : 0;    
     HBmqtt.valid[VFAIL_I] = 1;
     while(1)
     {
         COOS_DELAY(100);   // every 100 ms
+        deadtime = (deadtime)? (deadtime - 1) : 0;
         // -----------------------------------
         // detect falling edge at PIR sensor output
         // -----------------------------------        
         edge <<= 1;        
         edge = (digitalRead(PIR))? (edge| 1) : edge;
-        if ((edge & 0x0F) == 3)
+        if (((edge & 0x0F) == 3) && (deadtime == 0))
         {
 #ifdef DEBUG        
             PIR_cnt = 100;    // 10 sec
@@ -201,6 +203,7 @@ void coos_task_PIR(void)
                 PIR_out = 0;
                 digitalWrite(LED, LOW);
                 HBmqtt.make_msg(PIR_I);   // send value promptly
+                deadtime = 10;            // 1 sec, to prefent false triggering 
             }
         }
         // -----------------------------------
