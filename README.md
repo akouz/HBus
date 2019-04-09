@@ -762,6 +762,9 @@ Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN 
 <td>--1400...1499</td>
 <td>--gas sensors</td>
 </tr><tr>
+<td>--1500...1599</td>
+<td>--mains voltage, current, power, energy</td>
+</tr><tr>
 <td>2000...2999</td>
 <td>lights (virtual wires)</td>
 </tr><tr>
