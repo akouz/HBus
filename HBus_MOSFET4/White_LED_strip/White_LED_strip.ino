@@ -131,7 +131,7 @@ void coos_task_photo(void)
         if (++cnt >= 8) // after 8 sec
         {
             lvl = (sum/cnt  + lvl) / 2; 
-            val = lvl / 800.0;            // const 800.0 tuned to my LDR and my personal sense of darkness 
+            val = lvl / 600.0;             
             HBmqtt.value[PHOTO_I] = val;
             HBmqtt.valid[PHOTO_I] = 1;
             if ((!bright) && (val >= 1.0))
@@ -308,16 +308,14 @@ void coos_task_PWM(void)
 void coos_task_LED_strip(void)
 {
     static uchar LED_on = 0;
-    uchar prompt;
     while(1)
     {
-        prompt = 0;
         if ((bright) && (HBmqtt.value[PHOTO_I] > 1.1) && (LED_timer == 0))
         {
 #ifdef DEBUG        
             LED_timer = 60; // 1 min
 #else            
-            LED_timer = 3600*4; // 4 hours
+            LED_timer = 3600*5; // 5 hours
 #endif
 #ifdef DEBUG_PRINT            
             Serial.print("LED timer charged");
@@ -363,7 +361,7 @@ void coos_task_LED_strip(void)
 // check next topic and broadcast its value if value is valid  
 void coos_task_broadcast(void)
 {
-    static uchar i;
+    static uint i;
     static uchar topic_i = 0;
     while(1)
     {
