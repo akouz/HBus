@@ -8,7 +8,7 @@
      * Channel 1 output also can drive RGB strips with individial RGB LED control (FastLED, etc)
    * Double sided PCB 50x50 mm
 
-![Assembled](https://github.com/akouz/HBus/blob/master/HBus_PIR_Sensor/PIR_sensor.jpg)
+![Assembled](https://github.com/akouz/HBus/blob/master/Devices/08_PIR_Sensor/PIR_sensor.jpg)
 
 Assembled board.
    
