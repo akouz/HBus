@@ -19,9 +19,9 @@ HBus Power Meter can work autonomously, without any other HBus device. In that c
 
 Every 3 LEDs in full brightness indicate 200W of power, half brightness indicate 100W of power.
 
-![Pic2](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Pic2.png)
+![Pic2](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Pic2.jpg)
 
-![Pic3](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Pic3.png)
+![Pic3](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Pic3.jpg)
 
 If device connected to HBus network, it also regularly broadcasts measured power in MQTT mode. With CT 2000:1  rated for 50A or 100A Power Meter can measure power in the range from -10kW to +10kW. 
 
