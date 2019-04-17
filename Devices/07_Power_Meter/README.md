@@ -2,7 +2,7 @@
 
 Power meter uses two current transformers (CT). One measures total household current, another measures solar station current. 
 
-![Pic2](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/2.png)
+![Pic1](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Pic1.png)
 
 Mains voltage is not measured, it assumed to be constant. However, Power Meter measures mains voltage zero-crossing (eg mains phase); it is required to calculate power balance. 
 
@@ -19,22 +19,22 @@ HBus Power Meter can work autonomously, without any other HBus device. In that c
 
 Every 3 LEDs in full brightness indicate 200W of power, half brightness indicate 100W of power.
 
-![Pic1](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/1.jpg)
+![Pic2](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Pic2.png)
 
-![Pic6](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/6.jpg)
+![Pic3](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Pic3.png)
 
 If device connected to HBus network, it also regularly broadcasts measured power in MQTT mode. With CT 2000:1  rated for 50A or 100A Power Meter can measure power in the range from -10kW to +10kW. 
 
 HBus Power Meter employs double sided PCB, dimensions 50x70 mm. Assembled board rev 1.0 shown:
 
-![Pic3](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/Board_rev_1_0.jpg)
+![Pic4](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Power_Meter.jpg)
 
 LED Strip Driver board 25x50 mm:
 
-![Pic4](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/Strip_drv_rev_1_0.jpg)
+![Pic5](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/Strip_Driver.jpg)
 
 Sketch rev 0.1 with NodeTest, no CT connected:
 
-![Pic5](https://github.com/akouz/HBus/blob/master/HBus_Power_Meter/PIC/NodeTest_rev_0_1.png)
+![Pic6](https://github.com/akouz/HBus/blob/master/Devices/07_Power_Meter/Doc/NodeTest.png)
 
 Node promptly reports power changes and mains connection/disconnection. Also it regularly broadcasts power and mains presence. Please see the sketch for details. 
