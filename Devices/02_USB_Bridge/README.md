@@ -1,7 +1,7 @@
 # HBus USB Bridge
 
 
-![USB Bridge](https://github.com/akouz/HBus/blob/master/HBus_USB_Bridge/HBus_USB_Bridge_rev_1_0.jpg)
+![USB Bridge](https://github.com/akouz/HBus/blob/master/Devices/02_USB_Bridge/USB_Bridge.jpg)
 
   * Either FTDI FT230X or SiLabs CP2102N chip
   * Galvanic isolation 5300 Vrms between USB and HBus
