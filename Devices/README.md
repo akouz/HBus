@@ -1,5 +1,6 @@
 # HBus Devices
 
+  * [Fuse](https://github.com/akouz/HBus/tree/master/Devices/01_Fuse)
   * [USB Bridge](https://github.com/akouz/HBus/tree/master/Devices/02_USB_Bridge) 
   * [2.1] [WiFi Gateway](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway)
   * [3.1] [Sensor Input](https://github.com/akouz/HBus/tree/master/Devices/04_Sensor)
