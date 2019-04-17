@@ -8,6 +8,6 @@
   * Optional 1-Wire bus for DS18B20 temperature sensors; also this input can be used to connect PIR detector or reed switch
   * Double sided PCB 50x70 mm
 
-![Pic1](https://github.com/akouz/HBus/blob/master/HBus_MOSFET4/PIC/HBus_MOSFETdrv4.jpg)
+![Pic1](https://github.com/akouz/HBus/blob/master/Devices/06_MOSFET4/MOSFET4.jpg)
 
 Board with only one channel CH1 assembled.
