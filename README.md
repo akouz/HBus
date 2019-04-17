@@ -3,18 +3,7 @@
   * [HBus mode (config and control messages)](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages)
   * [MQTT mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-mode-broadcast-messages)
   * [NodeTest](https://github.com/akouz/HBus/blob/master/NodeTest/)
-  * Devices:
-    * [USB Bridge](https://github.com/akouz/HBus/tree/master/HBus_USB_Bridge) 
-    * [2.1] [WiFi Gateway](https://github.com/akouz/HBus/tree/master/HBus_WiFi_Gateway)
-    * [3.1] [Sensor Input](https://github.com/akouz/HBus/tree/master/HBus_Sensor)
-    * [4.1] [4-channel Relay Output](https://github.com/akouz/HBus/tree/master/HBus_Relay4)
-    * [4.2] [4-channel N-MOSFET Output](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4)
-      * Sketch [White_LED_strip](https://github.com/akouz/HBus/tree/master/HBus_MOSFET4/White_LED_strip)
-    * [5.1] [Power Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter)
-      * Sketch [Sole_Power_Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter/Sole_Power_Meter)
-      * Sketch [HBus_Power_Meter](https://github.com/akouz/HBus/tree/master/HBus_Power_Meter/HBus_Power_Meter)
-    * [5.2] [PIR Sensor Input with 3-channel P-MOSFET Output](https://github.com/akouz/HBus/tree/master/HBus_PIR_Sensor)
-      * Sketch [PIR Sensor](https://github.com/akouz/HBus/tree/master/HBus_PIR_Sensor/PIR_Sensor)
+  * [Devices](https://github.com/akouz/HBus/tree/master/Devices)
     
 ## Introduction
 
