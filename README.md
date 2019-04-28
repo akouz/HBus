@@ -698,9 +698,12 @@ Message structure is as follows:
 <td>Data</td>
 </tr></tbody></table>
 
-  * MsgType - message type as per [MQTT-SN](http://mqtt.org/documentation).
+  * MsgType - message type as per [MQTT-SN](http://mqtt.org/documentation):
+    * 0x0A - REGISTER
+    * 0x0B - REGACK
+    * 0x0C - PUBLISH
   * NodeID - ID of the broadcasting node; used for debug and monitoring.
-  * TopicID - MQTT topic ID.
+  * TopicID - MQTT-SN topic ID, 16-bit unsigned integer.
   * MsgID - message ID, all MQTT messages should use common ID incremented with every broadcasted message; replies use the same MsgID as per request.
   * DF is data format: 
     * 0 = binary 
