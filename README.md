@@ -693,15 +693,15 @@ Message structure is as follows:
 <td>MsgType</td>
 <td>NodeID</td>
 <td>TopicID</td>
-<td>MessageID</td>
+<td>MsgID</td>
 <td>DF</td>
 <td>Data</td>
 </tr></tbody></table>
 
-  * MsgType - message type as per [MQTT-SN](http://mqtt.org/documentation)
+  * MsgType - message type as per [MQTT-SN](http://mqtt.org/documentation).
   * NodeID - ID of the broadcasting node; used for debug and monitoring.
   * TopicID - MQTT topic ID.
-  * MsgID - message ID, all MQTT messages should use common ID incremented with every broadcasted message. MsgID used for network diagnostics. 
+  * MsgID - message ID, all MQTT messages should use common ID incremented with every broadcasted message; replies use the same MsgID as per request.
   * DF is data format: 
     * 0 = binary 
     * 1 = [JSON](https://www.json.org/) 
