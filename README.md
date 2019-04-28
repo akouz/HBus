@@ -678,7 +678,7 @@ Rply  is an optional reply.
 ## Message structure
 In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
 
-Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN clause 5.4.12. Message structure is as follows:
+Message structure is as follows:
 
 <table>
 <thead><tr>
@@ -690,7 +690,7 @@ Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN 
 <th>[8:N]</th>
 </tr></thead>
 <tbody><tr>
-<td>Nonce</td>
+<td>MsgType</td>
 <td>NodeID</td>
 <td>TopicID</td>
 <td>MessageID</td>
@@ -698,7 +698,7 @@ Defined message functionally is similar to MQTT-SN PUBLISH message, see MQTT-SN 
 <td>Data</td>
 </tr></tbody></table>
 
-  * Nonce - a random number
+  * MsgType - message type as per [MQTT-SN](http://mqtt.org/documentation)
   * NodeID - ID of the broadcasting node; used for debug and monitoring.
   * TopicID - MQTT topic ID.
   * MsgID - message ID, all MQTT messages should use common ID incremented with every broadcasted message. MsgID used for network diagnostics. 
