@@ -1,7 +1,7 @@
 # HBus
 
   * [HBus mode (config and control messages)](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages)
-  * [MQTT mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-mode-broadcast-messages)
+  * [MQTT-SN mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-mode-broadcast-messages)
   * [NodeTest](https://github.com/akouz/HBus/blob/master/NodeTest/)
   * [Devices](https://github.com/akouz/HBus/tree/master/Devices)
     
@@ -673,7 +673,7 @@ Reply from Node B to Node A
 
 Rply  is an optional reply.
 
-# MQTT mode (broadcast messages)
+# MQTT-SN mode (broadcast messages)
 
 ## Message structure
 In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
