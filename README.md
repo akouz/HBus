@@ -680,7 +680,7 @@ Rply  is an optional reply.
 
 ## [11] TOPIC
 
-Read one of TopicId and TopicName. Specified topic selected by index. 
+Read one of TopicId and TopicName stored by node. 
 
 Request from Node A to Node B
 
