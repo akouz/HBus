@@ -131,9 +131,9 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>16</td> 	
 <td>ID of Node B, it must be unique in current network </td> 	
 </tr><tr>
-<td>MsgID</td> 	
+<td>MsgId</td> 	
 <td>16</td> 	
-<td>Message ID; it is incremented with every request; reply repeats MsgID of the request. Valid range 0x0001…0xFFFE</td> 	
+<td>Message ID; it is incremented with every request; reply repeats MsgId of the request. Valid range 0x0001…0xFFFE</td> 	
 </tr><tr>
 <td>OkErr</td> 	
 <td>8</td> 	
@@ -219,7 +219,7 @@ Request from Node A to Node B
 <td>0x01</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 </tr></tbody></table>
  
@@ -247,7 +247,7 @@ Request from Node A to Node B
 <td>0x81</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>OkErr</td>
 <td>DevType</td>
 <td>DevModel</td>
@@ -277,7 +277,7 @@ Request from Node A to Node B
 <td>0x02</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 </tr></tbody></table>
  
@@ -296,7 +296,7 @@ Request from Node A to Node B
 <td>0x82</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>DF</td>
 <td>Data, content depends on DevType and DevModel</td>
 </tr></tbody></table>
@@ -325,7 +325,7 @@ Request from node A to a Group
 <td>NodeA_ID</td>
 <td>Group</td>
 <td>Slots</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 </tr></tbody></table>
  
@@ -349,7 +349,7 @@ Request from node A to a Group
 <td>0x83</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 </tr></tbody></table>
 
@@ -369,7 +369,7 @@ Request from Node A to Node B
 <td>0x04</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>Param</td>
 </tr></tbody></table>
  
@@ -389,7 +389,7 @@ Request from Node A to Node B
  <td>0x84</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -414,7 +414,7 @@ Request from Node A to Node B
 <td>0x05</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 <td>New_ID</td>
 </tr></tbody></table>
@@ -435,7 +435,7 @@ Request from Node A to Node B
 <td>0x85</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -457,7 +457,7 @@ Request from Node A to Node B
 <td>0x06</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>Pause</td>
 </tr></tbody></table>
  
@@ -475,7 +475,7 @@ Reply from Node B to Node A
 <td>0x86</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -501,7 +501,7 @@ Request from Node A to Node B
 <td>0x07</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>Duration</td>
 </tr></tbody></table>
  
@@ -521,7 +521,7 @@ Reply from Node B to Node A
 <td>0x87</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -543,7 +543,7 @@ Request from Node A to Node B
 <td>0x08</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 </tr></tbody></table>
   
@@ -563,7 +563,7 @@ Reply from Node B to Node A
 <td>0x88</th>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 <td>N</td>
 <td>Text</td>
@@ -592,7 +592,7 @@ Request from Node A to Node B
 <td>0x09</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>0</td>
 <td>N</td>
 <td>Text</td>
@@ -615,7 +615,7 @@ Reply from Node B to Node A
 <td>0x89</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -638,7 +638,7 @@ Request from Node A to Node B
 <td>0x0A</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>DF</td>
 <td>Cmd</td>
 <td></td>
@@ -666,7 +666,7 @@ Reply from Node B to Node A
 <td>0x89</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
-<td>MsgID</td>
+<td>MsgId</td>
 <td>OkErr</td>
 <td>Rply</td>
 </tr></tbody></table>
@@ -692,22 +692,67 @@ Message structure is as follows:
 <tbody><tr>
 <td>MsgType</td>
 <td>NodeID</td>
-<td>TopicID</td>
-<td>MsgID</td>
+<td>TopicId</td>
+<td>MsgId</td>
 <td>DF</td>
 <td>Data</td>
 </tr></tbody></table>
 
   * MsgType - message type as per [MQTT-SN](http://mqtt.org/documentation):
     * 0x0A - REGISTER
-    * 0x0B - REGACK
     * 0x0C - PUBLISH
-  * NodeID - ID of the broadcasting node; used for debug and monitoring.
-  * TopicID - MQTT-SN topic ID, 16-bit unsigned integer.
-  * MsgID - message ID, all MQTT messages should use common ID incremented with every broadcasted message; replies use the same MsgID as per request.
+  * NodeId - ID of the broadcasting node; used for debug and monitoring.
+  * TopicId - MQTT-SN topic ID, 16-bit unsigned integer.
+  * MsgId - message ID, all MQTT messages should use common MsgId incremented with every broadcasted message.
   * DF is data format: 
     * 0 = binary 
     * 1 = [JSON](https://www.json.org/) 
     * 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md) 
     * other - TBD.
     
+## REGISTER
+
+Binds TopicId and TopicName.
+  * If (TopicId == 0) then it is a request. Any node having correct binding of TopicId with TopicName should reply with another REGISTER message where  TopicId is not 0.
+  * If (TopicId != 0) and (TopicId < 0xFFFF) then all node with matching TopicName should bind the specified TopicId with it.
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:N]</th>
+</tr></thead>
+<tbody><tr>
+<td>MsgType</td>
+<td>NodeID</td>
+<td>TopicId</td>
+<td>MsgId</td>
+<td>DF</td>
+<td>TopicName</td>
+</tr></tbody></table>
+
+## PUBLISH
+
+Broadcast Payload to specified TopicId.
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:N]</th>
+</tr></thead>
+<tbody><tr>
+<td>MsgType</td>
+<td>NodeID</td>
+<td>TopicId</td>
+<td>MsgId</td>
+<td>DF</td>
+<td>Payload</td>
+</tr></tbody></table>
+
