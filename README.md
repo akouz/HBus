@@ -58,7 +58,7 @@ Transceivers with slope control produce less noise on the bus, ie have better EM
 
 # HBus protocol
 
-Current firmware revision 0.7.
+Current firmware revision 0.8.
 
 ## Byte-stuffing
 
@@ -201,6 +201,11 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>C_CMD</td> 	
 <td>Node</td> 	
 <td>Custom command</td> 	
+</tr><tr>
+<td>11</td> 	
+<td>TOPIC</td> 	
+<td>Node</td> 	
+<td>Read TopicId and TopicName</td> 	
 </tr></tbody></table>
 
 ## [1] REV
