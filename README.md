@@ -726,6 +726,8 @@ Reply from Node B to Node A if topic exists:
 <td>TopicName</td>
 </tr></tbody></table>
 
+  * TopicName is UTF-8 string less than 64 bytes long
+
 Reply from Node B to Node A if topic index is out of list:
 
 <table>
@@ -805,6 +807,8 @@ Binds TopicId and TopicName.
 <td>DF</td>
 <td>TopicName</td>
 </tr></tbody></table>
+
+  * TopicName is UTF-8 string less than 64 bytes long
 
 ## PUBLISH
 
