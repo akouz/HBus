@@ -673,6 +673,70 @@ Reply from Node B to Node A
 
 Rply  is an optional reply.
 
+## [11] TOPIC
+
+Read one of TopicId and TopicName. Specified topic selected by index. 
+
+Request from Node A to Node B
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x0B</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgId</td>
+<td>ti</td>
+</tr></tbody></table>
+
+  * ti - topic index.
+
+Reply from Node B to Node A if topic exists:
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+<th>[8:9]</th>
+<th>[10:(10+N)]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x8B</th>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgId</td>
+<td>0</td>
+<td>TopicId</td>
+<td>TopicName</td>
+</tr></tbody></table>
+
+Reply from Node B to Node A if topic index is out of list:
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5:6]</th>
+<th>[7]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x8B</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgId</td>
+<td>0xEE</td>
+</tr></tbody></table>
+
 # MQTT-SN mode (broadcast messages)
 
 ## Message structure
