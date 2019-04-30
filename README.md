@@ -714,7 +714,7 @@ Message structure is as follows:
 
 Binds TopicId and TopicName.
   * If (TopicId == 0) then it is a request. Any node having correct binding of TopicId with TopicName should reply with another REGISTER message where  TopicId is not 0.
-  * If (TopicId != 0) and (TopicId < 0xFFFF) then all node with matching TopicName should bind the specified TopicId with it.
+  * If (TopicId != 0) and (TopicId < 0xFFFF) then all nodes with matching TopicName should bind the specified TopicId with it. 
 
 <table>
 <thead><tr>
