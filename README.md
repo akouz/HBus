@@ -404,6 +404,8 @@ Node ID is used for point-to-point node addressing. Node ID is a 16-bit number.
 
 If a node does not have permanent ID, it assigns itself a random temporary ID of 0xFyyy, where y - a hex digit. During configuration stage permanent IDs should be assigned to all nodes. Permanent IDs start from any hex digit other than 0xF. 
 
+It is higly recommended to limit permanent ID by the range [0x0001..0x0EFF] (eg by the range [1..3893]).
+
 Request from Node A to Node B
 
 <table>
