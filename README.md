@@ -726,7 +726,7 @@ Binds TopicId and TopicName.
 <th>[8:N]</th>
 </tr></thead>
 <tbody><tr>
-<td>MsgType</td>
+<td>0x0A</td>
 <td>NodeID</td>
 <td>TopicId</td>
 <td>MsgId</td>
@@ -748,7 +748,7 @@ Broadcast Payload to specified TopicId.
 <th>[8:N]</th>
 </tr></thead>
 <tbody><tr>
-<td>MsgType</td>
+<td>0x0C</td>
 <td>NodeID</td>
 <td>TopicId</td>
 <td>MsgId</td>
