@@ -45,13 +45,18 @@ const
   CMD_RD_DESCR       = 8;
   CMD_WR_DESCR       = 9;
   CMD_CUSTOM         = 10;
+  CMD_TOPIC          = 11;
+
+  MT_PUBLISH         = $0C;
+  MT_REGISTER        = $0A;
+
   // -------------------
   DEV_TYPE           = 1; // bridge/gateway
   DEV_MODEL          = 1; // PC bridge
   HW_REV_MAJ         = 1;
   HW_REV_MIN         = 0;
   SW_REV_MAJ         = 0;
-  SW_REV_MIN         = 1;
+  SW_REV_MIN         = 8;
   BT_REV_MAJ         = 0;
   BT_REV_MIN         = 0;
 
@@ -99,7 +104,9 @@ type
     function CmdRdDescr(dest : word) : THbMsg;
     function CmdWrDescr(dest : word; descr : string) : THbMsg;
     function CmdCustom(dest : word; json : string) : THbMsg;
-    function SendMqtt(topic : word; Msg_ID : word; val : string) : THbMsg;
+    function CmdRdTopic(dest : word; ti : byte) : THbMsg;
+    function Publish(topicId : word; Msg_ID : word; val : string) : THbMsg;
+    function Register(topicId : word; Msg_ID : word; val : string) : THbMsg;
     // receive HBus commands
     function RxCmd(rx :THbMsg) : THbMsg;
     procedure Tick10ms;      // process it every 10 ms
@@ -141,7 +148,7 @@ function THbCmd.FMakeCmd(cmd : byte; dest : word; param : byte) : boolean;
 begin
   result := false;
   if FExpRplyHdr = '' then begin
-    if cmd in [CMD_REV..CMD_CUSTOM] then begin
+    if cmd in [CMD_REV..CMD_TOPIC] then begin
       FCmdStr := FMakeHdr(cmd, dest, param);
       result := true;
     end;
@@ -339,19 +346,44 @@ begin
 end;
 
 // =====================================
-// Make MQTT-SN message
+// Read TopicId and TopicName
 // =====================================
-function THbCmd.SendMqtt(topic : word; Msg_ID : word; val : string) : THbMsg;
-var  b : byte;
-     s : string;
+function THbCmd.CmdRdTopic(dest : word; ti : byte) : THbMsg;
 begin
-  b := random($100);
-  result.s := '' + char(b) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
-  result.s := result.s + char(byte(topic shr 8)) + char(byte(topic and $FF));
+  if FMakeCmd(CMD_TOPIC, dest, ti) then begin
+    result.s := FCmdStr;
+    result.hb := true;
+    result.valid := true;
+  end else
+    result.valid := false;
+end;
+
+// =====================================
+// Make MQTT-SN message PUBLISH
+// =====================================
+function THbCmd.Publish(topicId : word; Msg_ID : word; val : string) : THbMsg;
+var  s : string;
+begin
+  result.s := '' + char(MT_PUBLISH) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
+  result.s := result.s + char(byte(topicId shr 8)) + char(byte(topicId and $FF));
   result.s := result.s + char(byte(Msg_ID shr 8)) + char(byte(Msg_ID and $FF));
   result.s := result.s + char(1);
-  s := '{topic:'+IntToStr(topic)+',val:'+val+'}';
+  s := '{val:'+val+'}';
   result.s := result.s + s;
+  result.hb := false;
+  result.postpone := 0;
+  result.valid := true;
+end;
+
+// =====================================
+// Make MQTT-SN message REGISTER
+// =====================================
+function THbCmd.Register(topicId : word; Msg_ID : word; val : string) : THbMsg;
+begin
+  result.s := '' + char(MT_REGISTER) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
+  result.s := result.s + char(byte(topicId shr 8)) + char(byte(topicId and $FF));
+  result.s := result.s + char(byte(Msg_ID shr 8)) + char(byte(Msg_ID and $FF));
+  result.s := result.s + char(1) + val;
   result.hb := false;
   result.postpone := 0;
   result.valid := true;
@@ -545,7 +577,7 @@ begin
   end;
 end;
 
-// =====================================  
+// =====================================
 // 10 ms - count time-out
 // =====================================  
 procedure THbCmd.Tick10ms;

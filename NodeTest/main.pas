@@ -39,6 +39,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    BtnPublish : TButton;
     BtnRev : TButton;
     BtnStatus : TButton;
     BtnCollect : TButton;
@@ -48,23 +49,28 @@ type
     BtnBeep : TButton;
     BtnRdDescr : TButton;
     BtnWrDescr : TButton;
-    BtnMqttSend : TButton;
     BtnCustomCmd : TButton;
+    BtnRdTopic : TButton;
+    BtnRegister : TButton;
     CbPorts : TComboBox;
     CbDamp : TCheckBox;
+    CbStatus : TCheckBox;
     EdGroup : TEdit;
     EdBootPause : TEdit;
     EdDuration : TEdit;
     EdDescr : TEdit;
     EdCustomCmd : TEdit;
-    EdTopicVal : TEdit;
     EdTopic : TEdit;
+    EdTopic1 : TEdit;
+    EdTopicI : TEdit;
     EdMsgId : TEdit;
     EdOwnId : TEdit;
     EdNewID : TEdit;
     EdPause : TEdit;
     EdSlots : TEdit;
     EdNode : TEdit;
+    EdTopicName : TEdit;
+    EdTopicVal : TEdit;
     Label1 : TLabel;
     Label2 : TLabel;
     Label3 : TLabel;
@@ -72,9 +78,12 @@ type
     Label5 : TLabel;
     Label6 : TLabel;
     Label7 : TLabel;
+    Label8 : TLabel;
     LB : TListBox;
     PageControl1 : TPageControl;
     Panel1 : TPanel;
+    Panel2 : TPanel;
+    Panel3 : TPanel;
     Timer1sec : TTimer;
     TsHBus : TTabSheet;
     TabSheet2 : TTabSheet;
@@ -83,10 +92,12 @@ type
     procedure BtnBootClick(Sender : TObject);
     procedure BtnCollectClick(Sender : TObject);
     procedure BtnCustomCmdClick(Sender : TObject);
-    procedure BtnMqttSendClick(Sender : TObject);
+    procedure BtnPublishClick(Sender : TObject);
     procedure BtnNewIDClick(Sender : TObject);
     procedure BtnPingClick(Sender : TObject);
     procedure BtnRdDescrClick(Sender : TObject);
+    procedure BtnRdTopicClick(Sender : TObject);
+    procedure BtnRegisterClick(Sender : TObject);
     procedure BtnRevClick(Sender : TObject);
     procedure BtnStatusClick(Sender : TObject);
     procedure BtnWrDescrClick(Sender : TObject);
@@ -241,6 +252,8 @@ begin
     CbPortsChange(Sender);
   end;
   WasConnected := HB.ComPort.Connected;
+  if CbStatus.Checked then
+     BtnStatusClick(Sender);
 end;
 
 // =====================================================
@@ -273,6 +286,7 @@ procedure TForm1.PrintHbMsg(msg : THbMsg);
 var s : string;
     cmd : byte;
     OkErr : byte;
+    TopicId, NewTopicId : word;
 begin
   s := IntToHex(msg.pri, 2); // show priority byte (prefix)
   cmd := ord(msg.s[1]);
@@ -285,14 +299,30 @@ begin
       s := s + StrToHex(msg.s, 9) // description
     else if (cmd = $A) or (cmd = $8A) then    // custom cmd and reply
       s := s + StrToHex(msg.s, 8)
-    else
+    else if (cmd = $8B) then begin    // topic
+      if (OkErr = 0) then begin
+        NewTopicId := $100*ord(msg.s[9]) + ord(msg.s[10]);
+        s := s + StrToHex(msg.s, 10);
+        s := s + ' <'+IntToStr(NewTopicId)+'>';
+      end else begin
+        s := s + StrToHex(msg.s, 0);
+        EdTopicI.Text:='0';
+      end;
+    end else
       s := s + StrToHex(msg.s, 0); // binary
   end  else begin
     s := s + ' MQTT ';
-    if (OkErr = 1) then
-       s := s + StrToHex(msg.s, 8) // JSON
-    else
+    TopicId := $100*ord(msg.s[4]) + ord(msg.s[5]);
+    if (OkErr = 1) then begin
+      s := s + StrToHex(msg.s, 8) // JSON
+    end else begin
       s := s + StrToHex(msg.s, 0); // binary
+    end;
+    s := s + ' <TopicId=';
+    if (TopicId > 0) then
+      s := s + IntToStr(TopicId) + '>'
+    else
+      s := s + '?>';
   end;
   LB.Items.Add(s);;
 end;
@@ -431,22 +461,40 @@ begin
 end;
 
 // =====================================================
-// Send MQTT message
+// Send MQTT message PUBLISH
 // =====================================================
-procedure TForm1.BtnMqttSendClick(Sender : TObject);
-var topic, msg_id : word;
+procedure TForm1.BtnPublishClick(Sender : TObject);
+var topicId, msg_id : word;
     s : string;
 begin
   HBcmd.Flush;
-  topic := StrToIntDef(EdTopic.text,100);
-  EdTopic.text := IntToStr(topic);
-  TxMsg := HBcmd.SendMqtt(topic, HBcmd.MsgID, EdTopicVal.Text);
+  topicId := StrToIntDef(EdTopic.text,100);
+  EdTopic.text := IntToStr(topicId);
+  TxMsg := HBcmd.Publish(topicId, HBcmd.MsgID, EdTopicVal.Text);
   s := HB.Tx(TxMsg);
   inc(HBcmd.MsgId);
   if HBcmd.MsgId >= $FFFE then
     HBcmd.MsgId := 1;
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
 end;
+
+// =====================================================
+// Send MQTT message REGISTER
+// =====================================================
+procedure TForm1.BtnRegisterClick(Sender : TObject);
+var topicId, msg_id : word;
+    s : string;
+begin
+  HBcmd.Flush;
+  topicId := StrToIntDef(EdTopic1.text,100);
+  TxMsg := HBcmd.Register(topicId, HBcmd.MsgID, EdTopicName.Text);
+  s := HB.Tx(TxMsg);
+  inc(HBcmd.MsgId);
+  if HBcmd.MsgId >= $FFFE then
+    HBcmd.MsgId := 1;
+  EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
+end;
+
 
 // =====================================================
 // Boot
@@ -532,6 +580,20 @@ begin
   TxMsg := HBcmd.CmdWrDescr(NodeID, s);
   s := HB.Tx(TxMsg);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
+end;
+
+// =====================================================
+// Read TopicId and TopicName
+// =====================================================
+procedure TForm1.BtnRdTopicClick(Sender : TObject);
+var ti : byte;
+    s : string;
+begin
+  ti := StrToIntDef(EdTopicI.Text,0);
+  HBcmd.Flush;
+  TxMsg := HBcmd.CmdRdTopic(NodeID, ti);
+  s := HB.Tx(TxMsg);
+  EdTopicI.Text := IntToStr(ti+1);
 end;
 
 // =====================================================
