@@ -57,16 +57,9 @@ const uchar node_descr[8] = {
 0,  // boot rev major
 1,  // boot rev minor
 0,  // sketch rev major
-1   // sketch rev minor
+8   // sketch rev minor
 };
 
-// -----------------------------------
-// MQTT topics
-// -----------------------------------
-//  MAX_TOPIC defined in HBcommon.h, there are 4 topics in this demo
-const uint topic_descr[MAX_TOPIC] = {
-101, 102, 103, 201
-};
 
 //##############################################################################
 // Func
@@ -79,18 +72,31 @@ const uint topic_descr[MAX_TOPIC] = {
 // check next topic and broadcast its value if value is valid  
 void coos_task_broadcast(void)
 {
-    static uchar topic_i = 0;
+    static uchar ti = 0;    // topic index
+    static uchar topic_id_refresh = 250;
+    COOS_DELAY(5000);                                   // initial pause 5 sec 
+    // -------------------------------
+    // loop
+    // -------------------------------
     while(1)
     {
-        COOS_DELAY(10000);  // pause 10 sec (10,000 ms)
+        if (++topic_id_refresh >= 200)  // after power-up and once in a while
+        {
+            topic_id_refresh = 0;            
+            while (HBmqtt.init_topic_id(HBcmd.own.ID) != OK)     // set all TopicId
+            {        
+                COOS_DELAY(1000);
+            }
+        } 
+        COOS_DELAY(10000);  // pause 10 sec 
         if (HBcmd.own.ID < 0xF000) // if not a temporary ID
         {
-            if (HBmqtt.valid[topic_i])   // broadcast only valid values
+            if ((HBmqtt.flag[ti].value_valid) && (TopicId[ti]))  // broadcast only valid values
             {
-                HBmqtt.make_msg(topic_i); // prepare MQTT message with topic value,
-                                          // then it will be automatically transmitted
+                HBmqtt.make_msg_pub(ti); // prepare MQTT message with topic value,
+                                         // then it will be automatically transmitted
             }    
-            ++topic_i = (topic_i >= MAX_TOPIC)? 0 : topic_i;  // next topic
+            ++ti = (ti >= MAX_TOPIC)? 0 : ti;  // next topic
         }
     }
 }
@@ -142,7 +148,6 @@ void setup()
         EEPROM.write(EE_OWN_ID+1, HBcmd.own.id[0]);
     }
     HBcmd.set_descriptor((uchar*)node_descr);           // set descriptor for REV command
-    HBmqtt.set_descriptor((uint*)topic_descr);          // set MQTT topics
     
     print_hdr_txt(pup_cnt, node_seed, HBcmd.own.ID);    // optional splash screen for debug
     wdt_enable(WDTO_120MS);                             // watchdog time-out 120 ms

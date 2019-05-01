@@ -32,30 +32,58 @@
 
 #include  "HBcommon.h"
 
+//##############################################################################
+// Def
+//##############################################################################
+
+#define    MAX_TOPIC      4    // this node can handle 4 topics
+
+const char topic0[] = "topic0";
+const char topic1[] = "topic1";
+const char topic2[] = "topic1/a1";
+const char topic3[] = "topic1/a2";
+
+
+//##############################################################################
+// Var
+//##############################################################################
+
+extern const char* TopicName[MAX_TOPIC];    
+extern uint TopicId[MAX_TOPIC];         
 
 //##############################################################################
 // Class
 //##############################################################################
 
+union mq_flag_uni{
+    uchar all;
+    struct{
+        unsigned    value_valid     : 1;
+        unsigned    topic_valid     : 1; 
+    };
+};
+
 class HB_mqtt{
     public:
                 HB_mqtt(void);
     hb_msg_t    mqmsg;
-//    uint        topic[MAX_TOPIC];           // list of topics  
     float       value[MAX_TOPIC];           // topic values
-    uchar       valid[MAX_TOPIC];           // indicate valid value
-    void        set_descriptor(uint* descr);
-    uint        get_topic(uchar tpc_i);     // get topic value               
+    union mq_flag_uni   flag[MAX_TOPIC];    // set of flags
     char        rd_msg(hb_msg_t* msg);
-    uchar       make_msg(uchar topic_i);    
+    uchar       make_msg_pub(uchar ti);     // make PUBLISH message    
+    uchar       make_msg_reg(uchar ti);     // make REGISTER message
+    uchar       init_topic_id(uint node_id); // after power-up call this function  
+                                            // repeatedly until it returns OK    
     
     private:
     uint*       descriptor;                 // list of topics 
-    char        is_topic(uint tpc);
+    char        is_topic_name(const char* tn);
+    char        is_topic_id(uint tid);
     uint        MsgID; 
     ulong       MsgID_cnt;                  // count all received MQTT messages 
     uint        MsgID_err_cnt;
-    void        get_MsgID(uint msg_id); 
+    void        get_MsgID(uint msg_id);
+    void        make_msg_header(uchar MsgType, uchar ti); // make header 
 };    
 
 extern HB_mqtt HBmqtt;

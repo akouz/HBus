@@ -31,10 +31,28 @@
 #include "HBcmd.h"
 
 //##############################################################################
+// Def
+//##############################################################################
+
+enum{
+    // MessageType
+    MT_REGISTER     = 0x0A,
+    MT_PUBLISH      = 0x0C,
+    
+};
+
+//##############################################################################
 // Var
 //##############################################################################
 
 HB_mqtt HBmqtt;
+
+// topic
+const char* TopicName[MAX_TOPIC] = {
+topic0, topic1, topic2, topic3
+};
+
+uint TopicId[MAX_TOPIC];
 
 //##############################################################################
 // Func
@@ -45,52 +63,51 @@ HB_mqtt HBmqtt;
 // =============================================
 HB_mqtt::HB_mqtt(void)
 {
+    uint tid;
+    uint addr;
     mqmsg.all = 0;
     mqmsg.len = 0;
-    descriptor = NULL;
     MsgID = 1;
     MsgID_cnt = 0;  
     MsgID_err_cnt = 0;  
     for (uchar i=0; i<MAX_TOPIC; i++)
     {   
-        valid[i] = 0; // initially topic values are not valid
-    }
-}
-
-// =============================================
-// Set topics descriptor
-// =============================================
-void  HB_mqtt::set_descriptor(uint* descr)
-{
-    descriptor = descr;
-}
-
-// =============================================
-// Get topic from descriptor
-// =============================================
-uint HB_mqtt::get_topic(uchar tpc_i)
-{
-    if (descriptor)
-    {
-        return descriptor[tpc_i];
-    }
-    else
-        return 0;
-}
-
-// =============================================
-// Is topic in the list of topics?  
-// =============================================
-char HB_mqtt::is_topic(uint tpc)
-{
-    if (descriptor) // if topic descriptor was set
-    {
-        for (uchar i=0; i<MAX_TOPIC; i++)
+        flag[i].all = 0;   
+        TopicId[i] = 0;
+        addr = EE_TOPIC_ID + 2*i;
+        tid = 0x100*(uint)EEPROM.read(addr) + EEPROM.read(addr+1);
+        if (tid < 0xFFFF)
         {
-            if (tpc == descriptor[i])
-            {
-                return (char)i;
-            }
+            TopicId[i] = tid;
+            flag[i].topic_valid = 1;   
+        } 
+    }
+}
+
+// =============================================
+// Is topic name in the list?  
+// =============================================
+char HB_mqtt::is_topic_name(const char* tn)
+{
+    for (uchar ti=0; ti<MAX_TOPIC; ti++)
+    {
+        if (strcmp(tn, TopicName[ti]) == 0)
+            return ti;         
+    }
+    return -1;
+}
+
+
+// =============================================
+// Is topicID in the list?  
+// =============================================
+char HB_mqtt::is_topic_id(uint tid)
+{
+    for (uchar i=0; i<MAX_TOPIC; i++)
+    {
+        if (tid == TopicId[i])
+        {
+           return (char)i;
         }
     }
     return -1;
@@ -120,67 +137,141 @@ void  HB_mqtt::get_MsgID(uint msg_id)
 // =============================================
 char HB_mqtt::rd_msg(hb_msg_t* msg)
 {
+    char res = -2;
     if (MsgID_cnt < 0xFFFFFFFF)
     {
         MsgID_cnt++;
     }
-    uint tpc =  0x100*msg->buf[3] + msg->buf[4];    // topic
-    uint msg_id = 0x100*msg->buf[5] + msg->buf[6];  // message ID
-    get_MsgID(msg_id);  
-    char res =  is_topic(tpc);
-    if (res >= 0)
+    uchar mt = msg->buf[0];                             // MsgType 
+    uint tid = 0x100*(uint)msg->buf[3] + msg->buf[4];   // TopicId
+    uint mid = 0x100*(uint)msg->buf[5] + msg->buf[6];   // MsgId
+    get_MsgID(mid);
+    // ------------------------------------
+    // PUBLISH messages
+    // ------------------------------------
+    if (mt == MT_PUBLISH)
     {
-        jsonBuf.clear();            
-        JsonObject& root = jsonBuf.parseObject(msg->buf+8);
-        if (root.success())
+        res =  is_topic_id(tid);
+        if (res >= 0)
         {
-            value[res] = root["val"];
-            valid[res] = 1; 
-            blink(10);
-        }
-        else
-        {
-//            Serial.println(" JSON parser failed");
-        }
+            jsonBuf.clear();            
+            JsonObject& root = jsonBuf.parseObject(msg->buf+8);
+            if (root.success())
+            {
+                value[(uchar)res] = root["val"];
+                flag[(uchar)res].value_valid = 1;  
+                blink(10);
+            }
+            else
+            {
+//              Serial.println(" JSON parser failed");
+            }
+        }      
     }
+    // ------------------------------------
+    // REGISTER messages
+    // ------------------------------------
+    if (mt == MT_REGISTER)
+    {
+        msg->buf[msg->len] = 0;   // make 0-terminated string
+        res = is_topic_name((const char *)msg->buf + 8);
+        if (res >= 0)
+        {
+            if (tid > 0) // if it is an assignment    
+            {
+                uint addr = EE_TOPIC_ID + 2*res;
+                EEPROM.write(addr, (uchar)(tid >> 8));
+                EEPROM.write(addr+1, (uchar)tid);
+                if (tid < 0xFFFF) // if valid tid  
+                {
+                    TopicId[(uchar)res] = tid;   //  bind TopicId and TopicName
+                    flag[(uchar)res].topic_valid = 1;  
+                }
+                else // if tid==0xFFFF then clear TopicId
+                {
+                    TopicId[(uchar)res] = 0;    
+                    flag[(uchar)res].topic_valid = 0;
+                }
+                blink(10);
+            }
+            else   // if t is a query
+            {
+                if (TopicId[(uchar)res]) // own TopicId was assigned
+                {
+                    make_msg_reg((uchar)res);  // broadcast it  
+                    blink(10);
+                } 
+            }
+        }
+    }    
     return res;
 }
 
 // =============================================
-// Make a pseudo-MQTT-SN message  
+// Make message header  
 // =============================================
-uchar HB_mqtt::make_msg(uchar topic_i)
+void HB_mqtt::make_msg_header(uchar MsgType, uchar ti)
 {
-    uint tpc;
+    begin_txmsg(&mqmsg, 0);
+    add_txmsg_uchar(&mqmsg, MsgType);          
+    add_txmsg_uchar(&mqmsg, HBcmd.own.id[1]);
+    add_txmsg_uchar(&mqmsg, HBcmd.own.id[0]);
+    uint tpc = TopicId[ti];
+    add_txmsg_uchar(&mqmsg, (uchar)(tpc >> 8));
+    add_txmsg_uchar(&mqmsg, (uchar)tpc);
+    MsgID = (MsgID < 0xFFFE)? MsgID+1 : 1;          
+    add_txmsg_uchar(&mqmsg, (uchar)(MsgID >> 8));
+    add_txmsg_uchar(&mqmsg, (uchar)(MsgID));                
+    add_txmsg_uchar(&mqmsg, 1);    // JSON
+ }
+
+// =============================================
+// Make a pseudo-MQTT-SN message PUBLISH  
+// =============================================
+uchar HB_mqtt::make_msg_pub(uchar ti)
+{
     char buf[32];
     mqmsg.valid = 0;
-    if (topic_i < MAX_TOPIC) 
+    if (ti < MAX_TOPIC) 
     {
-        begin_txmsg(&mqmsg, 0);
-        uchar nonce = (uchar)random(0x100);
-        add_txmsg_uchar(&mqmsg, nonce);        
-        add_txmsg_uchar(&mqmsg, HBcmd.own.id[1]);
-        add_txmsg_uchar(&mqmsg, HBcmd.own.id[0]);
-        tpc = get_topic(topic_i);
-        add_txmsg_uchar(&mqmsg, (uchar)(tpc >> 8));
-        add_txmsg_uchar(&mqmsg, (uchar)tpc);
-        MsgID = (MsgID < 0xFFFE)? MsgID+1 : 1;          
-        add_txmsg_uchar(&mqmsg, (uchar)(MsgID >> 8));
-        add_txmsg_uchar(&mqmsg, (uchar)(MsgID));                
-        add_txmsg_uchar(&mqmsg, 1);    // JSON
-        sprintf(buf,"{topic:%d,val:", tpc);
-        add_txmsg_z_str(&mqmsg, buf);
-        if (valid[topic_i])
+        if (TopicId[ti]) // if valid TopicId 
         {
-            dtostrf(value[topic_i], 4,2, buf);
+            make_msg_header(MT_PUBLISH, ti);
+            sprintf(buf,"{val:");
+            add_txmsg_z_str(&mqmsg, buf);    // add buf as a z-string
+            if (flag[ti].value_valid) 
+            {
+                dtostrf(value[ti], 4,2, buf);
+            }
+            else
+            {
+                buf[0] = '0';
+                buf[1] = 0;
+            }        
+            add_txmsg_z_str(&mqmsg, buf);   // add buf as a z-string
+            add_txmsg_uchar(&mqmsg, '}'); 
+            finish_txmsg(&mqmsg);
+            mqmsg.hb = 0;
+            mqmsg.valid = 1;
+            return OK;
         }
-        else
+    }
+    return ERR;
+}
+
+// =============================================
+// Make a pseudo-MQTT-SN message REGISTER  
+// =============================================
+uchar HB_mqtt::make_msg_reg(uchar ti)
+{
+    mqmsg.valid = 0;
+    if (ti < MAX_TOPIC) 
+    {
+        make_msg_header(MT_REGISTER, ti);
+        if (TopicName[ti])
         {
-            buf[0] = '0';
-            buf[1] = 0;
-        }        
-        add_txmsg_z_str(&mqmsg, buf);
-        add_txmsg_uchar(&mqmsg, '}'); 
+            add_txmsg_z_str(&mqmsg, TopicName[ti]);  
+        }
         finish_txmsg(&mqmsg);
         mqmsg.hb = 0;
         mqmsg.valid = 1;
@@ -190,5 +281,59 @@ uchar HB_mqtt::make_msg(uchar topic_i)
         return ERR;
 }
 
+// =============================================
+// Init TopicId
+// =============================================
+uchar HB_mqtt::init_topic_id(uint node_id)
+{
+    static uchar ti = 0;
+    static uchar state = 0;
+    if ((node_id & 0xF000) == 0xF000) // if temporary NodeID
+    {
+        return 1;   // do not process further, loop
+    } 
+    switch (state)
+    {
+    case 0:
+        Serial.print("0: ti=");
+        Serial.print(ti);
+        Serial.print(", TopicId=");
+        Serial.println(TopicId[ti]);
+        if (TopicId[ti])    // if topic ID valid
+        {
+            flag[ti].topic_valid = 1;   // ensure            
+            state = (++ti >= MAX_TOPIC) ? 99 : 0; // next topic or finish           
+        }
+        else    // Top[icId not valid, make request
+        {
+            flag[ti].topic_valid = 0;                    
+            make_msg_reg(ti); // issue REGISTER with TopicId=0
+            state++;
+        }
+        break;
+    case 1:
+        Serial.print("1: ti=");
+        Serial.print(ti);
+        Serial.print(", TopicId=");
+        Serial.println(TopicId[ti]);
+        if (TopicId[ti] == 0)  // if other nodes did not supply TopicId     
+        {
+            TopicId[ti] =  (node_id << 5) | ti; // use NodeID to assign TopicId
+            uint addr = EE_TOPIC_ID + 2*ti;
+            EEPROM.write(addr, (uchar)(TopicId[ti] >> 8));
+            EEPROM.write(addr+1, (uchar)TopicId[ti]);
+            flag[ti].topic_valid = 1;              
+            make_msg_reg(ti);   // issue REGISTER with newly assigned TopicId - targeting gateways
+        }
+        state = (++ti >= MAX_TOPIC) ? 99 : 0;  // next topic or finish         
+        break;
+    default:
+        ti = 0;     // be ready for another cycle
+        state = 0;
+        return OK;  // all topics processed, finish
+        break;        
+    }    
+    return 2;   // continue
+}
 
 /* EOF */

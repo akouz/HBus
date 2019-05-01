@@ -43,6 +43,7 @@
 // rev 0.6  -   15/03/2019, refactoring, use installed library <coos.h>, use
 //              descriptors for HBcmd and HBmqtt; remove local file revisions
 // rev 0.7  -   16/03/2019, report value as 0 (no decimal point) if it is not valid
+// rev 0.8  -   29/04/2019, added CMP_TOPIC and REGISTER
 
 //##############################################################################
 // Def
@@ -52,13 +53,10 @@ enum{
 
     // HBus revision
     HB_REV_MAJ      = 0,
-    HB_REV_MIN      = 7,     
+    HB_REV_MIN      = 8,     
 
     // coos
     COOS_TASKS      = 6,   // this node uses up to 6 coos tasks            
-
-    // MQTT
-    MAX_TOPIC       = 4,    // this node can handle 4 topics
 
     // misc
     DF_STATUS       = 1,    // use JSON in STATUS command    
@@ -89,8 +87,8 @@ enum{
     EE_PUP_CNT      = 2,    // count power-ups
     EE_SEED         = 4,    // random seed  
     EE_OWN_ID       = 6,    // ownID
-    EE_DESCR        = 0x10, // description c-string address, up to 64 chars
-    
+    EE_DESCR        = 0x10, // description c-string address, up to 100 chars
+    EE_TOPIC_ID     = 0x80, // list of topicID, 2-bytes each, up to 64 topics
 };
 
 //##############################################################################
@@ -129,6 +127,7 @@ typedef struct{
   };
 }hb_msg_t;
 #endif
+
  
 //##############################################################################
 // Var

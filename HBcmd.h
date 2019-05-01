@@ -47,6 +47,7 @@ enum{
   CMD_RD_DESCR       = 8,
   CMD_WR_DESCR       = 9,
   CMD_CUSTOM         = 10,
+  CMD_TOPIC          = 11,   
 };
 
 //##############################################################################
@@ -67,7 +68,7 @@ class Hb_cmd{
     void        tick10ms(void);
 
   private:
-    uchar*      descriptor;           // HBus descriptor 
+    uchar*      node_descr;           // node descriptor 
     union{
         uint ID;
         uchar id[2];
@@ -87,7 +88,8 @@ class Hb_cmd{
     uchar       rply_rd_descr(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_wr_descr(hb_msg_t* rxmsg, hb_msg_t* rply);    
     uchar       rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply);
-    void        (*custom_cmd)(hb_msg_t* msg, hb_msg_t* rply); // user-defined custom command    
+    void        (*custom_cmd)(hb_msg_t* msg, hb_msg_t* rply);   // user-defined custom command    
+    uchar       rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply);    // read MQTT topic 
 };
 extern Hb_cmd HBcmd;
 

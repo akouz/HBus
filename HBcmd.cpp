@@ -52,7 +52,7 @@ Hb_cmd::Hb_cmd(void)
     own.id[0] = EEPROM.read(EE_OWN_ID+1);
     reply.len = 0;
     reply.all = 0;
-    descriptor = NULL;
+    node_descr = NULL;
     custom_cmd = NULL;
 }
 
@@ -61,7 +61,7 @@ Hb_cmd::Hb_cmd(void)
 // =====================================  
 void Hb_cmd::set_descriptor(uchar* descr)
 {
-    descriptor = descr;   // 
+    node_descr = descr;  
 }
 
 // =====================================  
@@ -102,6 +102,7 @@ hb_msg_t* Hb_cmd::process_rx_cmd(hb_msg_t* rxmsg)
                 case CMD_RD_DESCR:  res = rply_rd_descr(rxmsg, &reply); break;
                 case CMD_WR_DESCR:  res = rply_wr_descr(rxmsg, &reply); break;
                 case CMD_CUSTOM:    res = rply_custom(rxmsg, &reply);   break;
+                case CMD_TOPIC:     res = rply_topic(rxmsg, &reply);    break;
                 default:            res = rply_unknown(rxmsg, &reply);  break;
             }
             if (READY == res)
@@ -154,9 +155,9 @@ uchar Hb_cmd::rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply)
     add_txmsg_uchar(rply,  OK);
     for (uchar i=0; i<8; i++)
     {
-        if (descriptor) // if descriptor supplied
+        if (node_descr) // if descriptor supplied
         {
-            add_txmsg_uchar(rply, descriptor[i]);
+            add_txmsg_uchar(rply, node_descr[i]);
         }
         else
         {
@@ -184,11 +185,15 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_z_str(rply, buf);
         for (uchar i=0; i< MAX_TOPIC; i++)
         {
-            tpc = HBmqtt.get_topic(i); 
-            if (i < MAX_TOPIC-1)        
+            tpc = TopicId[i]; 
+            if (i < MAX_TOPIC-1) 
+            {       
                 snprintf(buf, sizeof(buf),"%d,", tpc);
+            }    
             else
+            {
                 snprintf(buf, sizeof(buf),"%d]", tpc);
+            }
             add_txmsg_z_str(rply, buf);
         }
         // list all topics values
@@ -196,7 +201,7 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_z_str(rply, buf);
         for (uchar i=0; i<MAX_TOPIC; i++)
         {
-            if (HBmqtt.valid[i])
+            if (HBmqtt.flag[i].value_valid) 
             {
                 dtostrf(HBmqtt.value[i], 4,2, buf);
             }
@@ -206,10 +211,14 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
                 buf[1] = 0;
             }
             add_txmsg_z_str(rply, buf);         
-            if (i < MAX_TOPIC-1)        
+            if (i < MAX_TOPIC-1)    
+            {   
                 add_txmsg_uchar(rply, ',');
+            }
             else
+            {
                 add_txmsg_uchar(rply, ']');
+            }
         }
         add_txmsg_uchar(rply, '}');
     }
@@ -219,7 +228,7 @@ uchar Hb_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_uchar(rply, MAX_TOPIC);
         for (uchar i=0; i<MAX_TOPIC; i++)
         {
-            tpc = HBmqtt.get_topic(i); 
+            tpc = TopicId[i]; 
             add_txmsg_uchar(rply, (uchar)(tpc >> 8));
             add_txmsg_uchar(rply, (uchar)tpc);
         }
@@ -409,6 +418,45 @@ uchar Hb_cmd::rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply)
 void  Hb_cmd::set_custom_cmd(void (*c_cmd)(hb_msg_t* msg, hb_msg_t* rply))
 {
     custom_cmd = c_cmd;   // set user-defined custom command
+}
+
+// =====================================  
+// Reply topic, eg pair TopicId + TopicName 
+// =====================================  
+uchar  Hb_cmd::rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply)
+{
+    uchar ti;
+    char c;
+    char* tn;
+    copy_msg_hdr(rxmsg, 0, 7, rply);
+    ti = rxmsg->buf[7];  // topic index
+    if (ti >= MAX_TOPIC)
+    {
+        add_txmsg_uchar(rply, ERR);
+    } 
+    else
+    {
+        add_txmsg_uchar(rply, OK);
+        add_txmsg_uchar(rply, (uchar)(TopicId[ti] >> 8));
+        add_txmsg_uchar(rply, (uchar)TopicId[ti]);
+        tn = (char*)TopicName[ti];
+        if (tn)  // if topic name defined
+        {
+            for (uchar i=0; i<64; i++)
+            {
+                c = tn[i];
+                if (c)
+                {
+                    add_txmsg_uchar(rply, (uchar)c);
+                }
+                else
+                {
+                    break;
+                } 
+            }
+        }
+    }
+   return READY;
 }
 
 // =====================================  
