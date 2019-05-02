@@ -58,8 +58,9 @@ extern uint TopicId[MAX_TOPIC];
 union mq_flag_uni{
     uchar all;
     struct{
-        unsigned    value_valid     : 1;
-        unsigned    topic_valid     : 1; 
+        unsigned    value_valid         : 1;
+        unsigned    topic_valid         : 1;
+        unsigned    topic_name_valid    : 1;
     };
 };
 

@@ -74,12 +74,16 @@ HB_mqtt::HB_mqtt(void)
     {   
         flag[i].all = 0;   
         TopicId[i] = 0;
-        addr = EE_TOPIC_ID + 2*i;
-        tid = 0x100*(uint)EEPROM.read(addr) + EEPROM.read(addr+1);
-        if (tid < 0xFFFF)
+        if ((TopicName[i]) && (TopicName[i][0]))
         {
-            TopicId[i] = tid;
-            flag[i].topic_valid = 1;   
+            flag[i].topic_name_valid = 1;
+            addr = EE_TOPIC_ID + 2*i;
+            tid = 0x100*(uint)EEPROM.read(addr) + EEPROM.read(addr+1);
+            if (tid < 0xFFFF)
+            {
+                TopicId[i] = tid;
+                flag[i].topic_valid = 1;   
+            } 
         } 
     }
 }
@@ -171,7 +175,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
     // ------------------------------------
     // REGISTER messages
     // ------------------------------------
-    if (mt == MT_REGISTER)
+    if ((mt == MT_REGISTER) && (msg->buf[8]))  
     {
         msg->buf[msg->len] = 0;   // make 0-terminated string
         res = is_topic_name((const char *)msg->buf + 8);
@@ -265,7 +269,7 @@ uchar HB_mqtt::make_msg_pub(uchar ti)
 uchar HB_mqtt::make_msg_reg(uchar ti)
 {
     mqmsg.valid = 0;
-    if (ti < MAX_TOPIC) 
+    if ((ti < MAX_TOPIC) && (flag[ti].topic_name_valid)) 
     {
         make_msg_header(MT_REGISTER, ti);
         if (TopicName[ti])
@@ -295,10 +299,12 @@ uchar HB_mqtt::init_topic_id(uint node_id)
     switch (state)
     {
     case 0:
+/*
         Serial.print("0: ti=");
         Serial.print(ti);
         Serial.print(", TopicId=");
         Serial.println(TopicId[ti]);
+*/        
         if (TopicId[ti])    // if topic ID valid
         {
             flag[ti].topic_valid = 1;   // ensure            
@@ -312,10 +318,12 @@ uchar HB_mqtt::init_topic_id(uint node_id)
         }
         break;
     case 1:
+/*    
         Serial.print("1: ti=");
         Serial.print(ti);
         Serial.print(", TopicId=");
         Serial.println(TopicId[ti]);
+*/        
         if (TopicId[ti] == 0)  // if other nodes did not supply TopicId     
         {
             TopicId[ti] =  (node_id << 5) | ti; // use NodeID to assign TopicId
