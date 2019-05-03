@@ -174,7 +174,7 @@ var s : string;
     dest : word;
 begin
   result := false;
-  if msg.hb and (Length(msg.s) >= 8) then begin
+  if (msg.mqtt) and (Length(msg.s) >= 8) then begin
     if (ord(msg.s[1]) and $80) <> 0 then begin   // it is a reply
       dest := $100*ord(msg.s[2]) + ord(msg.s[3]);
       if dest = OwnID then begin                 // it is reply to me
@@ -205,7 +205,7 @@ function THbCmd.CmdRev(dest : word) : THbMsg;
 begin
   if  FMakeCmd(CMD_REV, dest, 0) then begin
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -218,7 +218,7 @@ function THbCmd.CmdStatus(dest : word) : THbMsg;
 begin
   if  FMakeCmd(CMD_STATUS, dest, 0) then begin
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -234,7 +234,7 @@ begin
     grsl := $100*group + slots;
     FCmdStr := FMakeHdr(CMD_COLLECT, grsl, 0);
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -247,7 +247,7 @@ function THbCmd.CmdPing(dest : word; interval : byte) : THbMsg;
 begin
   if FMakeCmd(CMD_PING, dest, interval) then begin
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -269,7 +269,7 @@ begin
      FExpRplyHdr := Copy(FExpRplyHdr, 1, 3);
      FRplyTmout := 100;
      result.s := FCmdStr;
-     result.hb := true;
+     result.mqtt := false;
      result.valid := true;
    end else
      result.valid := false;
@@ -282,7 +282,7 @@ function THbCmd.CmdBoot(dest : word; pause : byte) : THbMsg;
 begin
   if FMakeCmd(CMD_BOOT, dest, pause) then begin
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -295,7 +295,7 @@ function THbCmd.CmdBeep(dest : word; dur : byte) : THbMsg;
 begin
   if FMakeCmd(CMD_BEEP, dest, dur) then begin
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -308,7 +308,7 @@ function THbCmd.CmdRdDescr(dest : word) : THbMsg;
 begin
   if FMakeCmd(CMD_RD_DESCR, dest, 0) then begin
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -324,7 +324,7 @@ begin
     b := Length(descr);
     FCmdStr := FCmdStr + char(b) + descr;
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -338,7 +338,7 @@ begin
   if FMakeCmd(CMD_CUSTOM, dest, 1) and (Length(json) < 64) then begin
     FCmdStr := FCmdStr + json;
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.postpone := 0;
     result.valid := true;
   end else
@@ -352,7 +352,7 @@ function THbCmd.CmdRdTopic(dest : word; ti : byte) : THbMsg;
 begin
   if FMakeCmd(CMD_TOPIC, dest, ti) then begin
     result.s := FCmdStr;
-    result.hb := true;
+    result.mqtt := false;
     result.valid := true;
   end else
     result.valid := false;
@@ -370,7 +370,7 @@ begin
   result.s := result.s + char(1);
   s := '{val:'+val+'}';
   result.s := result.s + s;
-  result.hb := false;
+  result.mqtt := true;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -384,7 +384,7 @@ begin
   result.s := result.s + char(byte(topicId shr 8)) + char(byte(topicId and $FF));
   result.s := result.s + char(byte(Msg_ID shr 8)) + char(byte(Msg_ID and $FF));
   result.s := result.s + char(1) + val;
-  result.hb := false;
+  result.mqtt := true;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -398,7 +398,7 @@ var dest       : word;
     hdr        : string;
 begin
   result.valid := false;
-  if (rx.hb) and (Length(rx.s) >= 8) and (FIgnoreTrafficCnt = 0) then begin
+  if (not rx.mqtt) and (Length(rx.s) >= 8) and (FIgnoreTrafficCnt = 0) then begin
     cmd := ord(rx.s[1]);
     if (cmd = CMD_COLLECT) and (FIgnoreCollectCnt = 0) then begin
       result := FRplyCollect(rx);
@@ -435,7 +435,7 @@ begin
   result.s := result.s + char(HW_REV_MAJ) + char(HW_REV_MIN);
   result.s := result.s + char(BT_REV_MAJ) + char(BT_REV_MIN);
   result.s := result.s + char(SW_REV_MAJ) + char(SW_REV_MIN);
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -446,7 +446,7 @@ end;
 function THbCmd.FRplyStatus(hdr : string) : THbMsg;
 begin
   result.s := hdr;
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -477,7 +477,7 @@ begin
       s :=  char(CMD_COLLECT or $80) + copy(msg.s,2,2);
       s := s + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
       result.s := s + copy(msg.s,6,2) + char(0); // copy MsgID
-      result.hb := true;
+      result.mqtt := false;
       result.valid := true;;
     end;
   end;
@@ -490,7 +490,7 @@ function THbCmd.FRplyPing(hdr : string; param : byte) : THbMsg;
 begin
   FIgnoreCollectCnt := param * 100; // param=sec, counter in 10 ms ticks
   result.s := hdr;
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -508,7 +508,7 @@ begin
   end else begin
     result.s := char(CMD_SET_ID or $80) + copy(msg.s,2,6) + char(2); // Err
   end;
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -519,7 +519,7 @@ end;
 function THbCmd.FRplyBoot(hdr : string; param : byte) : THbMsg;
 begin
   result.s := hdr;
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -540,7 +540,7 @@ begin
   SysUtils.Beep;
   FBeepCnt := param * 100;
   result.s := hdr;
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -556,7 +556,7 @@ begin
   result.s := hdr + char(byte(length(Description)));
   for i:=1 to length(Description) do
     result.s := result.s + Description[i];
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
@@ -568,7 +568,7 @@ function THbCmd.FRplyWrDescr(hdr : string; msg : THbMsg) : THbMsg;
 var len : byte;
 begin
   result.s := hdr;
-  result.hb := true;
+  result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
   if length(msg.s) > 8 then begin

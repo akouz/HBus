@@ -53,7 +53,7 @@ type
   THbMsg = record
     pri : byte;      // priority (prefix)
     s : string;      // data
-    hb : boolean;    // HBus/MQTT
+    mqtt : boolean;    // HBus/MQTT
     err : boolean;
     valid : boolean;
     postpone : byte; // 10 ms ticks
@@ -195,8 +195,10 @@ begin
         FGate := True;
         FGateTmout := 0;
         FRxMsg.s := '';
-        FRxMsg.hb := (Ord(c) = _ESC_START_HB);
-        //DbgList.Add('<start>');
+        if (Ord(c) = _ESC_START_HB) then
+           FRxMsg.mqtt := false
+        else
+            FRxMsg.mqtt := true;
       end;
       // --------------
       _ESC_END: // end of a frame
@@ -376,16 +378,16 @@ begin
           Fsent  := '';
           FTxTmout := 0;
           FTxBusy  := False;
-          if FRxMsg.hb then
-            Add(char(FRxMsg.pri)+'H' + s)
+          if FRxMsg.mqtt then
+            Add(char(FRxMsg.pri)+'M' + s)
           else
-            Add(char(FRxMsg.pri)+'M' + s);
+            Add(char(FRxMsg.pri)+'H' + s);
         end else begin
           //DbgList.Add('unexpected');
-          if FRxMsg.hb then
-            Add(char(FRxMsg.pri) + 'H' + s)   // mark HBus message
+          if FRxMsg.mqtt then
+            Add(char(FRxMsg.pri) + 'M' + s)   // mark MQTT message
           else
-            Add(char(FRxMsg.pri) + 'M' + s);  // mark MQTT message
+            Add(char(FRxMsg.pri) + 'H' + s);  // mark HBus message
         end;
       end else begin
         Add(char(FRxMsg.pri) + 'E' + s);      // mark error
@@ -405,11 +407,11 @@ begin
     s := self.Strings[0];
     Result.pri := byte(s[1]);
     Result.err := (s[2] = 'E');
-    Result.hb := (s[2] = 'H');             // first letter 'H' means HBus message
+    Result.mqtt := (s[2] = 'M');           // first letter 'M' means MQTT message
     Result.s := Copy(s, 3, Length(s) - 2); // remove first letter
     self.Delete(0);                        // remove it from the list
     Result.valid := true;
-    if (Result.hb = false) and (Result.err = false) then begin
+    if (Result.mqtt = true) and (Result.err = false) then begin
        MsgID := $100*ord(Result.s[6]) + ord(Result.s[7]);
     end;
   end;
@@ -472,10 +474,10 @@ begin
   if ComPort.Connected and PortOk then begin
     try
       if not FTxBusy then begin
-        if msg.hb then
-          s := FEncodeHB(msg.s)
+        if msg.mqtt then
+          s := FEncodeMQ(msg.s)
         else
-          s := FEncodeMQ(msg.s);
+          s := FEncodeHB(msg.s);
         if s <> '' then begin
           ComPort.WriteStr(s);
           TxStatus := 1;

@@ -219,7 +219,7 @@ begin
           end;
         end;
         if rx.valid then begin
-          if (rx.hb = false) and (rx.err = false) then begin
+          if (rx.mqtt) and (rx.err = false) then begin
             msg_id := HB.MsgID;   // received
             if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $FFF0) and (msg_id < $10)) then begin
                HBcmd.MsgID := msg_id +1;
@@ -229,6 +229,7 @@ begin
             end;
           end;
           PrintHbMsg(rx);
+          rx.valid := false;
         end;
         if HB.TxStatus = 2 then begin
         // LB.Items.Add('Echo OK');
@@ -291,15 +292,18 @@ begin
   s := IntToHex(msg.pri, 2); // show priority byte (prefix)
   cmd := ord(msg.s[1]);
   OkErr := ord(msg.s[8]);
-  if msg.hb then begin
+  // ---------------------------
+  // HBus message
+  // ---------------------------
+  if (not msg.mqtt) then begin
     s := s + ' HBus ';
-    if (cmd = $82) and (OkErr = 1) then // STATUS reply
-      s := s + StrToHex(msg.s, 8) // JSON
+    if (cmd = $82) and (OkErr = 1) then    // STATUS reply
+      s := s + StrToHex(msg.s, 8)          // JSON
     else if ((cmd = $88) or (cmd = 9)) then
-      s := s + StrToHex(msg.s, 9) // description
-    else if (cmd = $A) or (cmd = $8A) then    // custom cmd and reply
+      s := s + StrToHex(msg.s, 9)          // description
+    else if (cmd = $A) or (cmd = $8A) then // custom cmd and reply
       s := s + StrToHex(msg.s, 8)
-    else if (cmd = $8B) then begin    // topic
+    else if (cmd = $8B) then begin         // topic
       if (OkErr = 0) then begin
         NewTopicId := $100*ord(msg.s[9]) + ord(msg.s[10]);
         s := s + StrToHex(msg.s, 10);
@@ -310,6 +314,9 @@ begin
       end;
     end else
       s := s + StrToHex(msg.s, 0); // binary
+  // ---------------------------
+  // MQTT message
+  // ---------------------------
   end  else begin
     s := s + ' MQTT ';
     TopicId := $100*ord(msg.s[4]) + ord(msg.s[5]);
@@ -649,7 +656,11 @@ procedure TForm1.EdNewIDDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdNewId.Text);
-  NewID := StrToIntDef(s, $FFFF);
+  NewID := StrToIntDef(s, $07FF);
+  if (NewID = 0) then
+     NewID := 1;
+  if (NewID > $07FF) then
+     NewID := $07FF;
   EdNewID.Text := '0x'+IntToHex(NewID,4)
 end;
 
