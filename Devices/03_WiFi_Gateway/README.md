@@ -13,5 +13,6 @@ Assembled Gateway without Arbiter.
 Warning: for correct UART operation, [Wemos D1](https://wiki.wemos.cc/products:d1:d1_mini) must be reworked:
   * unsolder and lift U3 pin 2 from PCB (eg CH340C pin Tx)
   * add a resistor 3.3 kOhm in series with U3 pin 2
+  
 Reworked Wemos D1 still can be programmed via USB; just take it off the sokets and put it back when programmed.
   
