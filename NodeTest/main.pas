@@ -372,6 +372,7 @@ begin
     Label3.Caption:='Disonnected';
   HBcmd := THbCmd.Create;
   EdOwnId.Text := '0x'+IntToHex(HBcmd.OwnID,4);
+  EdOwnIdDblClick(Sender);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,4);
 end;
 
@@ -622,7 +623,7 @@ procedure TForm1.EdNodeDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdNode.Text);
-  NodeID := StrToIntDef(s, $FFFF);
+  NodeID := StrToIntDef(s, $07FF);
   EdNode.Text := '0x'+IntToHex(NodeID,4);
 end;
 
@@ -633,7 +634,11 @@ procedure TForm1.EdOwnIdDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdOwnId.Text);
-  HBcmd.OwnID := StrToIntDef(s, $FFFF);
+  HBcmd.OwnID := StrToIntDef(s, $07FF);
+  if (HBcmd.OwnID < 1) then
+     HBcmd.OwnID := 1;
+  if (HBcmd.OwnID > $07FF) then
+     HBcmd.OwnID := $7FF;
   EdOwnId.Text := '0x'+IntToHex(HBcmd.OwnID,4)
 end;
 

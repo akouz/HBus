@@ -56,7 +56,7 @@ object Form1: TForm1
     object EdOwnId: TEdit
       Left = 296
       Height = 23
-      Hint = 'NodeTest own ID'
+      Hint = 'range 1...0x07FF'
       Top = 0
       Width = 80
       OnDblClick = EdOwnIdDblClick
@@ -143,7 +143,7 @@ object Form1: TForm1
       object EdNode: TEdit
         Left = 104
         Height = 23
-        Hint = 'node ID'
+        Hint = 'range 1...0x07FF'
         Top = 0
         Width = 64
         OnDblClick = EdNodeDblClick
@@ -225,13 +225,13 @@ object Form1: TForm1
       object EdNewID: TEdit
         Left = 104
         Height = 23
-        Hint = 'new node ID'
+        Hint = 'range 1...0x07FF'
         Top = 120
         Width = 64
         OnDblClick = EdNewIDDblClick
         OnExit = EdNewIDDblClick
         TabOrder = 9
-        Text = '$1235'
+        Text = '$123'
       end
       object BtnBoot: TButton
         Left = 0
@@ -316,6 +316,7 @@ object Form1: TForm1
       object CbStatus: TCheckBox
         Left = 104
         Height = 19
+        Hint = 'repeat Read Status command every sec'
         Top = 52
         Width = 53
         Caption = 'repeat'
