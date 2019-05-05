@@ -804,7 +804,7 @@ Binds TopicId and TopicName.
 <td>NodeID</td>
 <td>TopicId</td>
 <td>MsgId</td>
-<td>DF</td>
+<td>0</td>
 <td>TopicName</td>
 </tr></tbody></table>
 
