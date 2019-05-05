@@ -811,10 +811,12 @@ Binds TopicId and TopicName.
   * TopicName is UTF-8 string less than 64 bytes long
 
 Typically nodes are pre-programmed with TopicNames, but all TopicIds set to 0. After power-up nodes request TopicId for every TopicName thay have. If there is no answer, nodes propose a TopicId derived from their NodeId:
+
   * TopicId = (NodeId << 5) | TopicIndex
+  
 Thus, every node can assign up to 32 TopicId.
 
-TopicId in the range [0x00...0x1F] cannot be assigned by nodes because NodeId=0 is illegal. In that range TopicName and TopicId are pre-defined. Only one pair is defined so far, other values reserved for future use:
+TopicId in the range [0x0000...0x001F] cannot be assigned by nodes because NodeId=0 is illegal. In that range TopicName and TopicId are pre-defined. Only one pair is defined so far, other values reserved for future use:
   * TopicName="Error", TopicId = 0x01
 
 
