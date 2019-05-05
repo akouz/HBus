@@ -810,7 +810,7 @@ Binds TopicId and TopicName.
 
   * TopicName is UTF-8 string less than 64 bytes long
 
-Typically nodes are pre-programmed with TopicNames, but all TopicIds set to 0. After power-up nodes request TopicId for every TopicName thay have. If there is no answer, nodes propose a TopicId derived from their NodeId:
+Typically nodes are pre-programmed with TopicNames, but all TopicIds set to 0. After power-up nodes request TopicId for every TopicName they have. If there is no answer, nodes propose a TopicId derived from their NodeId:
 
   * TopicId = (NodeId << 5) | TopicIndex
   
