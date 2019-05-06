@@ -817,9 +817,9 @@ Typically nodes are pre-programmed with TopicNames, but all TopicIds set to 0. A
 Thus, every node can assign up to 32 TopicId.
 
 TopicId in the range [0x0000...0x001F] cannot be assigned by nodes because NodeId=0 is illegal. In that range TopicName and TopicId are pre-defined. Only few pairs defined so far, other values reserved for future use:
+  * TopicName="config", TopicId = 0x000C
   * TopicName="debug", TopicId = 0x000D
   * TopicName="error", TopicId = 0x000E
-  * TopicName="config", TopicId = 0x000F
 
 
 ## PUBLISH
