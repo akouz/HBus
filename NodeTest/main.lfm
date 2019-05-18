@@ -3,7 +3,7 @@ object Form1: TForm1
   Height = 400
   Top = 239
   Width = 769
-  Caption = 'NodeTest rev 1.08'
+  Caption = 'NodeTest rev 1.09'
   ClientHeight = 400
   ClientWidth = 769
   OnCreate = FormCreate
@@ -114,7 +114,9 @@ object Form1: TForm1
     Font.Pitch = fpFixed
     Font.Quality = fqDraft
     ItemHeight = 0
+    MultiSelect = True
     OnDblClick = LBDblClick
+    OnKeyPress = LBKeyPress
     ParentFont = False
     TabOrder = 1
   end

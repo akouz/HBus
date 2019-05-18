@@ -32,7 +32,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, CPort, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, HBrxtxU, HBcmdU;
+  ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, Clipbrd, HBrxtxU, HBcmdU;
 
 type
 
@@ -110,6 +110,7 @@ type
     procedure FormDestroy(Sender : TObject);
     procedure Label2DblClick(Sender : TObject);
     procedure LBDblClick(Sender : TObject);
+    procedure LBKeyPress(Sender : TObject; var Key : char);
     procedure Timer10msTimer(Sender : TObject);
     procedure Timer1secTimer(Sender : TObject);
   private
@@ -183,6 +184,25 @@ end;
 procedure TForm1.LBDblClick(Sender : TObject);
 begin
   LB.Clear;
+end;
+
+// =====================================================
+// Ctrl+C to copy selected text
+// =====================================================
+procedure TForm1.LBKeyPress(Sender : TObject; var Key : char);
+var s : string;
+    i : integer;
+begin
+  if Ord(Key) = 3 then begin
+    if LB.SelCount > 0 then begin
+      s := '';
+      for i:=0 to LB.Items.Count-1 do begin
+        if LB.Selected[i] then
+        s := s + LB.Items.Strings[i] + char(13);
+      end;
+      Clipboard.AsText := s;
+    end;
+  end;
 end;
 
 // =====================================================
