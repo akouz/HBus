@@ -1,5 +1,5 @@
 # NodeTest
-#### rev 1.08
+#### rev 1.09
 
 #### Notes:
   * Compiled by Lazarus with installed Cportlaz_v1.0.0 serial port component
@@ -44,4 +44,8 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
   * Topic 101 value becomes valid. Node sketch start broadcasting its valid topic values, issuing node 0x1234, topic 101, value 12.30. 
   
 ![Pic4_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic4_1.png)
+
+## 5. Notes
+  * You can select text in ListBox. Using Ctrl+C you can copy selected text lines to Clipboard.
+
   
