@@ -4,7 +4,7 @@ Current rev 1.0
 
 ## Time service
 
-Every hour sketch requests time from NTP server and broadcast HBus messate to default topic "time" (TopicId=1) with the following ayload
+Every hour sketch requests time from NTP server and broadcasts HBus message to a default topic "time" (TopicId=1) with the following payload:
 
 {atime:1558391178, tz:570, daysec:28578, hr:7, min:56}
 
