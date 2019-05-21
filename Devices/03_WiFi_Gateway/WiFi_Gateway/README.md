@@ -9,6 +9,8 @@ In WiFi_Gateway.ino enter your WiFi network credentials:
 > const char* ssid     = "your_ssid";
 
 > const char* password = "your_password";
+
+In case of lost connection, sketch will try to re-connect.
  
 ## Time service
 
