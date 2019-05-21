@@ -24,9 +24,9 @@ In case of lost connection, sketch will try to re-connect to MQTT broker, see vo
 
 Sketch keeps MQTT connection alive by sending a short message to broker every 10 sec, see void coos_task_broadcast(void).
 
-Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker. see void hbus_msg_to_mqtt(hb_msg_t* msg) in HBus.cpp. Duiring conversion Gateway replaces TopicId by topic name. Topic name of the outgoing message consiste of topic_base and TopicName. List of registered TopicId stored in EEPROM, list of registered TopicName stored in SPIFFS. 
+Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker. see void hbus_msg_to_mqtt(hb_msg_t* msg) in HBus.cpp. Duiring conversion Gateway replaces TopicId by topic name. 
 
-For example,  in case when topic_base="HBus". If TopicName="topic0" is registered as TopicId=100, then HBus message:
+Topic name of the outgoing message consiste of topic_base and TopicName. List of registered TopicId stored in EEPROM, list of registered TopicName stored in SPIFFS. For example,  in case when topic_base="HBus". If TopicName="topic0" is registered as TopicId=100, then HBus message:
 
 > 0C 00 11 00 64 0E 7B 01  {val:3} 
 
