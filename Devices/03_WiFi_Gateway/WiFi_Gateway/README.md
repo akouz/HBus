@@ -7,6 +7,7 @@ Current rev 1.0
 In WiFi_Gateway.ino enter your WiFi network credentials:
 
 > const char* ssid     = "your_ssid";
+
 > const char* password = "your_password";
  
 ## Time service
