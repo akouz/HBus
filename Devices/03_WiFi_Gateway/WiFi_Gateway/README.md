@@ -10,7 +10,7 @@ In WiFi_Gateway.ino enter your WiFi network credentials:
 
 > const char* password = "your_password";
 
-In case of lost connection, sketch will try to re-connect to WiFi access point, see void coos_task_reconnect(void).
+In case of lost WiFi connection, sketch tries to restore it, see void coos_task_reconnect(void).
 
 ## MQTT broker
 
