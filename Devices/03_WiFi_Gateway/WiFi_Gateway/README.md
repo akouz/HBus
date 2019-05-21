@@ -2,6 +2,15 @@
 
 Current rev 1.0
 
+## WiFi connection
+
+In WiFi_Gateway.ino enter your WiFi network credentials:
+
+<p><code>
+const char* ssid     = "your_ssid";
+const char* password = "your_password";
+</code></p>
+ 
 ## Time service
 
 Every hour sketch requests time from NTP server and broadcasts HBus message to a default topic "time" (TopicId=1) with the following payload:
