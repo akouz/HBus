@@ -26,9 +26,9 @@ Sketch keeps MQTT connection alive by sending a short message to broker every 10
 
 ## Time service
 
-Every hour sketch requests time from NTP server and broadcasts HBus message to a default topic "time" (TopicId=1) with the following payload:
+Every hour sketch requests time from NTP server and broadcasts HBus message to a default topic "time" (TopicId=1) with the following payload (sample):
 
-{atime:1558391178, tz:570, daysec:28578, hr:7, min:56}
+> {atime:1558391178, tz:570, daysec:28578, hr:7, min:56}
 
 where 
   * atime - UTC time, seconds since 00:00:00 of 01/01/2001
