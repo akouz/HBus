@@ -16,3 +16,6 @@ Warning: for correct UART operation, [Wemos D1](https://wiki.wemos.cc/products:d
   
 Reworked Wemos D1 still can be programmed via USB; just take it off the sokets and put it back when programmed.
   
+![Pic2](https://github.com/akouz/HBus/blob/master/Devices/03_WiFi_Gateway/rework.jpg)
+
+Resistor 3.3 kOhm, size 0603, soldered between pin 2 and PCB
