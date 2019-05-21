@@ -37,7 +37,7 @@ Gateway is subscribed to topics **topic_base**/#. Messages from MQTT broker to t
   * if the remining **TopicName** is registered by Gateway then corresponding **TopicId** is used to make MQTT-SN message
   * resulting MQTT-SN message broadcasted to HBus
 
-HBus nodes register their **TopicName**s using **REGISTER** command, see [HBus protocol](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
+HBus nodes must register their **TopicName**s using **REGISTER** command, see [HBus protocol](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
 
 ## Time service
 
