@@ -30,7 +30,7 @@ The topic name of the outgoing message consists of **topic_base** and **TopicNam
 
 > 0C 00 11 00 64 0E 7B 01  {val:3} 
 
-will be converted to MQTT message with payload {val:3} and topic name "**HBus/topic0**".
+will be converted to MQTT message with payload **{val:3}** and topic name "**HBus/topic0**".
 
 Gateway is subscribed to topics **topic_base**/#. Messages from MQTT broker to that topic will be processed as follows:
   * **topic_base** and "/" removed
