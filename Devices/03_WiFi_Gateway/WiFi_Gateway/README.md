@@ -32,12 +32,12 @@ The topic name of the outgoing message consists of **topic_base** and **TopicNam
 
 will be converted to MQTT message with payload {val:3} and topic name "**HBus/topic0**".
 
-Gateway is subscribed to topics **topic_base))/#. Messages from MQTT broker to that topic will be processed as follows:
-  * topic_base and "/" removed
-  * if remining TopicName is registered by Gateway then corresponding TopicId is used to nake MQTT-SN message
+Gateway is subscribed to topics **topic_base**/#. Messages from MQTT broker to that topic will be processed as follows:
+  * **topic_base** and "/" removed
+  * if the remining **TopicName** is registered by Gateway then corresponding **TopicId** is used to nake MQTT-SN message
   * resulting MQTT-SN message broadcasted to HBus
 
-HBus nodes register their TopicNames using REGISTER command, see [HBus protocol](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
+HBus nodes register their **TopicName**s using REGISTER command, see [HBus protocol](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
 
 ## Time service
 
