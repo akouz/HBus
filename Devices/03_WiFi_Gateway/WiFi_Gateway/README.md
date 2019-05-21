@@ -10,8 +10,20 @@ In WiFi_Gateway.ino enter your WiFi network credentials:
 
 > const char* password = "your_password";
 
-In case of lost connection, sketch will try to re-connect.
- 
+In case of lost connection, sketch will try to re-connect to WiFi access point, see void coos_task_reconnect(void).
+
+## MQTT broker
+
+In WiFi_Gateway.ino enter MQTT broker credentials:
+
+> const char* mqtt_url = "your_mqtt_broker";
+
+> const char* mqtt_password = "mqtt_password";
+
+In case of lost connection, sketch will try to re-connect to MQTT broker, see void coos_task_reconnect(void).
+
+Sketch keeps MQTT connection alive by sending a short message to broker every 10 sec, see void coos_task_broadcast(void).
+
 ## Time service
 
 Every hour sketch requests time from NTP server and broadcasts HBus message to a default topic "time" (TopicId=1) with the following payload:
