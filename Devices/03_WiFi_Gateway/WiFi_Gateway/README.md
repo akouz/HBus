@@ -41,7 +41,7 @@ HBus nodes register their TopicNames using REGISTER command, see [HBus protocol]
 
 ## Time service
 
-Every hour sketch requests time from a NTP server and broadcasts HBus message to a default topic "time" (TopicId=1) with the following payload (sample):
+Every hour sketch requests time from a NTP server and broadcasts HBus MQTT-SN message to TopicId=1 (eg to default TopicName="time") with the following payload (sample):
 
 > {atime:1558391178, tz:570, daysec:28578, hr:7, min:56}
 
