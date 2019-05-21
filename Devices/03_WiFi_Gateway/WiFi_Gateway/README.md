@@ -26,7 +26,7 @@ Sketch keeps MQTT connection alive by sending a short message to broker every 10
 
 Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker. see **void hbus_msg_to_mqtt(hb_msg_t* msg)** in **HBus.cpp**. Duiring conversion Gateway replaces **TopicId** by a topic name. 
 
-The topic name of the outgoing message consists of **topic_base** and **TopicName**. List of registered TopicId stored in EEPROM, list of registered TopicName stored in SPIFFS. For example,  in case when **topic_base**="HBus" and **TopicName**="topic0" is registered as **TopicId**=100 (or 0x0064), then HBus message:
+The topic name of the outgoing message consists of **topic_base** and **TopicName**. List of registered TopicId stored in EEPROM, list of registered TopicName stored in SPIFFS. For example,  in case when **topic_base**="HBus" and **TopicName**="topic0" is registered as **TopicId**=100 (or 0x0064), then HBus **PUBLISH** message:
 
 > 0C 00 11 00 64 0E 7B 01  {val:3} 
 
@@ -37,7 +37,7 @@ Gateway is subscribed to topics **topic_base**/#. Messages from MQTT broker to t
   * if the remining **TopicName** is registered by Gateway then corresponding **TopicId** is used to make MQTT-SN message
   * resulting MQTT-SN message broadcasted to HBus
 
-HBus nodes must register their **TopicName**s using **REGISTER** command, see [HBus protocol](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages). Gateway detects **REGISTER** messages and automaticaly updates its list of registered **NodeName - NodeId** pairs.
+HBus nodes must register their **TopicName**s using **REGISTER** messages, see [HBus protocol](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages). Gateway detects **REGISTER** messages and automaticaly updates its list of registered **NodeName - NodeId** pairs.
 
 ## Time service
 
