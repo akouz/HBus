@@ -22,7 +22,7 @@ In WiFi_Gateway.ino enter MQTT broker credentials:
 
 In case of lost connection, sketch will try to re-connect to MQTT broker, see **void coos_task_reconnect(void)**.
 
-Sketch keeps MQTT connection alive by sending a short message to broker every 10 sec, see **void coos_task_broadcast(void)**.
+Sketch keeps MQTT connection alive by sending a short message to broker every 5 sec, see **void coos_task_mqtt_ping(void)**.
 
 Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker. see **void hbus_msg_to_mqtt(hb_msg_t* msg)** in **HBus.cpp**. Duiring conversion Gateway replaces **TopicId** by a topic name. 
 
