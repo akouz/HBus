@@ -10,7 +10,7 @@ In WiFi_Gateway.ino enter your WiFi network credentials:
 
 > const char* password = "your_password";
 
-In case of lost WiFi connection, sketch tries to restore it, see **void coos_task_reconnect(void)**.
+In case of lost WiFi connection, sketch tries to restore it, see **coos_task_reconnect()**.
 
 ## MQTT broker
 
@@ -20,13 +20,13 @@ In WiFi_Gateway.ino enter MQTT broker credentials:
 
 > const char* mqtt_password = "mqtt_password";
 
-In case of lost connection, sketch will try to re-connect to MQTT broker, see **void coos_task_reconnect(void)**.
+In case of lost connection, sketch will try to re-connect to MQTT broker, see **coos_task_reconnect()**.
 
-Sketch keeps MQTT connection alive by sending a short message to broker every 5 sec, see **void coos_task_mqtt_ping(void)**.
+Sketch keeps MQTT connection alive by sending a short message to broker every 5 sec, see **coos_task_mqtt_ping()**.
 
 ## MQTT-SN to MQTT conversion
 
-Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker, see **void hbus_msg_to_mqtt(hb_msg_t* msg)** in **HBus.cpp**. Duiring conversion Gateway replaces **TopicId** by a topic name. 
+Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker, see **hbus_msg_to_mqtt()** in **HBus.cpp**. Duiring conversion Gateway replaces **TopicId** by a topic name. 
 
 The topic name of the outgoing message consists of **topic_base** and **TopicName**. List of registered **TopicId**s stored in EEPROM, list of registered **TopicName**s stored in SPIFFS. 
 
