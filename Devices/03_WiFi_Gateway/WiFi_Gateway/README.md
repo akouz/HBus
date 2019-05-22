@@ -24,13 +24,15 @@ In case of lost connection, sketch will try to re-connect to MQTT broker, see **
 
 Sketch keeps MQTT connection alive by sending a short message to broker every 5 sec, see **void coos_task_mqtt_ping(void)**.
 
-Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker. see **void hbus_msg_to_mqtt(hb_msg_t* msg)** in **HBus.cpp**. Duiring conversion Gateway replaces **TopicId** by a topic name. 
+Gateway reads HBus MQTT-SN messages from the bus, converts them into MQTT messages and sends to the MQTT broker, see **void hbus_msg_to_mqtt(hb_msg_t* msg)** in **HBus.cpp**. Duiring conversion Gateway replaces **TopicId** by a topic name. 
 
-The topic name of the outgoing message consists of **topic_base** and **TopicName**. List of registered TopicId stored in EEPROM, list of registered TopicName stored in SPIFFS. For example,  in case when **topic_base**="HBus" and **TopicName**="topic0" is registered as **TopicId**=100 (or 0x0064), then HBus **PUBLISH** message:
+The topic name of the outgoing message consists of **topic_base** and **TopicName**. List of registered **TopicId**s stored in EEPROM, list of registered **TopicName**s stored in SPIFFS. 
+
+For example,  lets assume **topic_base**="HBus",  **TopicName**="topic0" is registered as **TopicId**=100 (or 0x0064). If a node broadcasts  HBus message **PUBLISH**:
 
 > 0C 00 11 00 64 0E 7B 01  {val:3} 
 
-will be converted to MQTT message with payload **{val:3}** and topic name "**HBus/topic0**".
+then Gateway converts it to MQTT message with payload **{val:3}** and topic name "**HBus/topic0**" and sends it to the broker.
 
 Gateway is subscribed to topics **topic_base**/#. Messages from MQTT broker to that topic will be processed as follows:
   * **topic_base** and "/" removed
