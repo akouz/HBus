@@ -4,6 +4,7 @@ Power supply should be in the range 9...30V. Devices designed for +12V, but they
 
   * [Fuse](https://github.com/akouz/HBus/tree/master/Devices/01_Fuse)
   * [USB Bridge](https://github.com/akouz/HBus/tree/master/Devices/02_USB_Bridge) 
+    * PC program [NodeTest](https://github.com/akouz/HBus/tree/master/NodeTest)
   * [2.1] [WiFi Gateway](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway)
     * Sketch [WiFi_Gateway](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway/WiFi_Gateway)
   * [3.1] [Sensor Input](https://github.com/akouz/HBus/tree/master/Devices/04_Sensor)
