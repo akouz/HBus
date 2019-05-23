@@ -16,7 +16,7 @@ HBus is a wired home automation interface. Nodes made as simple and as cheap as 
   * CSMA/CD (collision detection) allowed for low-cost implementations. CSMA/CA (collision avoidance) recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
   * Flow control by byte-stuffing.
   * Two modes of operation:
-    * **Configuration**: point-to-point messages, master/slave communication model - "HBus mode".
+    * [Configuration:](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages) point-to-point messages, master/slave communication model - "HBus mode".
     * **Operation**: broadcast messages, producer/consumer communication model - "MQTT-SN mode".
   * All messages covered by CRC-16-CCITT.  
 
