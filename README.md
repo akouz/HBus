@@ -17,7 +17,7 @@ HBus is a wired home automation interface. Nodes made as simple and as cheap as 
   * Flow control by byte-stuffing.
   * Two modes of operation:
     * [Configuration:](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages) point-to-point messages, master/slave communication model - "HBus mode".
-    * **Operation**: broadcast messages, producer/consumer communication model - "MQTT-SN mode".
+    * [Operation:](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages) broadcast messages, producer/consumer communication model - "MQTT-SN mode".
   * All messages covered by CRC-16-CCITT.  
 
 ## Wiring
