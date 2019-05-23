@@ -814,7 +814,7 @@ Typically nodes are pre-programmed with TopicNames, but all TopicIds set to 0. A
 
   * TopicId = (NodeId << 5) | TopicIndex
   
-Thus, every node can assign up to 32 TopicId.
+Thus, every node can assign up to 32 unique TopicId.
 
 TopicId in the range [0x0000...0x001F] cannot be assigned by nodes because NodeId=0 is illegal. In that range TopicName and TopicId are pre-defined. Only few pairs defined so far, other values reserved for future use:
   * TopicName="time", TopicId = 0x0001, UTC date and time, timezone, time of the day
