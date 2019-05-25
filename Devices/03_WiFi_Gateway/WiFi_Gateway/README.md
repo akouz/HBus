@@ -56,5 +56,5 @@ where
   * tz - time zone, offset in minutes from UTC
   * daysec - second since 00:00:00 of current day
   * hr - hour of the day
-  * min - miute of the hour
+  * min - minute of the hour
 
