@@ -60,7 +60,6 @@
 // rev 0.9  -   2/05/2019,  WiFi server: changes for ESP8266 (Wemos D1) 
 // rev 0.10  -  16/05/2019, HBnodes and HBtopics implemented, default topics 
 //              added, coos_task_NTP() publishes "time" topic every hour
-// rev 1.0  -   20/05/2019, echo from MQTT broker suppressed. Released to GitHub.
 
 //##############################################################################
 // Def

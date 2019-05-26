@@ -65,9 +65,10 @@ class HB_topics{
     char*           get_topic(uint idx);                // returns TopicName
     uint            is_topic_id(uint tid);              // returns combined list index
     uint            is_topic(char* topic);              // returns combined list index
+    uint            topic_list_len;             // number of user-defined topics         
+    uint            def_topic_cnt;              // number of default topics
 
     private:
-    uint            topic_list_len;
     union trec_uni  topic_list[MAX_TOPIC_LIST];
     char            file_name[0x10];
     char            file_data[0x100];

@@ -51,10 +51,10 @@ class HB_nodes{
     uchar   rem(uint node_id);
     void    print_nodes(void);
     void    store(void);
+    uint    node_list_len;
 
     private:
     uint    node_list[MAX_NODE_LIST];
-    uint    node_list_len;
     union{
         uint    all;
         struct{

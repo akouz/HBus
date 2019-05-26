@@ -193,7 +193,7 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_z_str(rply, buf);
         for (uchar i=0; i< MAX_TOPIC; i++)
         {
-            if (HBmqtt.flag[i].topic_name_valid)
+            if (HBmqtt.valid[i].topic_name)
             {
                 tpc = ownTopicId[i];
                 snprintf(buf, sizeof(buf),"%d,", tpc);
@@ -206,9 +206,9 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_z_str(rply, buf);
         for (uchar i=0; i<MAX_TOPIC; i++)
         {
-            if (HBmqtt.flag[i].topic_name_valid)
+            if (HBmqtt.valid[i].topic_name)
             {
-                if (HBmqtt.flag[i].value_valid) 
+                if (HBmqtt.valid[i].value) 
                 {
                     dtostrf(HBmqtt.value[i], 4,2, buf);
                 }
@@ -440,11 +440,11 @@ uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply)
     {
         add_txmsg_uchar(rply, ERR);
     } 
-    else if (HBmqtt.flag[ti].topic_name_valid == 0)
+    else if (HBmqtt.valid[ti].topic_name == 0)
     {
         for (uchar i=ti+1; i<MAX_TOPIC; i++)
         {
-            if (HBmqtt.flag[ti].topic_name_valid)            
+            if (HBmqtt.valid[ti].topic_name)            
             {
                 add_txmsg_uchar(rply, i); // reply next valid index
                 return READY;
@@ -458,10 +458,10 @@ uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply)
         add_txmsg_uchar(rply, (uchar)(ownTopicId[ti] >> 8));
         add_txmsg_uchar(rply, (uchar)ownTopicId[ti]);
         tn = (char*)ownTopicName[ti];
-        Serial.print(" tn=");
-        Serial.print((uint)tn);
-        Serial.print(" - ");
-        Serial.println(tn);
+ //       Serial.print(" tn=");
+ //       Serial.print((uint)tn);
+ //       Serial.print(" - ");
+ //       Serial.println(tn);
         if (tn)  // if topic name defined
         {
             for (uchar i=0; i<64; i++)

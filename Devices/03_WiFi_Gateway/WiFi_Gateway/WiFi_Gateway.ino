@@ -1,6 +1,8 @@
 /*
- * Sketch   WiFi_Gateway.ino
- * Target   Wemos D1 mini on top of HBus WiFi Gateway 
+ * Sketch   WiFi_Gateway
+ * Target   Wemos D1 mini on top of HBus WiFi Gateway  
+ *          with 128x32 OLED display driven by SSD1306 controller
+ *          and with BNP280/BME280 sensor 
  * Memory   flash 4M,  SPIFFS 1M
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -28,7 +30,11 @@
 // Inc
 //##############################################################################
 
-#include <coos.h>  // https://github.com/akouz/a_coos
+#include <coos.h>               // https://github.com/akouz/a_coos
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>   // https://github.com/adafruit/Adafruit_SSD1306
+#include <BMx280MI.h>           // https://bitbucket.org/christandlg/bmx280mi/src/master/
 #include "HBus.h"	
 
 //##############################################################################
@@ -37,12 +43,51 @@
 
 const char* ssid     = "your_ssid";
 const char* password = "your_password";
+
 const char* mqtt_url = "your_mqtt_broker";
-const uint  mqtt_port = 1883;
 const char* mqtt_password = "mqtt_password";
+const uint  mqtt_port = 1883;
+
 const char* topic_root = "HBus";    // must be less than 30 chars
 
-String NodeName;  // HBus_GW_XXXX
+String NodeName;  // "HBus_GW_XXXX"
+
+struct msr_struct{
+    float HBvoltage;
+    float temperature;
+    float pressure;
+    float humidity;
+    union{
+        uint all;
+        struct{
+            unsigned    HBvoltage   : 1;
+            unsigned    temperature : 1;
+            unsigned    pressure    : 1;
+            unsigned    humidity    : 1;
+            unsigned    bmx280      : 1;        
+        };
+    }valid;        
+} msr;
+
+// -----------------------------------
+// Declarations for an SSD1306 display connected to I2C (SDA, SCL pins)
+// -----------------------------------
+#define SCREEN_WIDTH    128 // OLED display width, in pixels
+#define SCREEN_HEIGHT   32  // OLED display height, in pixels
+#define OLED_RESET      -1  // Reset pin -1 if sharing Arduino reset pin
+// GND to COM 
+// Vcc to 3.3V
+// SCL to D1 (GPIO5) - Wemos pin 14
+// SDA to D2 (GPIO4) - Wemos pin 13
+
+// -----------------------------------
+// BMx280 sensor connected to I2C (SDA, SCL pins)
+// -----------------------------------
+#define BMx280_I2C_ADDRESS 0x76
+// GND to COM 
+// Vcc to 3.3V
+// SCL to D1 (GPIO5) - Wemos pin 14
+// SDA to D2 (GPIO4) - Wemos pin 13
 
 //##############################################################################
 // Descriptors
@@ -60,7 +105,7 @@ const uchar node_descr[8] = {
 0,  // boot rev major
 1,  // boot rev minor
 1,  // sketch rev major
-0   // sketch rev minor         Rev 1.0
+1   // sketch rev minor         Rev 1.1
 };
 
 //##############################################################################
@@ -73,6 +118,11 @@ uint ping_cnt;
 
 WiFiUDP ntpUDP;
 myNTPClient timeClient(ntpUDP);
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+//create a BMx280I2C object using the I2C interface with I2C Address 0x76
+BMx280I2C bmx280(BMx280_I2C_ADDRESS);
 
 //##############################################################################
 // Func
@@ -107,6 +157,197 @@ hb_msg_t* custom_command(hb_msg_t* rxmsg)
 }
 
 // ========================================
+// OLED display
+// ========================================
+void coos_task_display(void)
+{
+    static uint state = 0;
+    COOS_DELAY(2000); // show initial text for extra 2 sec
+    while(1)
+    {
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        switch(++state)
+        {
+        case 1:  // h/w and s/w revisions
+            display.print("h/w ");
+            display.print(node_descr[2]);                        
+            display.print(".");
+            display.println(node_descr[3]);
+            COOS_DELAY(10);                        
+            display.print("s/w ");
+            display.print(node_descr[6]);                        
+            display.print(".");
+            display.println(node_descr[7]);     
+            break;                   
+        case 2:  // nodes and topics
+            display.print(HBnodes.node_list_len);
+            if (HBnodes.node_list_len == 1)
+            {
+                display.println(" node");
+            }
+            else 
+            {
+                display.println(" nodes");
+            } 
+            COOS_DELAY(10);                        
+            display.print(HBtopics.def_topic_cnt);      // number of default topics
+            display.print("+");
+            display.print(HBtopics.topic_list_len);     // number of registered topics
+            display.println(" topics");
+            break;            
+        case 3:  // connections
+            if (WiFi.status() == WL_CONNECTED)
+            {
+                display.println("WiFi OK");
+            }
+            else 
+            {
+                display.println("no WiFi");
+            }
+            if (MqttClient.connected())
+            {
+                display.println("MQTT OK");
+            }
+            else 
+            {
+                display.println("no MQTT");
+            }            
+            break;             
+        case 4:  // bus voltage
+            display.println("Supply:");
+            if (msr.valid.HBvoltage)
+            {
+                display.print(msr.HBvoltage);
+                display.println(" V");            
+            }
+            else
+            {
+                display.println("unknown");            
+            }
+            break;
+        case 5:  // BME280 - temperature
+            if (msr.valid.temperature)
+            {
+                display.println("Temperature");
+                display.print(msr.temperature);
+                display.println(" C");
+            }
+            else
+                state = 0;
+            break;
+        case 6:  // BME280 - pressure
+            if (msr.valid.pressure)
+            {
+                display.println("Pressure");
+                display.print(msr.pressure);
+                display.println(" mbar");
+            }
+            else
+                state = 0;
+            break;
+        case 7:  // BME280 - humidity
+            if (msr.valid.humidity)
+            {
+                display.println("Humitity");
+                display.print(msr.humidity);
+                display.println(" %");
+            }
+            else
+                state = 0;
+            break;
+        default:
+            state = 0;
+            break;
+        }
+        display.display();
+        if (state)
+        {
+            COOS_DELAY(4000);  // show text for 4 sec 
+        }
+        else
+        {
+            COOS_DELAY(500);  // pause 0.5 sec 
+        }
+        
+    }
+}
+// ========================================
+// Measurements
+// ========================================
+void coos_task_msr(void)
+{
+    static uint state = 0;    
+    int tmp;
+    if (msr.valid.bmx280)
+    {
+        bmx280.measure();   
+    }   
+    COOS_DELAY(1000);   // initial delay 1 sec
+    while(1)
+    {
+        switch(++state)
+        {
+        // --------------------------------
+        // measure HBus voltage
+        // --------------------------------
+        case 1:
+            tmp = analogRead(A0);
+            // additional attenuator 33k/4.7k, coeff  8.0213
+            msr.HBvoltage = 8.0213 * (tmp * (3.2 / 1024.0));
+            msr.valid.HBvoltage = 1;
+            HBmqtt.value[1] = msr.HBvoltage;
+            HBmqtt.valid[1].value = 1; 
+            break;
+        // --------------------------------
+        // get BMx280 results
+        // --------------------------------
+        case 2:
+            if (msr.valid.bmx280)
+            {
+                if (bmx280.hasValue())
+                {
+                    msr.temperature = bmx280.getTemperature();      // C
+                    msr.valid.temperature = 1;
+                    msr.pressure = bmx280.getPressure()/100;        // mbar  
+                    msr.valid.pressure = 1;
+                    if (bmx280.isBME280())
+                    {
+                        msr.humidity = bmx280.getHumidity();        // %
+                        msr.valid.humidity = 1;        
+                    }                    
+                    COOS_DELAY(1); 
+                    bmx280.measure();  // start next measurement                     
+                    HBmqtt.value[2] = msr.temperature;
+                    HBmqtt.valid[2].value = msr.valid.temperature;  // C
+                    HBmqtt.value[3] = msr.pressure;
+                    HBmqtt.valid[3].value = msr.valid.pressure;     // mbar
+                    HBmqtt.value[4] = msr.humidity;
+                    HBmqtt.valid[4].value = msr.valid.humidity;     // relative, %
+                }
+                else
+                {
+                    Serial.println("BMx280 disconnected");
+                    msr.valid.bmx280 = 0;
+                    msr.valid.temperature = 0;
+                    msr.valid.pressure = 0;
+                    msr.valid.humidity = 0;        
+                    HBmqtt.valid[2].value = 0;
+                    HBmqtt.valid[3].value = 0;
+                    HBmqtt.valid[4].value = 0;
+                }
+            }
+            else
+                state = 0;
+            break;     
+        default:
+            state = 0;
+            break;
+        }        
+        COOS_DELAY(1000);  // pause 1 sec
+    }
+}
+// ========================================
 // Send messages to MQTT broker at least every 5 sec to keep connection alive
 // ========================================
 void coos_task_mqtt_ping(void)
@@ -132,7 +373,7 @@ void coos_task_mqtt_ping(void)
 // check next own topic and broadcast its value  
 void coos_task_broadcast(void)
 {
-    static uchar ti = 0;    // topic index    
+    static uchar idx = 0;    // topic index    
     static uchar topic_id_refresh = 250;
     COOS_DELAY(5000);                                   // initial pause 5 sec 
     // -------------------------------
@@ -152,12 +393,11 @@ void coos_task_broadcast(void)
         COOS_DELAY(10000);  // pause 10 sec 
         if (HBcmd.own.ID < 0xF000) // if not a temporary ID
         {
-            if ((HBmqtt.flag[ti].value_valid) && (ownTopicId[ti]))  // broadcast only valid values
+            if ((HBmqtt.valid[idx].value) && (ownTopicId[idx]))  // broadcast only valid values
             {                
-               //  HBmqtt.make_msg_pub(ti); // prepare MQTT message with topic value,
-                                         // then it will be automatically transmitted
+                HBmqtt.publish_own_val(idx);   // prepare MQTT message with topic value,
             }    
-            ++ti = (ti >= MAX_TOPIC)? 0 : ti;  // next topic
+            ++idx = (idx >= MAX_TOPIC)? 0 : idx;  // next topic
         }
     }
 }
@@ -389,6 +629,8 @@ void setup()
 //    delay(1000);
     EEPROM.begin(0x1000); // EEPROM size 4K bytes max
     SPIFFS.begin();
+    Wire.begin();
+    msr.valid.all = 0;
 
     pinMode(LED, OUTPUT);
     pup_cnt = 0x100*EEPROM.read(EE_PUP_CNT) + EEPROM.read(EE_PUP_CNT+1);  // number of power-ups
@@ -433,7 +675,40 @@ void setup()
     
     // optional splash screen         
     print_hdr_txt(pup_cnt, node_seed, HBcmd.own.ID);    
+
+    // OLED display
+    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) // Address 0x3C for 128x32 
+    { 
+        Serial.println("SSD1306 allocation failed");
+    }
+    display.clearDisplay();
+    display.setTextSize(2); // Draw 2X-scale text
+    display.setTextColor(WHITE);
+    display.setCursor(0, 0);
+    display.println(" HBus WiFi");
+    display.println("  Gateway");
+    display.display();      // Show initial text
+    
+    // BMx280 sensor
+    if (!bmx280.begin())
+	{
+		Serial.println("BMx280 sensor not found");
+	}
+    else
+    {   
+        msr.valid.bmx280 = 1;
+        if (bmx280.isBME280())
+	       Serial.println("BME280 connected");
+	    else
+	   	   Serial.println("BMP280 connected");
+        bmx280.resetToDefaults();
+        bmx280.writeOversamplingPressure(BMx280MI::OSRS_P_x16);
+	    bmx280.writeOversamplingTemperature(BMx280MI::OSRS_T_x16);
+        if (bmx280.isBME280())
+	       bmx280.writeOversamplingHumidity(BMx280MI::OSRS_H_x16);
+    }
         
+    // Wait for WiFi connection
     for (int i=0; i<20; i++)
     {
         Serial.print(".");
@@ -461,13 +736,14 @@ void setup()
     // register COOS tasks
     coos.register_task(coos_task_HBus_rxtx);            // HBus rx/tx task
     coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation               
+    coos.register_task(coos_task_msr);                  // measurements
     coos.register_task(coos_task_broadcast); 
     coos.register_task(coos_task_reconnect);            // re-connect to WiFi and to Cloud (MQTT)
     coos.register_task(coos_task_mqtt_ping);            // keep cloud connection alive
     coos.register_task(coos_task_NTP);                  // time service
+    coos.register_task(coos_task_display);              // OLED display
     // init registered tasks
     coos.start();     
-    
 }
 
 // ========================================

@@ -65,6 +65,14 @@ NULL, NULL, NULL, NULL,      NULL, NULL, NULL, NULL
 HB_topics::HB_topics(void)
 {
     topic_list_len = 0;
+    def_topic_cnt = 0;
+    for (uint i=0; i<MAX_DEF_LIST; i++)
+    {
+        if (def_topic_list[i])
+        {
+            def_topic_cnt++;
+        }
+    }
 }
 // =============================================
 // Read topic list from EEPROM

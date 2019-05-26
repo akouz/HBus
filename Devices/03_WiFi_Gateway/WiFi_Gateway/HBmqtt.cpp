@@ -62,11 +62,11 @@ HB_mqtt::HB_mqtt(void)
     MsgID_err_cnt = 0;  
     for (uchar i=0; i<MAX_TOPIC; i++)
     {   
-        flag[i].all = 0;   
+        valid[i].all = 0;   
         ownTopicId[i] = 0;
         if ((ownTopicName[i]) && (ownTopicName[i][0]))
         {
-            flag[i].topic_name_valid = 1;
+            valid[i].topic_name = 1;
         } 
     }
 }
@@ -80,14 +80,14 @@ void HB_mqtt::read_topic_id(void)
     uint addr;
     for (uchar i=0; i<MAX_TOPIC; i++)
     {
-        if  (flag[i].topic_name_valid)
+        if  (valid[i].topic_name)
         {
             addr = EE_TOPIC_ID + 2*i;
             tid = 0x100*(uint)EEPROM.read(addr) + EEPROM.read(addr+1);
             if (tid < 0xFFFF)
             {
                 ownTopicId[i] = tid;
-                flag[i].topic_valid = 1;  
+                valid[i].topic = 1;  
             }
         }
     }         
@@ -165,7 +165,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
             if (root.success())
             {
                 value[(uchar)res] = root["val"];
-                flag[(uchar)res].value_valid = 1;  
+                valid[(uchar)res].value = 1;  
                 blink(10);
             }
             else
@@ -192,12 +192,12 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
                 if (tid < 0xFFFF) // if valid tid  
                 {
                     ownTopicId[(uchar)res] = tid;   //  bind ownTopicId and ownTopicName
-                    flag[(uchar)res].topic_valid = 1;  
+                    valid[(uchar)res].topic = 1;  
                 }
                 else // if tid==0xFFFF then clear ownTopicId
                 {
                     ownTopicId[(uchar)res] = 0;    
-                    flag[(uchar)res].topic_valid = 0;
+                    valid[(uchar)res].topic = 0;
                 }
                 blink(10);
             }
@@ -237,7 +237,7 @@ void HB_mqtt::make_msg_header(uchar MsgType, uint tid)
 uchar HB_mqtt::make_msg_reg(uchar ti)
 {
     mqmsg.valid = 0;
-    if ((ti < MAX_TOPIC) && (flag[ti].topic_name_valid)) 
+    if ((ti < MAX_TOPIC) && (valid[ti].topic_name)) 
     {
         make_msg_header(MT_REGISTER, ownTopicId[ti]);
         if ((ownTopicName[ti]) && (ownTopicName[ti][0]))
@@ -267,37 +267,73 @@ uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
         {
             add_txmsg_uchar(&mqmsg, '{'); 
         }
-        for (uchar i=0; i<128; i++)
+        // --------------------------------------
+        // if buffer supplied
+        // --------------------------------------
+        if (buf)
         {
-            // --------------------------
-            // if buf is a text string
-            // --------------------------
-            if (len == 0)
+            for (uchar i=0; i<128; i++)
             {
-                if (buf[i])
+                // --------------------------
+                // if buf is a text string
+                // --------------------------
+                if (len == 0)
                 {
-                    add_txmsg_uchar(&mqmsg, buf[i]);
+                    if (buf[i])
+                    {
+                        add_txmsg_uchar(&mqmsg, buf[i]);
+                    }
+                    else
+                        break;
                 }
+                // --------------------------
+                // if buf is a binary buf
+                // --------------------------
                 else
-                    break;
-            }
-            // --------------------------
-            // if buf is a binary buf
-            // --------------------------
-            else
-            {
-                if (i<len)
                 {
-                    add_txmsg_uchar(&mqmsg, buf[i]);
+                    if (i<len)
+                    {
+                        add_txmsg_uchar(&mqmsg, buf[i]);
+                    }
+                    else
+                        break;
                 }
-                else
-                    break;
             }
         }
         if (len == 0)
         {
             add_txmsg_uchar(&mqmsg, '}');
         } 
+        finish_txmsg(&mqmsg);
+        mqmsg.hb = 0;
+        mqmsg.valid = 1;
+        return OK;
+    }
+    return ERR;
+}
+
+// =============================================
+// PUBLISH own value
+// =============================================
+uchar HB_mqtt::publish_own_val(uint idx)
+{
+    uint tid = ownTopicId[idx]; // topic ID
+    if (tid)  
+    {
+        make_msg_header(MT_PUBLISH, tid);
+        sprintf(mbuf,"{val:");
+        add_txmsg_z_str(&mqmsg, mbuf);    // add mbuf as a z-string
+        if (valid[idx].value) 
+        {
+            dtostrf(value[idx], 4,2, mbuf);
+        }
+        else
+        {
+            mbuf[0] = '0';
+            mbuf[1] = 0;
+        }        
+        add_txmsg_z_str(&mqmsg, mbuf);   // add mbuf as a z-string
+        add_txmsg_uchar(&mqmsg, '}');
         finish_txmsg(&mqmsg);
         mqmsg.hb = 0;
         mqmsg.valid = 1;
@@ -338,20 +374,20 @@ uchar HB_mqtt::init_topic_id(uint node_id)
     switch (state)
     {
     case 0:
-        if (flag[ti].topic_name_valid == 0) // if TopicName invalid
+        if (valid[ti].topic_name == 0) // if TopicName invalid
         {
-            flag[ti].topic_valid = 0;               // ensure     
-            flag[ti].value_valid = 0;       
+            valid[ti].topic = 0;                    // ensure     
+            valid[ti].value = 0;       
             state = (++ti >= MAX_TOPIC) ? 99 : 0;   // next topic or finish           
         }           
         if (ownTopicId[ti])    // if ownTopicId already valid  
         {
-            flag[ti].topic_valid = 1;               // ensure            
+            valid[ti].topic = 1;                    // ensure            
             state = (++ti >= MAX_TOPIC) ? 99 : 0;   // next topic or finish           
         }
         else    // TopicId not valid, make request
         {
-            flag[ti].topic_valid = 0;                    
+            valid[ti].topic = 0;                    
             make_msg_reg(ti); // issue REGISTER with TopicId=0
             state++;
         }
@@ -364,7 +400,7 @@ uchar HB_mqtt::init_topic_id(uint node_id)
             EEPROM.write(addr, (uchar)(ownTopicId[ti] >> 8));
             EEPROM.write(addr+1, (uchar)ownTopicId[ti]);
             EEPROM.commit();
-            flag[ti].topic_valid = 1;              
+            valid[ti].topic = 1;              
             make_msg_reg(ti);   // issue REGISTER with newly assigned ownTopicId - targeting gateways
         }
         state = (++ti >= MAX_TOPIC) ? 99 : 0;  // next topic or finish         

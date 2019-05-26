@@ -38,11 +38,11 @@
 
 #define    MAX_TOPIC      32    
 
-const char topic0[] = "nodes";
-const char topic1[] = "";
-const char topic2[] = "";
-const char topic3[] = "";
-const char topic4[] = "";    
+const char topic0[] = "nodes";      // number of nodes on HBus
+const char topic1[] = "hb/volt";    // HBus supply voltage, V
+const char topic2[] = "gw/temp";    // Gateway temperature, C  (BMx280)
+const char topic3[] = "gw/press";   // Gateaway atmosferic pressure, mbar (BMx280)    
+const char topic4[] = "gw/hum";     // Gateway humidity, % (BME280)
 const char topic5[] = "";
 const char topic6[] = "";
 const char topic7[] = "";
@@ -88,12 +88,12 @@ extern uint ownTopicId[MAX_TOPIC];
 // Class
 //##############################################################################
 
-union mq_flag_uni{
-    uchar all;
+union mq_valid_uni{
+    uint all;
     struct{
-        unsigned    value_valid         : 1;
-        unsigned    topic_valid         : 1;
-        unsigned    topic_name_valid    : 1;
+        unsigned    value       : 1;
+        unsigned    topic       : 1;
+        unsigned    topic_name  : 1;
     };
 };
 
@@ -102,10 +102,11 @@ class HB_mqtt{
                 HB_mqtt(void);
     hb_msg_t    mqmsg;
     float       value[MAX_TOPIC];                       // topic values
-    union mq_flag_uni   flag[MAX_TOPIC];                // set of flags
+    union mq_valid_uni   valid[MAX_TOPIC];              // set of flags
     char        rd_msg(hb_msg_t* msg);
     uchar       make_msg_reg(uchar ti);                 // make REGISTER message
     uchar       make_msg_publish(uint tid, uchar* buf, uchar len); // make PUBLISH message    
+    uchar       publish_own_val(uint idx);              // make PUBLISH message for own value    
     uchar       make_msg_time(ulong atime);             // make PUBLISH message topic="time"
     uchar       make_msg_err(char* txt, uint errcode);  // make PUBLISH message topic="err"
     void        read_topic_id(void);                    // restorew TopicId from EEPROM
@@ -120,7 +121,8 @@ class HB_mqtt{
     ulong       MsgID_cnt;                              // count all received MQTT messages 
     uint        MsgID_err_cnt;
     void        get_MsgID(uint msg_id);
-    void        make_msg_header(uchar MsgType, uint tid); // make header 
+    void        make_msg_header(uchar MsgType, uint tid); // make header
+    char        mbuf[0x80]; 
 };    
 
 extern HB_mqtt HBmqtt;
