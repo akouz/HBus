@@ -64,7 +64,7 @@ Gateaway regularly measures HBus supply voltage and broadcasts results to topic 
 
 ## BMx280 sensor
 
-BMP280 or BME280 sensor can be connected via I2C bus (SCL=D5, SDA=D4). If connected, sketch reads sensor results and broadcasts then to appropriate topics:
+BMP280 or BME280 sensor connected via I2C bus (SCL=D5, SDA=D4). If connected, sketch reads broadcasts sensor results to the following topics:
   * gw/temp - temperature, C
   * gw/press - atmospheric pressure, mbar
   * gw/hum - relative humidity, %
