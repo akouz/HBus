@@ -1,6 +1,6 @@
 # Sketch WiFi_Gateway.ino
 
-Current rev 1.0
+Current rev 1.1
 
 ## WiFi connection
 
@@ -58,3 +58,17 @@ where
   * hr - hour of the day
   * min - minute of the hour
 
+## HBus voltage
+
+Gateaway regularly measures HBus supply voltage and broadcasts results to topic hb/volt
+
+## BMx280 sensor
+
+BMP280 or BME280 sensor can be connected via I2C bus (SCL=D5, SDA=D4). If connected, sketch reads sensor results and broadcasts then to appropriate topics:
+  * gw/temp - temperature, C
+  * gw/press - atmospheric pressure, mbar
+  * gw/hum - relative humidity, %
+  
+## OLED display
+
+Sketch outputs some vital data via I2C to a 128x32 OLED display driven by SSD1306.  
