@@ -60,6 +60,9 @@
 // rev 0.9  -   2/05/2019,  WiFi server: changes for ESP8266 (Wemos D1) 
 // rev 0.10  -  16/05/2019, HBnodes and HBtopics implemented, default topics 
 //              added, coos_task_NTP() publishes "time" topic every hour
+// rev 1.0  -   20/05/2019 released to GitHub  
+// rev 1.1  -   26/05/2019, added BMx280 and OLED display 128x32    
+// rev 1.2  -   28/05/2019, Gateway sends its own topics to MQTT broker too    
 
 //##############################################################################
 // Def
