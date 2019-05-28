@@ -41,11 +41,18 @@
 // Def
 //##############################################################################
 
+const char* ssid     = "Oplot";
+const char* password = "Buran_rulez";
+
+const char* mqtt_url = "cloud2016.coralgames.com.au";
+const char* mqtt_password = "mqtt_password";
+/*
 const char* ssid     = "your_ssid";
 const char* password = "your_password";
 
 const char* mqtt_url = "your_mqtt_broker";
 const char* mqtt_password = "mqtt_password";
+*/
 const uint  mqtt_port = 1883;
 
 const char* topic_root = "HBus";    // must be less than 30 chars
@@ -105,7 +112,7 @@ const uchar node_descr[8] = {
 0,  // boot rev major
 1,  // boot rev minor
 1,  // sketch rev major
-1   // sketch rev minor         Rev 1.1
+2   // sketch rev minor         Rev 1.2
 };
 
 //##############################################################################
@@ -170,12 +177,12 @@ void coos_task_display(void)
         switch(++state)
         {
         case 1:  // h/w and s/w revisions
-            display.print("h/w ");
+            display.print("hw ");
             display.print(node_descr[2]);                        
             display.print(".");
             display.println(node_descr[3]);
             COOS_DELAY(10);                        
-            display.print("s/w ");
+            display.print("sw ");
             display.print(node_descr[6]);                        
             display.print(".");
             display.println(node_descr[7]);     
@@ -214,7 +221,9 @@ void coos_task_display(void)
                 display.println("no MQTT");
             }            
             break;             
-        case 4:  // bus voltage
+        case 4:  // time - TBD
+            state++;
+        case 5:  // bus voltage
             display.println("Supply:");
             if (msr.valid.HBvoltage)
             {
@@ -226,32 +235,31 @@ void coos_task_display(void)
                 display.println("unknown");            
             }
             break;
-        case 5:  // BME280 - temperature
+        case 6:  // BMx280 - temperature
             if (msr.valid.temperature)
             {
-                display.println("Temperature");
+                display.println("Temp:");
                 display.print(msr.temperature);
-                display.println(" C");
+                display.println(" C");            
             }
             else
                 state = 0;
             break;
-        case 6:  // BME280 - pressure
+        case 7:  // BMx280 - pressure
             if (msr.valid.pressure)
             {
-                display.println("Pressure");
-                display.print(msr.pressure);
-                display.println(" mbar");
+                display.println("Pressure:");
+                display.println(msr.pressure);
             }
             else
                 state = 0;
             break;
-        case 7:  // BME280 - humidity
+        case 8:  // BME280 - humidity
             if (msr.valid.humidity)
             {
-                display.println("Humitity");
+                display.println("Humidity:");
                 display.print(msr.humidity);
-                display.println(" %");
+                display.println(" %");            
             }
             else
                 state = 0;
@@ -373,9 +381,10 @@ void coos_task_mqtt_ping(void)
 // check next own topic and broadcast its value  
 void coos_task_broadcast(void)
 {
-    static uchar idx = 0;    // topic index    
+    mqtt_msg_t* msg;        // MQTT message
+    static uchar idx = 0;   // topic index    
     static uchar topic_id_refresh = 250;
-    COOS_DELAY(5000);                                   // initial pause 5 sec 
+    COOS_DELAY(5000);       // initial pause 5 sec 
     // -------------------------------
     // loop
     // -------------------------------
@@ -395,7 +404,19 @@ void coos_task_broadcast(void)
         {
             if ((HBmqtt.valid[idx].value) && (ownTopicId[idx]))  // broadcast only valid values
             {                
-                HBmqtt.publish_own_val(idx);   // prepare MQTT message with topic value,
+                msg = HBmqtt.publish_own_val(idx);      // to HBus, also prepare MQTT message
+                if ((msg) && (MqttClient.connected()))
+                {
+                    MqttClient.publish(msg->tpc, (uchar*)msg->pld, msg->pldlen); // publish to MQTT broker
+                    blink(20);                 // flash LED for 200 ms
+/*
+                    Serial.print("topic=");
+                    Serial.print(msg->tpc);
+                    Serial.print(", payload=");
+                    Serial.println(msg->pld);
+*/                    
+                }
+                
             }    
             ++idx = (idx >= MAX_TOPIC)? 0 : idx;  // next topic
         }
@@ -482,6 +503,7 @@ void coos_task_reconnect(void)
 // ========================================
 void coos_task_NTP(void)
 {
+    mqtt_msg_t* msg;
     static uint cnt_1hr = 3600;
     static uint cnt, i;
     timeClient.begin();
@@ -509,7 +531,12 @@ void coos_task_NTP(void)
                     if (timeClient.checkReply())  // if reply received
                     {
                         ulong tmp = timeClient.getEpochTime();
-                        HBmqtt.make_msg_time(tmp); // PUBLISH, topic="time"
+                        msg = HBmqtt.make_msg_time(tmp); // PUBLISH to HBus, topic="time"
+                        if ((msg) && (MqttClient.connected()))
+                        {
+                            MqttClient.publish(msg->tpc, (uchar*)msg->pld, msg->pldlen); // publish to MQTT broker
+                            blink(20);                 // flash LED for 200 ms
+                        }                        
                         cnt_1hr = 0;    
                         break;
                     }

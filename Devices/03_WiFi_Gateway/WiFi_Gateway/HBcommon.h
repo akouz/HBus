@@ -165,6 +165,16 @@ typedef struct{
 }hb_msg_t;
 #endif
 
+#ifndef __MQTT_MSG_T__
+#define __MQTT_MSG_T__ 
+typedef struct{
+  char tpc[MAX_BUF];    // topic
+  uint tpclen;
+  char pld[MAX_BUF];    // payload
+  uint pldlen;  
+}mqtt_msg_t;
+#endif
+
  
 //##############################################################################
 // Var

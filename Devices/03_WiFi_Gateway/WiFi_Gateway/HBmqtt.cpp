@@ -313,51 +313,66 @@ uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
 }
 
 // =============================================
-// PUBLISH own value
+// PUBLISH own value  to HBus and to MQTT
 // =============================================
-uchar HB_mqtt::publish_own_val(uint idx)
+mqtt_msg_t* HB_mqtt::publish_own_val(uint idx)
 {
+    uchar len;
     uint tid = ownTopicId[idx]; // topic ID
     if (tid)  
     {
         make_msg_header(MT_PUBLISH, tid);
-        sprintf(mbuf,"{val:");
-        add_txmsg_z_str(&mqmsg, mbuf);    // add mbuf as a z-string
+        len = sprintf(mbuf,"{val:");        
         if (valid[idx].value) 
         {
-            dtostrf(value[idx], 4,2, mbuf);
+            dtostrf(value[idx], 4,2, mbuf+len);
+            len = strlen(mbuf);
+            mbuf[len++] = '}';
+            mbuf[len++] = 0;      
         }
         else
         {
-            mbuf[0] = '0';
-            mbuf[1] = 0;
-        }        
-        add_txmsg_z_str(&mqmsg, mbuf);   // add mbuf as a z-string
-        add_txmsg_uchar(&mqmsg, '}');
-        finish_txmsg(&mqmsg);
+            len += sprintf(mbuf+len, "0}");
+        }                
+        add_txmsg_z_str(&mqmsg, mbuf);      // add mbuf as a z-string to HBus message
+        finish_txmsg(&mqmsg);               // finish message to HBus
         mqmsg.hb = 0;
         mqmsg.valid = 1;
-        return OK;
+        strcpy(brmsg.tpc, ownTopicName[idx]);       // topic for MQTT broker
+        brmsg.tpclen = strlen(ownTopicName[idx]); 
+        strcpy(brmsg.pld, mbuf);                    // payload
+        brmsg.pld[len++] = 0;
+        brmsg.pld[len++] = 3;
+        brmsg.pld[len++] = 4;
+        brmsg.pldlen = len;
+        return &brmsg; // message to MQTT broker
     }
-    return ERR;
+    return NULL;
 }
 
 // =============================================
 // Make message PUBLISH, default topic "time" 
 // =============================================
-uchar HB_mqtt::make_msg_time(ulong atime)
+mqtt_msg_t* HB_mqtt::make_msg_time(ulong atime)
 {
+    uint len;
     if (atime > 0x10000000)
     {
-        char tmpstr[0x40];
         ulong daysec = (atime + TIME_ZONE*60) % 86400L;
-        uint len = sprintf(tmpstr, "atime:%lu, tz:%d, daysec:%lu", atime, TIME_ZONE, daysec);
+        uint len = sprintf(mbuf, "atime:%lu, tz:%d, daysec:%lu", atime, TIME_ZONE, daysec);
         uint hr = daysec / 3600L;
         uint min = (daysec % 3600L) / 60;
-        sprintf(tmpstr+len, ", hr:%d, min:%d", hr, min);
-        return make_msg_publish(1, (uchar*)tmpstr, 0); // TopicId=1, text
+        len = sprintf(mbuf+len, ", hr:%d, min:%d", hr, min);
+        make_msg_publish(1, (uchar*)mbuf, 0); // TopicId=1, text
+        strcpy(brmsg.tpc, ownTopicName[1]);     // TopicName
+        brmsg.tpclen = strlen(brmsg.tpc);
+        brmsg.pldlen = sprintf(brmsg.pld,"{%s}", mbuf);
+        brmsg.pldlen++;
+        brmsg.pld[brmsg.pldlen++] = 3;
+        brmsg.pld[brmsg.pldlen++] = 4;
+        return &brmsg; 
     }
-    return ERR;
+    return NULL;
 }
 
 // =============================================
@@ -374,23 +389,32 @@ uchar HB_mqtt::init_topic_id(uint node_id)
     switch (state)
     {
     case 0:
+//        Serial.print(" ti=");
+//        Serial.print(ti);
         if (valid[ti].topic_name == 0) // if TopicName invalid
         {
+//            Serial.print(", TopicName not valid");
             valid[ti].topic = 0;                    // ensure     
             valid[ti].value = 0;       
             state = (++ti >= MAX_TOPIC) ? 99 : 0;   // next topic or finish           
-        }           
-        if (ownTopicId[ti])    // if ownTopicId already valid  
+        } 
+        else // if TopicName valid
         {
-            valid[ti].topic = 1;                    // ensure            
-            state = (++ti >= MAX_TOPIC) ? 99 : 0;   // next topic or finish           
-        }
-        else    // TopicId not valid, make request
-        {
-            valid[ti].topic = 0;                    
-            make_msg_reg(ti); // issue REGISTER with TopicId=0
-            state++;
-        }
+            if (ownTopicId[ti])    // if ownTopicId already valid  
+            {
+//                Serial.print(", already valid");
+                valid[ti].topic = 1;                    // ensure            
+                state = (++ti >= MAX_TOPIC) ? 99 : 0;   // next topic or finish           
+            }
+            else    // TopicId not valid, make request
+            {
+//                Serial.print(", request");
+                valid[ti].topic = 0;                    
+                make_msg_reg(ti); // issue REGISTER with TopicId=0
+                state++;
+            }
+        }          
+//        Serial.println();
         break;
     case 1:
         if (ownTopicId[ti] == 0)  // if other nodes did not supply TopicId     

@@ -106,8 +106,8 @@ class HB_mqtt{
     char        rd_msg(hb_msg_t* msg);
     uchar       make_msg_reg(uchar ti);                 // make REGISTER message
     uchar       make_msg_publish(uint tid, uchar* buf, uchar len); // make PUBLISH message    
-    uchar       publish_own_val(uint idx);              // make PUBLISH message for own value    
-    uchar       make_msg_time(ulong atime);             // make PUBLISH message topic="time"
+    mqtt_msg_t*  publish_own_val(uint idx);             // make PUBLISH message for own value    
+    mqtt_msg_t*  make_msg_time(ulong atime);            // make PUBLISH message topic="time"
     uchar       make_msg_err(char* txt, uint errcode);  // make PUBLISH message topic="err"
     void        read_topic_id(void);                    // restorew TopicId from EEPROM
     uchar       init_topic_id(uint node_id);            // after power-up call this function  
@@ -117,6 +117,7 @@ class HB_mqtt{
     uint*       descriptor;                             // list of own topics 
     char        is_own_topic_name(const char* tn);
     char        is_own_topic_id(uint tid);
+    mqtt_msg_t  brmsg;                                  // message for MQTT broker
     uint        MsgID; 
     ulong       MsgID_cnt;                              // count all received MQTT messages 
     uint        MsgID_err_cnt;

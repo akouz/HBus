@@ -103,6 +103,7 @@ void hbus_msg_to_mqtt(hb_msg_t* msg)
                     msg->buf[msg->len++] = 0x03; 
                     msg->buf[msg->len++] = 0x04;
                     MqttClient.publish(topic, msg->buf+8, msg->len-8); // cutt off header
+                    blink(20);
 //                    Serial.print("Published topic=");
 //                    Serial.print(topic);                     
 //                    Serial.print(", content=");                     
