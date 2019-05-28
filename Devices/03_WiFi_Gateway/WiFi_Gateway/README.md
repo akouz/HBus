@@ -1,6 +1,6 @@
 # Sketch WiFi_Gateway.ino
 
-Current rev 1.1
+Current rev 1.2
 
 ## WiFi connection
 
