@@ -47,7 +47,7 @@ HBus nodes must register their **TopicName**s using **REGISTER** messages, see [
 
 ## Time service
 
-Every hour sketch requests time from a NTP server and broadcasts HBus MQTT-SN message to TopicId=1 (eg to default TopicName="time") with the following payload (sample):
+Every hour sketch requests time from a NTP server. respond received,  Gateway broadcasts HBus a MQTT-SN message to the default TopicId=1 and sends a message to MQTT broker to the default TopicName="time" with the following payload (sample):
 
 > {atime:1558391178, tz:570, daysec:28578, hr:7, min:56}
 
@@ -60,11 +60,11 @@ where
 
 ## HBus voltage
 
-Gateaway regularly measures HBus supply voltage and broadcasts results to topic hb/volt
+Gateaway regularly measures HBus supply voltage and sends results to MQTT topic hb/volt and to HBus
 
 ## BMx280 sensor
 
-BMP280 or BME280 sensor connected via I2C bus (SCL=D5, SDA=D4). If connected, sketch broadcasts sensor results to the following topics:
+BMP280 or BME280 sensor connected via I2C bus (SCL=D5, SDA=D4). If connected, sketch broadcasts sensor results to the following MQTT and HBus topics:
   * gw/temp - temperature, C
   * gw/press - atmospheric pressure, mbar
   * gw/hum - relative humidity, %
