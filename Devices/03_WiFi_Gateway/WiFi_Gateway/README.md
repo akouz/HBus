@@ -64,14 +64,14 @@ Gateaway regularly measures HBus supply voltage and sends results to MQTT topic 
 
 ## CO2 sensor MH-Z19B
 
-Sensor supplied from +5V rail. Sensor PWM output routed to GPIO13. After power-up there is no measurements fo 1 min. Measure CO2 level (in ppm) output to topic gw/CO2.
+Sensor supplied from +5V rail. Sensor PWM output routed to GPIO13. After power-up there is no measurements fo 1 min. Measures CO2 level (in ppm) output to topic **gw/CO2**.
 
 ## BMx280 sensor
 
 BMP280 or BME280 sensor connected via I2C bus (SCL=D5, SDA=D4). If connected, sketch broadcasts sensor results to the following MQTT and HBus topics:
-  * gw/temp - temperature, C
-  * gw/press - atmospheric pressure, mbar
-  * gw/hum - relative humidity, %
+  * **gw/temp** - temperature, C
+  * **gw/press** - atmospheric pressure, mbar
+  * **gw/hum** - relative humidity, %
   
 ## OLED display
 
