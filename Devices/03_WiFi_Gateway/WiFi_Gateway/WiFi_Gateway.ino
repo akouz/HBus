@@ -454,7 +454,7 @@ void coos_task_msr(void)
                 }
                 else
                 {
-                    Serial.println("BMx280 disconnected");
+//                    Serial.println("BMx280 disconnected");
                     msr.valid.bmx280 = 0;
                     msr.valid.temperature = 0;
                     msr.valid.pressure = 0;
@@ -465,7 +465,14 @@ void coos_task_msr(void)
                 }
             }
             else
-                state = 0;
+            {
+                uchar bmpID = bmx280.readID();
+                if ((bmpID == 0x58) || (bmpID == 0x60))
+                {
+//                    Serial.println("BMx280 connected");
+                    msr.valid.bmx280 = 1;
+                }
+            }
             break;     
         default:
             state = 0;
