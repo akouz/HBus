@@ -64,7 +64,7 @@ Gateaway regularly measures HBus supply voltage and sends results to MQTT topic 
 
 ## CO2 sensor MH-Z19B
 
-Sensor supplied from +5V rail. Sensor PWM output routed to GPIO13. After power-up Gateway takes no measurements fo 1 min. Gateway outputs measured CO2 level (in ppm) to topic **gw/CO2**
+Sensor supplied from +5V rail. Sensor PWM output routed to GPIO13. After power-up Gateway takes no measurements for 1 min. Gateway outputs measured CO2 level (in ppm) to topic **gw/CO2**
 
 ## BMx280 sensor
 
