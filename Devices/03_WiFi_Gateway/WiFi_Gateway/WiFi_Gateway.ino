@@ -41,18 +41,11 @@
 // Def
 //##############################################################################
 
-const char* ssid     = "Oplot";
-const char* password = "Buran_rulez";
-
-const char* mqtt_url = "cloud2016.coralgames.com.au";
-const char* mqtt_password = "mqtt_password";
-/*
 const char* ssid     = "your_ssid";
 const char* password = "your_password";
 
 const char* mqtt_url = "your_mqtt_broker";
 const char* mqtt_password = "mqtt_password";
-*/
 const uint  mqtt_port = 1883;
 
 const char* topic_root = "HBus";    // must be less than 30 chars
