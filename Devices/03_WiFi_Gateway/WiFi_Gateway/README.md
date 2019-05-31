@@ -60,7 +60,7 @@ where
 
 ## HBus voltage
 
-Gateaway regularly measures HBus supply voltage and sends results to MQTT topic hb/volt and to HBus
+Gateaway regularly measures HBus supply voltage and sends results to MQTT topic **hb/volt** and to HBus
 
 ## CO2 sensor MH-Z19B
 
