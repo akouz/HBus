@@ -62,7 +62,8 @@
 //              added, coos_task_NTP() publishes "time" topic every hour
 // rev 1.0  -   20/05/2019 released to GitHub  
 // rev 1.1  -   26/05/2019, added BMx280 and OLED display 128x32    
-// rev 1.2  -   28/05/2019, Gateway sends its own topics to MQTT broker too    
+// rev 1.2  -   28/05/2019, Gateway sends its own topics to MQTT broker too
+// rev 1.3  -   30/05/2019, added CO2 sensor MH-Z19B, time displayed on OLED (coos rev 1.5 used)    
 
 //##############################################################################
 // Def
@@ -79,7 +80,7 @@ enum{
     HB_REV_MIN      = 8,     
 
     // coos
-    COOS_TASKS      = 10,   // this node uses up to 10 coos tasks            
+    COOS_TASKS      = 12,   // this node uses up to 12 coos tasks            
 
     // misc
     DF_STATUS       = 1,    // use JSON in STATUS command    
@@ -137,16 +138,14 @@ enum{
 //##############################################################################
 
 #ifndef __UCHAR_DEFINED__
-#define __UCHAR_DEFINED__
-typedef uint8_t   uchar;
-typedef int8_t    char;
-typedef uint16_t  uint;
-typedef int16_t   int;
-typedef uint32_t  ulong;
-typedef int32_t   long;
-typedef uint64_t  uint64;
-typedef int64_t   int64;
+  #define __UCHAR_DEFINED__
+  typedef unsigned char uchar;
+  typedef signed   char schar;
+  typedef unsigned int  uint;
+  typedef unsigned long ulong;
+  typedef signed   long slong;
 #endif
+
 
 #ifndef __HB_MSG_T__
 #define __HB_MSG_T__ 

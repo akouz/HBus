@@ -355,13 +355,12 @@ mqtt_msg_t* HB_mqtt::publish_own_val(uint idx)
 // =============================================
 mqtt_msg_t* HB_mqtt::make_msg_time(ulong atime)
 {
-    uint len;
     if (atime > 0x10000000)
     {
-        ulong daysec = (atime + TIME_ZONE*60) % 86400L;
-        uint len = sprintf(mbuf, "atime:%lu, tz:%d, daysec:%lu", atime, TIME_ZONE, daysec);
-        uint hr = daysec / 3600L;
-        uint min = (daysec % 3600L) / 60;
+        coos.daysec = (atime + TIME_ZONE*60) % 86400L;
+        uint len = sprintf(mbuf, "atime:%lu, tz:%d, daysec:%lu", atime, TIME_ZONE, coos.daysec);
+        uint hr = coos.daysec / 3600L;
+        uint min = (coos.daysec % 3600L) / 60;
         len = sprintf(mbuf+len, ", hr:%d, min:%d", hr, min);
         make_msg_publish(1, (uchar*)mbuf, 0); // TopicId=1, text
         strcpy(brmsg.tpc, ownTopicName[1]);     // TopicName

@@ -1,8 +1,8 @@
 /*
  * Sketch   WiFi_Gateway
  * Target   Wemos D1 mini on top of HBus WiFi Gateway  
- *          with 128x32 OLED display driven by SSD1306 controller
- *          and with BNP280/BME280 sensor 
+ *          with 128x32 OLED display driven by SSD1306 controller,
+ *          with BNP280/BME280 sensor and MH-Z19B sensor 
  * Memory   flash 4M,  SPIFFS 1M
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -30,7 +30,7 @@
 // Inc
 //##############################################################################
 
-#include <coos.h>               // https://github.com/akouz/a_coos
+#include <coos.h>               // https://github.com/akouz/a_coos  rev 1.5
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>   // https://github.com/adafruit/Adafruit_SSD1306
@@ -64,6 +64,7 @@ struct msr_struct{
     float temperature;
     float pressure;
     float humidity;
+    float CO2;
     union{
         uint all;
         struct{
@@ -71,6 +72,8 @@ struct msr_struct{
             unsigned    temperature : 1;
             unsigned    pressure    : 1;
             unsigned    humidity    : 1;
+            unsigned    CO2         : 1;
+            unsigned    time        : 1;
             unsigned    bmx280      : 1;        
         };
     }valid;        
@@ -96,6 +99,11 @@ struct msr_struct{
 // SCL to D1 (GPIO5) - Wemos pin 14
 // SDA to D2 (GPIO4) - Wemos pin 13
 
+// -----------------------------------
+// MH-Z19B sensor PWM output connected to GPIO13 
+// -----------------------------------
+#define CO2_pulse   13
+
 //##############################################################################
 // Descriptors
 //##############################################################################
@@ -112,7 +120,7 @@ const uchar node_descr[8] = {
 0,  // boot rev major
 1,  // boot rev minor
 1,  // sketch rev major
-2   // sketch rev minor         Rev 1.2
+3   // sketch rev minor         Rev 1.3
 };
 
 //##############################################################################
@@ -162,13 +170,13 @@ hb_msg_t* custom_command(hb_msg_t* rxmsg)
     }
     return NULL;
 }
-
 // ========================================
 // OLED display
 // ========================================
 void coos_task_display(void)
 {
     static uint state = 0;
+    char buf[20];
     COOS_DELAY(2000); // show initial text for extra 2 sec
     while(1)
     {
@@ -176,7 +184,10 @@ void coos_task_display(void)
         display.setCursor(0, 0);
         switch(++state)
         {
-        case 1:  // h/w and s/w revisions
+        // ---------------------------
+        // h/w and s/w revisions
+        // ---------------------------
+        case 1:  
             display.print("hw ");
             display.print(node_descr[2]);                        
             display.print(".");
@@ -187,7 +198,10 @@ void coos_task_display(void)
             display.print(".");
             display.println(node_descr[7]);     
             break;                   
-        case 2:  // nodes and topics
+        // ---------------------------
+        // nodes and topics
+        // ---------------------------
+        case 2:  
             display.print(HBnodes.node_list_len);
             if (HBnodes.node_list_len == 1)
             {
@@ -203,7 +217,10 @@ void coos_task_display(void)
             display.print(HBtopics.topic_list_len);     // number of registered topics
             display.println(" topics");
             break;            
-        case 3:  // connections
+        // ---------------------------
+        // connections
+        // ---------------------------
+        case 3:  
             if (WiFi.status() == WL_CONNECTED)
             {
                 display.println("WiFi OK");
@@ -221,9 +238,22 @@ void coos_task_display(void)
                 display.println("no MQTT");
             }            
             break;             
-        case 4:  // time - TBD
-            state++;
-        case 5:  // bus voltage
+        // ---------------------------
+        // time, hh:mm 
+        // ---------------------------
+        case 4:
+            if (msr.valid.time)
+            {
+                display.println("Time:");
+                sprintf(buf,"%02d:%02d", coos.hour(), coos.minute());
+                display.println(buf);                
+            }
+            else
+                state++;   
+        // ---------------------------
+        // bus voltage
+        // ---------------------------
+        case 5:  
             display.println("Supply:");
             if (msr.valid.HBvoltage)
             {
@@ -235,7 +265,22 @@ void coos_task_display(void)
                 display.println("unknown");            
             }
             break;
-        case 6:  // BMx280 - temperature
+        // ---------------------------
+        // MH-Z19B - CO2 level
+        // ---------------------------
+        case 6:
+            if (msr.valid.CO2)
+            {
+                display.println("CO2, ppm:");
+                display.println(msr.CO2);
+                break;
+            }
+            else
+                state++;  
+        // ---------------------------
+        // BMx280 - temperature
+        // ---------------------------
+        case 7:  
             if (msr.valid.temperature)
             {
                 display.println("Temp:");
@@ -245,7 +290,10 @@ void coos_task_display(void)
             else
                 state = 0;
             break;
-        case 7:  // BMx280 - pressure
+        // ---------------------------
+        // BMx280 - pressure
+        // ---------------------------
+        case 8:  
             if (msr.valid.pressure)
             {
                 display.println("Pressure:");
@@ -254,7 +302,10 @@ void coos_task_display(void)
             else
                 state = 0;
             break;
-        case 8:  // BME280 - humidity
+        // ---------------------------
+        // BME280 - humidity
+        // ---------------------------
+        case 9:  
             if (msr.valid.humidity)
             {
                 display.println("Humidity:");
@@ -264,6 +315,7 @@ void coos_task_display(void)
             else
                 state = 0;
             break;
+        // ---------------------------
         default:
             state = 0;
             break;
@@ -281,7 +333,81 @@ void coos_task_display(void)
     }
 }
 // ========================================
-// Measurements
+// Measurements - CO2 by MH-Z19B
+// ========================================
+void coos_task_msr_CO2(void)
+{
+    static uint state = 0;
+    static uint pwm_cnt;
+    static uint tmout = 0;
+    pinMode(CO2_pulse, INPUT);
+    COOS_DELAY(30000);   // initial delay  to warm up sensor
+    COOS_DELAY(30000);  
+    while(1)
+    {
+        COOS_DELAY(1);
+        tmout++;
+        switch(state)
+        {
+        case 0:
+            if (digitalRead(CO2_pulse) == LOW)
+            {
+                pwm_cnt = 0;
+                state++;
+            }
+            else if (tmout > 2000)
+            {                
+                msr.valid.CO2 = 0;  // sensor disconnected
+                tmout = 0;                                    
+            }
+            break;
+        case 1:
+        case 2:
+            if (digitalRead(CO2_pulse) == HIGH)
+            {
+                state++;
+            }
+            else if (tmout > 2000)
+            {                
+                msr.valid.CO2 = 0;  // sensor disconnected
+                tmout = 0;
+                state = 0;                                    
+            }
+            break;
+        case 3:
+            if (tmout > 2000)
+            {
+                msr.valid.CO2 = 0;  // sensor disconnected
+                tmout = 0;                                    
+                state = 0;                                    
+            }
+            else
+            {
+                if (digitalRead(CO2_pulse) == HIGH)
+                {
+                    pwm_cnt++;
+                }
+                else
+                {
+                    state = 0;
+                    tmout = 0;
+                    msr.CO2 = 2.048 * pwm_cnt;  // because was measured in 1.024 ms ticks
+                    msr.valid.CO2 = 1;   
+                    HBmqtt.value[5] = msr.CO2;
+                    HBmqtt.valid[5].value = msr.valid.CO2;   
+                    COOS_DELAY(10000);  // pause 10 sec 
+                }
+            }        
+            break;
+        default:
+            state = 0;
+            tmout = 0;
+            break;
+        }
+    }
+}
+// ========================================
+// Measurements - HBus voltage and BMx280
 // ========================================
 void coos_task_msr(void)
 {
@@ -373,7 +499,6 @@ void coos_task_mqtt_ping(void)
         }
     }
 }
-
 // ========================================
 // Broadcast own topic values to HBus  
 // ========================================
@@ -536,7 +661,8 @@ void coos_task_NTP(void)
                         {
                             MqttClient.publish(msg->tpc, (uchar*)msg->pld, msg->pldlen); // publish to MQTT broker
                             blink(20);                 // flash LED for 200 ms
-                        }                        
+                        }
+                        msr.valid.time = 1;                        
                         cnt_1hr = 0;    
                         break;
                     }
@@ -555,7 +681,6 @@ void coos_task_NTP(void)
         }         
     }
 }
-
 // ========================================
 // When a message from MQTT broker received
 // ========================================
@@ -616,7 +741,6 @@ void Mqtt_callback(char* topic, byte* payload, uint len)
 //        Serial.println();    
     }
 }
-
 // ========================================
 // Print header text
 // ========================================
@@ -644,9 +768,9 @@ void print_hdr_txt(uint cnt, uint sd, uint ID)
     Serial.println(NodeName);
 }
 
-// ========================================
+// =============================================================================
 // Setup
-// ========================================
+// =============================================================================
 void setup()
 {
     Serial.begin(19200);
@@ -762,8 +886,9 @@ void setup()
     
     // register COOS tasks
     coos.register_task(coos_task_HBus_rxtx);            // HBus rx/tx task
-    coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation               
-    coos.register_task(coos_task_msr);                  // measurements
+    coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation
+    coos.register_task(coos_task_msr_CO2);              // CO2 measurement               
+    coos.register_task(coos_task_msr);                  // voltage and BMx280 measurements
     coos.register_task(coos_task_broadcast); 
     coos.register_task(coos_task_reconnect);            // re-connect to WiFi and to Cloud (MQTT)
     coos.register_task(coos_task_mqtt_ping);            // keep cloud connection alive
@@ -773,14 +898,14 @@ void setup()
     coos.start();     
 }
 
-// ========================================
+// =============================================================================
 // Main loop 
-// ========================================
+// =============================================================================
 void loop()
 {  
     coos.run();           // Coos scheduler 
     MqttClient.loop();    // MQTT
-    ESP.wdtFeed();
+    ESP.wdtFeed();        // watchdog
 }
 
 /* EOF */
