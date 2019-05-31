@@ -47,7 +47,7 @@ HBus nodes must register their **TopicName**s using **REGISTER** messages, see [
 
 ## Time service
 
-Every hour sketch requests time from a NTP server. respond received,  Gateway broadcasts HBus a MQTT-SN message to the default TopicId=1 and sends a message to MQTT broker to the default TopicName="time" with the following payload (sample):
+Every hour sketch requests time from a NTP server. When respond received,  Gateway broadcasts HBus a MQTT-SN message to the default TopicId=1 and sends a message to MQTT broker with default TopicName="time" and with the following payload (sample):
 
 > {atime:1558391178, tz:570, daysec:28578, hr:7, min:56}
 
@@ -64,7 +64,7 @@ Gateaway regularly measures HBus supply voltage and sends results to MQTT topic 
 
 ## CO2 sensor MH-Z19B
 
-Sensor supplied from +5V rail. Sensor PWM output routed to GPIO13. After power-up there is no measurements fo 1 min. Measures CO2 level (in ppm) output to topic **gw/CO2**
+Sensor supplied from +5V rail. Sensor PWM output routed to GPIO13. After power-up Gateway takes no measurements fo 1 min. Gateway outputs measured CO2 level (in ppm) to topic **gw/CO2**
 
 ## BMx280 sensor
 
