@@ -64,7 +64,7 @@ Gateway regularly measures HBus supply voltage and sends results to MQTT topic *
 
 ## CO2 sensor MH-Z19B
 
-Sensor powered by +5V rail. Sensor PWM output routed to GPIO13. After power-up Gateway takes no measurements for 1 min. Gateway outputs measured CO2 level (in ppm) to topic **gw/CO2**
+Sensor powered by +5V rail. Sensor PWM output routed to D13 (eg GPIO13, Wemos D1 pin 7). After power-up Gateway takes no measurements for 1 min. Gateway outputs measured CO2 level (in ppm) to topic **gw/CO2**
 
 ## BMx280 sensor
 
