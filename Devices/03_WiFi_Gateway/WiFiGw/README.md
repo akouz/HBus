@@ -71,7 +71,7 @@ Sensor powered by +5V rail. Sensor PWM output routed to GPIO13. After power-up G
 BMP280 or BME280 sensor connected via I2C bus (SCL=D5, SDA=D4). If connected, sketch broadcasts sensor results to the following MQTT and HBus topics:
   * **gw/temp** - temperature, C
   * **gw/press** - atmospheric pressure, mbar
-  * **gw/hum** - relative humidity, %
+  * **gw/hum** - relative humidity, % (only if BME280 connected)
   
 ## OLED display
 
