@@ -56,6 +56,9 @@ const char* topic_root = "HBus";    // must be less than 30 chars
 
 String NodeName;  // "HBus_GW_XXXX"
 
+// -----------------------
+// measurements
+// -----------------------
 struct msr_struct{
     float HBvoltage;
     float temperature;
@@ -75,6 +78,7 @@ struct msr_struct{
         };
     }valid;        
 } msr;
+
 
 // -----------------------------------
 // Declarations for an SSD1306 display connected to I2C (SDA, SCL pins)
@@ -540,14 +544,20 @@ void coos_task_broadcast(void)
                 msg = HBmqtt.publish_own_val(idx);      // to HBus, also prepare MQTT message
                 if ((msg) && (MqttClient.connected()))
                 {
-                    MqttClient.publish(msg->tpc, (uchar*)msg->pld, msg->pldlen); // publish to MQTT broker
-                    blink(20);                 // flash LED for 200 ms
-/*
-                    Serial.print("topic=");
-                    Serial.print(msg->tpc);
-                    Serial.print(", payload=");
-                    Serial.println(msg->pld);
-*/                    
+                    uchar len = strlen(topic_root); // topic_root to be added to topic
+                    if (len < 30) 
+                    {
+                        char topic[0x100];
+                        strcpy(topic, topic_root);
+                        topic[len] = '/';
+                        strcpy(topic+len+1, msg->tpc);
+                        MqttClient.publish(topic, (uchar*)msg->pld, msg->pldlen); // publish to MQTT 
+                        blink(20);                 // flash LED for 200 ms                         
+//                        Serial.print(" published topic=");
+//                        Serial.print(topic);
+//                        Serial.print(", payload=");
+//                        Serial.println(msg->pld);
+                    }                
                 }
                 
             }    

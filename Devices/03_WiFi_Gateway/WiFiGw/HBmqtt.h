@@ -38,12 +38,12 @@
 
 #define    MAX_TOPIC      32    
 
-const char topic0[] = "nodes";      // number of nodes on HBus
-const char topic1[] = "hb/volt";    // HBus supply voltage, V
-const char topic2[] = "gw/temp";    // Gateway temperature, C  (BMx280)
-const char topic3[] = "gw/press";   // Gateaway atmosferic pressure, mbar (BMx280)    
-const char topic4[] = "gw/hum";     // Gateway humidity, % (BME280)
-const char topic5[] = "gw/CO2";     // Gateway CO2 level, ppm (MH-Z19B)
+const char topic0[] = "nodes";              // number of nodes on HBus
+const char topic1[] = "voltage/gw1/hbus";   // HBus supply voltage, V
+const char topic2[] = "temperature/gw1";    // Gateway temperature, C  (BMx280)
+const char topic3[] = "pressure/gw1";       // Gateaway atmosferic pressure, mbar (BMx280)    
+const char topic4[] = "humidity/gw1";       // Gateway relative humidity, % (BME280)
+const char topic5[] = "CO2/gw1";            // Gateway CO2 level, ppm (MH-Z19B)
 const char topic6[] = "";
 const char topic7[] = "";
 const char topic8[] = "";
@@ -69,7 +69,7 @@ const char topic27[] = "";
 const char topic28[] = "";
 const char topic29[] = "";
 const char topic30[] = "";
-const char topic31[] = "";
+const char topic31[] = ""; 
 
 enum{
     // MessageType
