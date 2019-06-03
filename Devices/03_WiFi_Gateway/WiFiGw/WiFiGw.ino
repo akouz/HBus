@@ -494,21 +494,18 @@ void coos_task_msr(void)
     }
 }
 // ========================================
-// Send messages to MQTT broker at least every 5 sec to keep connection alive
+// Send messages to MQTT broker at least every 10 sec to keep connection alive
 // ========================================
 void coos_task_mqtt_ping(void)
 {
     while(1)
     {
-        COOS_DELAY(100);
-        if (++ping_cnt >= 50)
+        COOS_DELAY(1000);       // 1 sec
+        if ((WiFi.status() == WL_CONNECTED) && (MqttClient.state() == 0))
         {
-            ping_cnt = 0;
-            if ((WiFi.status() == WL_CONNECTED) && (MqttClient.state() == 0))
-            {
-                MqttClient.publish(topic_root, NodeName.c_str()); // "HBus", "HBus_GW_XXXX"     
-            }         
-        }
+            MqttClient.publish("ping", NodeName.c_str()); // "ping", "HBus_GW_XXXX"
+            COOS_DELAY(9000);   // 9 sec     
+        }         
     }
 }
 // ========================================
