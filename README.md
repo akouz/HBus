@@ -13,12 +13,13 @@ HBus is a wired home automation interface. Nodes made as simple and as cheap as 
 
   * Baud rate 19.2 kbps.
   * Communication by ordinary UARTs with CAN transceivers, dominant/recessive states. CAN protocol not used, CAN controllers not required.
-  * CSMA/CD (collision detection) allowed for low-cost implementations. CSMA/CA (collision avoidance) recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
+  * CSMA/CD (collision detection) allowed for cost sensitive implementations. CSMA/CA (collision avoidance) recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
   * Flow control by byte-stuffing.
   * Two modes of operation:
     * [Configuration:](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages) point-to-point messages, master/slave communication model - "HBus mode".
     * [Operation:](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages) broadcast messages, producer/consumer communication model - "MQTT-SN mode".
   * All messages covered by CRC-16-CCITT.  
+  * Encryption is optional and will be added later on.
 
 ## Wiring
 
