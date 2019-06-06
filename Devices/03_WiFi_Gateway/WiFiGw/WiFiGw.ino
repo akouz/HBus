@@ -745,7 +745,7 @@ void Mqtt_callback(char* topic, byte* payload, uint len)
     {
 //        print_buf(payload, len);         
         // ---------------------------------
-        // detect echo message by distinctive signature {....} 00 03 04
+        // detect echo message by signature
         // ---------------------------------
         if (HBmqtt.is_signature((char*)payload))
         {
