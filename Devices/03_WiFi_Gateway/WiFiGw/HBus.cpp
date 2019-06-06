@@ -98,10 +98,7 @@ void hbus_msg_to_mqtt(hb_msg_t* msg)
                     topic -= (len+1);           // also slash to be added
                     strcpy(topic, topic_root);  // added "HBus"
                     topic[len] = '/';           // added slash
-                    msg->buf[msg->len++] = 0;   // end JSON by 0
-                    // make a distinctive signature  {....} 00 03 04 
-                    msg->buf[msg->len++] = 0x03; 
-                    msg->buf[msg->len++] = 0x04;
+                    HBmqtt.add_signature((char*)msg->buf, (uint*)&msg->len);
                     MqttClient.publish(topic, msg->buf+8, msg->len-8); // cutt off header
                     blink(20);
 //                    Serial.print("Published topic=");

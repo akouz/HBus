@@ -64,10 +64,15 @@
 // rev 1.1  -   26/05/2019, added BMx280 and OLED display 128x32    
 // rev 1.2  -   28/05/2019, Gateway sends its own topics to MQTT broker too
 // rev 1.3  -   30/05/2019, added CO2 sensor MH-Z19B, time displayed on OLED (coos rev 1.5 used)    
+// rev 1.4  -   6/06/2019, added HMmqtt.add_signature() and HBmqtt.is_signature()    
+
+#define SW_REV_MAJ  1
+#define SW_REV_MIN  4
 
 //##############################################################################
 // Def
 //##############################################################################
+
 
 #define LED             2    // GPIO2
 
@@ -92,6 +97,12 @@ enum{
     _ESC_END        = 7,
     _ESC_ESC        = 8,
     _ESC_2ESC       = 9,
+
+    // chars
+    CHAR_TAB        = 9,
+    CHAR_LF         = 10,
+    CHAR_CR         = 13,
+    CHAR_SPACE      = 0x20,
 
     // common constants
     READY           = 1,

@@ -215,6 +215,38 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
 }
 
 // =============================================
+// Add signature to the end of message
+// =============================================
+void  HB_mqtt::add_signature(char* buf, uint* len)
+{
+    buf[(*len)++] = CHAR_SPACE;
+    buf[(*len)++] = CHAR_CR;
+    buf[(*len)++] = CHAR_LF;
+    buf[(*len)++] = CHAR_TAB;
+    buf[(*len)++] = 0;
+}
+
+// =============================================
+// Check if signature prersent
+// =============================================
+uchar HB_mqtt::is_signature(char* buf)
+{
+    uint len = strlen(buf);
+    if (len > 4)
+    {
+        if ((buf[len] == 0) && (buf[len-1] == CHAR_TAB))
+        {
+            if ((buf[len-2] == CHAR_LF) && (buf[len-3] == CHAR_CR))
+            {
+                if (buf[len-4] == CHAR_SPACE)
+                    return 1; 
+            }
+        }  
+    }
+    return 0;
+}
+
+// =============================================
 // Make message header  
 // =============================================
 void HB_mqtt::make_msg_header(uchar MsgType, uint tid)
@@ -302,7 +334,7 @@ uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
         }
         if (len == 0)
         {
-            add_txmsg_uchar(&mqmsg, '}');
+            add_txmsg_uchar(&mqmsg, '}');            
         } 
         finish_txmsg(&mqmsg);
         mqmsg.hb = 0;
@@ -317,7 +349,7 @@ uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
 // =============================================
 mqtt_msg_t* HB_mqtt::publish_own_val(uint idx)
 {
-    uchar len;
+    uint len;
     uint tid = ownTopicId[idx]; // topic ID
     if (tid)  
     {
@@ -328,7 +360,7 @@ mqtt_msg_t* HB_mqtt::publish_own_val(uint idx)
             dtostrf(value[idx], 4,2, mbuf+len);
             len = strlen(mbuf);
             mbuf[len++] = '}';
-            mbuf[len++] = 0;      
+            mbuf[len] = 0;
         }
         else
         {
@@ -341,9 +373,7 @@ mqtt_msg_t* HB_mqtt::publish_own_val(uint idx)
         strcpy(brmsg.tpc, ownTopicName[idx]);       // topic for MQTT broker
         brmsg.tpclen = strlen(ownTopicName[idx]); 
         strcpy(brmsg.pld, mbuf);                    // payload
-        brmsg.pld[len++] = 0;
-        brmsg.pld[len++] = 3;
-        brmsg.pld[len++] = 4;
+        add_signature(brmsg.pld, &len);
         brmsg.pldlen = len;
         return &brmsg; // message to MQTT broker
     }
@@ -362,13 +392,11 @@ mqtt_msg_t* HB_mqtt::make_msg_time(ulong atime)
         uint hr = coos.daysec / 3600L;
         uint min = (coos.daysec % 3600L) / 60;
         len = sprintf(mbuf+len, ", hr:%d, min:%d", hr, min);
-        make_msg_publish(1, (uchar*)mbuf, 0); // TopicId=1, text
+        make_msg_publish(1, (uchar*)mbuf, 0);   // TopicId=1, text
         strcpy(brmsg.tpc, ownTopicName[1]);     // TopicName
         brmsg.tpclen = strlen(brmsg.tpc);
         brmsg.pldlen = sprintf(brmsg.pld,"{%s}", mbuf);
-        brmsg.pldlen++;
-        brmsg.pld[brmsg.pldlen++] = 3;
-        brmsg.pld[brmsg.pldlen++] = 4;
+        add_signature(brmsg.pld, &brmsg.pldlen);
         return &brmsg; 
     }
     return NULL;

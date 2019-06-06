@@ -39,20 +39,23 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>   // https://github.com/adafruit/Adafruit_SSD1306
 #include <BMx280MI.h>           // https://bitbucket.org/christandlg/bmx280mi/src/master/
-#include "HBus.h"	
+#include "HBus.h"
+#include "data\credentials.h"	
 
 //##############################################################################
 // Def
 //##############################################################################
 
+#ifndef __MY_CREDENTIALS 
 const char* ssid     = "your_ssid";
 const char* password = "your_password";
 
 const char* mqtt_url = "your_mqtt_broker";
 const char* mqtt_password = "mqtt_password";
-const uint  mqtt_port = 1883;
+#endif
 
-const char* topic_root = "HBus";    // must be less than 30 chars
+const uint  mqtt_port = 1883;
+const char* topic_root = "HBus";    // must be less than 60 bytes
 
 String NodeName;  // "HBus_GW_XXXX"
 
@@ -105,6 +108,11 @@ struct msr_struct{
 // -----------------------------------
 #define CO2_pulse   13
 
+// -----------------------------------
+// Testpoint
+// -----------------------------------
+#define TESTPOINT   16
+
 //##############################################################################
 // Descriptors
 //##############################################################################
@@ -114,14 +122,14 @@ struct msr_struct{
 // -----------------------------------
 // must be 8 bytes long
 const uchar node_descr[8] = {
-2,  // device type
-1,  // device model
-1,  // h/w rev major
-0,  // h/w rev minor
-0,  // boot rev major
-1,  // boot rev minor
-1,  // sketch rev major
-3   // sketch rev minor         Rev 1.3
+2,              // device type
+1,              // device model
+1,              // h/w rev major
+0,              // h/w rev minor
+0,              // boot rev major
+1,              // boot rev minor
+SW_REV_MAJ,     // sketch rev major
+SW_REV_MIN      // sketch rev minor       
 };
 
 //##############################################################################
@@ -143,6 +151,34 @@ BMx280I2C bmx280(BMx280_I2C_ADDRESS);
 //##############################################################################
 // Func
 //##############################################################################
+
+// =====================================  
+// Debug: print buf
+// =====================================  
+void print_buf(uchar* buf, uchar len)
+{    
+    if ((buf) && (len))
+    {
+        Serial.print(" printing buf, len=");        
+        Serial.println(len);        
+        for (uchar i=0; i<len; i++)
+        {
+            if (buf[i] < 0x10)
+              Serial.print('0');
+            Serial.print(buf[i], HEX);
+            Serial.print(' ');
+            if ((i & 7) == 7)
+            {
+                Serial.print(' ');
+            }
+            if ((i & 0x0F) == 0x0F)
+            {
+                Serial.println();
+            }                        
+        }
+        Serial.println();
+    }
+}
 
 // =====================================  
 // Custom command used for debug
@@ -542,18 +578,21 @@ void coos_task_broadcast(void)
                 if ((msg) && (MqttClient.connected()))
                 {
                     uchar len = strlen(topic_root); // topic_root to be added to topic
-                    if (len < 30) 
+                    if (len < 60) 
                     {
                         char topic[0x100];
                         strcpy(topic, topic_root);
-                        topic[len] = '/';
-                        strcpy(topic+len+1, msg->tpc);
+                        topic[len++] = '/';
+                        strcpy(topic+len, msg->tpc);
                         MqttClient.publish(topic, (uchar*)msg->pld, msg->pldlen); // publish to MQTT 
-                        blink(20);                 // flash LED for 200 ms                         
-//                        Serial.print(" published topic=");
-//                        Serial.print(topic);
-//                        Serial.print(", payload=");
-//                        Serial.println(msg->pld);
+                        digitalWrite(TESTPOINT, HIGH);
+                        blink(20);                      // flash LED for 200 ms
+/*                                                 
+                        Serial.print(" published topic=");
+                        Serial.print(topic);
+                        Serial.print(", payload=");
+                        Serial.println(msg->pld);
+*/                        
                     }                
                 }
                 
@@ -603,11 +642,11 @@ void coos_task_reconnect(void)
                     {
                         // Once connected, publish an announcement...
 //                        Serial.println("MQTT broker (re)-connected");
-                        MqttClient.publish(topic_root, NodeName.c_str()); // "HBus", "HBus_GW_XXXX"
+                        MqttClient.publish("ping", NodeName.c_str()); // "ping", "HBus_GW_XXXX"
                         // ... and resubscribe
-                        char txt[0x20];
+                        char txt[0x40];
                         uchar len = strlen(topic_root);
-                        if (len < 30)
+                        if (len < 60)
                         {
                             strcpy(txt, topic_root);
                             txt[len++] = '/'; 
@@ -701,30 +740,30 @@ void coos_task_NTP(void)
 // ========================================
 void Mqtt_callback(char* topic, byte* payload, uint len) 
 {
-    if (strcmp(topic, topic_root)) // ignore messages to topic_root
+    digitalWrite(TESTPOINT, LOW);   // to measure MQTT round trip 
+    if (strcmp(topic, topic_root))  // ignore messages to topic_root
     {
-//        Serial.print("MQTT message, topic=");
-//        Serial.print(topic);
-//        Serial.print(", content=");
-//        Serial.print((char*)payload);
-//        Serial.print(", len=");
-//        Serial.print(len);
+//        print_buf(payload, len);         
         // ---------------------------------
         // detect echo message by distinctive signature {....} 00 03 04
         // ---------------------------------
-        if ((payload[0] == '{') && 
-            (payload[len-1] == 4) &&
-            (payload[len-2] == 3) &&
-            (payload[len-3] == 0) &&
-            (payload[len-4] == '}'))             
+        if (HBmqtt.is_signature((char*)payload))
         {
-//            Serial.print(", echo suppressed ");
+//            Serial.println(" MQTT echo suppressed ");
         }
         // ---------------------------------
         // if it is original message from external source
         // ---------------------------------
         else
         {
+/*                
+            Serial.print(" MQTT message: topic=");
+            Serial.print(topic);
+            Serial.print(", content=");
+            Serial.print((char*)payload);
+            Serial.print(", len=");
+            Serial.println(len);
+*/            
             // remove braces
             if ((payload[0] == '{') && (payload[len-1] == '}'))
             {
@@ -799,6 +838,8 @@ void setup()
     msr.valid.all = 0;
 
     pinMode(LED, OUTPUT);
+    pinMode(TESTPOINT, OUTPUT);
+    
     pup_cnt = 0x100*EEPROM.read(EE_PUP_CNT) + EEPROM.read(EE_PUP_CNT+1);  // number of power-ups
     node_seed = 0x100*EEPROM.read(EE_SEED) + EEPROM.read(EE_SEED+1);      
     pup_cnt = (pup_cnt >= 0xFFFE) ? 1 : (pup_cnt+1);

@@ -112,6 +112,8 @@ class HB_mqtt{
     void        read_topic_id(void);                    // restorew TopicId from EEPROM
     uchar       init_topic_id(uint node_id);            // after power-up call this function  
                                                         // repeatedly until it returns OK
+    void        add_signature(char* buf, uint* len);
+    uchar       is_signature(char* buf);
     
     private:
     uint*       descriptor;                             // list of own topics 
