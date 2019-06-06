@@ -40,7 +40,7 @@
 #include <Adafruit_SSD1306.h>   // https://github.com/adafruit/Adafruit_SSD1306
 #include <BMx280MI.h>           // https://bitbucket.org/christandlg/bmx280mi/src/master/
 #include "HBus.h"
-#include "data\credentials.h"	
+//#include "data\credentials.h"	
 
 //##############################################################################
 // Def
