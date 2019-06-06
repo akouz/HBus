@@ -818,7 +818,8 @@ Typically nodes are pre-programmed with TopicNames, but all TopicIds set to 0. A
 Thus, every node can assign up to 32 unique TopicId.
 
 TopicId in the range [0x0000...0x001F] cannot be assigned by nodes because NodeId=0 is illegal. In that range TopicName and TopicId are pre-defined. Only few pairs defined so far, other values reserved for future use:
-  * TopicName="time", TopicId = 0x0001, UTC date and time, timezone, time of the day
+  * TopicName="time", TopicId = 0x0001, UTC time (seconds since 00:00:00 of 01/01/2001), time of the day (seconds since 00:00:00, hour, minute)
+  * TopicName="timezone", TopicId = 0x0002, local time zone, offset from UTC in minutes
   * TopicName="debug", TopicId = 0x000D, debug messages
   * TopicName="error", TopicId = 0x000E, software errors
   * TopicName="failure", TopicId = 0x000F, hardware failures
