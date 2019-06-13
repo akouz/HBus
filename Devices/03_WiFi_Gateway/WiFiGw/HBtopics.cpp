@@ -43,14 +43,15 @@
 HB_topics HBtopics;
 
 // Default topics
-const char def_tpc1[] = {"time"};
-const char def_tpc2[] = {"debug"};
-const char def_tpc3[] = {"error"};
-const char def_tpc4[] = {"fault"};
+const char def_tpc_time[] = {"time"};
+const char def_tpc_tz[]  = {"timezone"};
+const char def_tpc_dbg[] = {"debug"};
+const char def_tpc_err[] = {"error"};
+const char def_tpc_flt[] = {"fault"};
 
 const char* def_topic_list[MAX_DEF_LIST] = {
-NULL, def_tpc1, NULL, NULL,  NULL, NULL, NULL, NULL,
-NULL, NULL, NULL, NULL,      NULL, def_tpc2, def_tpc3, def_tpc4,
+NULL, def_tpc_time, def_tpc_tz, NULL,  NULL, NULL, NULL, NULL,
+NULL, NULL, NULL, NULL,      NULL, def_tpc_dbg, def_tpc_err, def_tpc_flt,
 NULL, NULL, NULL, NULL,      NULL, NULL, NULL, NULL,
 NULL, NULL, NULL, NULL,      NULL, NULL, NULL, NULL
 };

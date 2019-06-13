@@ -46,7 +46,6 @@
 #include "myNTPClient.h"
 #include <stdint.h>
 #include <functional>
-// #include "PubSubClient.h"        // MQTT - https://github.com/knolleary/pubsubclient , use local copy with increased packet size
 #include <PubSubClient.h> 
 
 //##############################################################################
@@ -65,9 +64,10 @@
 // rev 1.2  -   28/05/2019, Gateway sends its own topics to MQTT broker too
 // rev 1.3  -   30/05/2019, added CO2 sensor MH-Z19B, time displayed on OLED (coos rev 1.5 used)    
 // rev 1.4  -   6/06/2019, added HMmqtt.add_signature() and HBmqtt.is_signature()    
+// rev 1.5  -   11/06/2019, modified (re)connection to MQTT broker    
 
 #define SW_REV_MAJ  1
-#define SW_REV_MIN  4
+#define SW_REV_MIN  5
 
 //##############################################################################
 // Def
@@ -85,7 +85,7 @@ enum{
     HB_REV_MIN      = 8,     
 
     // coos
-    COOS_TASKS      = 12,   // this node uses up to 12 coos tasks            
+    COOS_TASKS      = 16,   // this node uses up to 16 coos tasks            
 
     // misc
     DF_STATUS       = 1,    // use JSON in STATUS command    

@@ -40,7 +40,7 @@
 #include <Adafruit_SSD1306.h>   // https://github.com/adafruit/Adafruit_SSD1306
 #include <BMx280MI.h>           // https://bitbucket.org/christandlg/bmx280mi/src/master/
 #include "HBus.h"
-//#include "data\credentials.h"	
+#include "data\credentials.h"	
 
 //##############################################################################
 // Def
@@ -50,11 +50,13 @@
 const char* ssid     = "your_ssid";
 const char* password = "your_password";
 
-const char* mqtt_url = "your_mqtt_broker";
-const char* mqtt_password = "mqtt_password";
+const char* mqtt_url = "mqtt_broker_url";
+const char* mqtt_username = "";
+const char* mqtt_password = "";
 #endif
 
 const uint  mqtt_port = 1883;
+boolean was_connected;
 const char* topic_root = "HBus";    // must be less than 60 bytes
 
 String NodeName;  // "HBus_GW_XXXX"
@@ -68,6 +70,8 @@ struct msr_struct{
     float pressure;
     float humidity;
     float CO2;
+    uint  MQTT_roundtrip;   // ms
+    ulong MQTT_sent;        // millis()
     union{
         uint all;
         struct{
@@ -77,9 +81,16 @@ struct msr_struct{
             unsigned    humidity    : 1;
             unsigned    CO2         : 1;
             unsigned    time        : 1;
-            unsigned    bmx280      : 1;        
+            unsigned    bmx280      : 1;
+            unsigned    roundtrip   : 1;        
         };
-    }valid;        
+    }valid;
+    union{
+        uint all;
+        struct{
+            unsigned    MQTT_sent   : 1;
+        };
+    }flag;                
 } msr;
 
 
@@ -93,6 +104,7 @@ struct msr_struct{
 // Vcc to 3.3V
 // SCL to D1 (GPIO5) - Wemos pin 14
 // SDA to D2 (GPIO4) - Wemos pin 13
+
 
 // -----------------------------------
 // BMx280 sensor connected to I2C (SDA, SCL pins)
@@ -144,6 +156,7 @@ WiFiUDP ntpUDP;
 myNTPClient timeClient(ntpUDP);
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+bool oled_exists;
 
 //create a BMx280I2C object using the I2C interface with I2C Address 0x76
 BMx280I2C bmx280(BMx280_I2C_ADDRESS);
@@ -191,8 +204,8 @@ hb_msg_t* custom_command(hb_msg_t* rxmsg)
     if (root.success())
     {
         cmd = root["cmd"];
-        Serial.print(" cmd=");
-        Serial.println(cmd);
+//        Serial.print(" cmd=");
+//        Serial.println(cmd);
         switch(cmd)
         {
         case 1:
@@ -200,6 +213,18 @@ hb_msg_t* custom_command(hb_msg_t* rxmsg)
             break;
         case 2:
             HBtopics.print_topics();
+            break;
+        case 3:
+            if (msr.valid.roundtrip)
+            { 
+                Serial.print(" MQTT roundtrip ");
+                Serial.print(msr.MQTT_roundtrip);
+                Serial.println(" ms");
+            }
+            else
+            {
+                Serial.println(" Please wait, MQTT roundtrip not measured yet...");            
+            }
             break;
         default:
             break;    
@@ -214,7 +239,14 @@ void coos_task_display(void)
 {
     static uint state = 0;
     char buf[20];
-    COOS_DELAY(2000); // show initial text for extra 2 sec
+    if (oled_exists)
+    {
+        COOS_DELAY(2000); // show initial text for extra 2 sec
+    }
+    else
+    {
+        COOS_DELAY(COOS_STOP);  // switch off this task
+    }
     while(1)
     {
         display.clearDisplay();
@@ -261,18 +293,22 @@ void coos_task_display(void)
             if (WiFi.status() == WL_CONNECTED)
             {
                 display.println("WiFi OK");
+//                Serial.print("WiFi OK");
             }
             else 
             {
                 display.println("no WiFi");
+//                Serial.print("no WiFi");
             }
             if (MqttClient.connected())
             {
                 display.println("MQTT OK");
+//                Serial.println(", MQTT OK");
             }
             else 
             {
                 display.println("no MQTT");
+//                Serial.println(", no MQTT");
             }            
             break;             
         // ---------------------------
@@ -366,7 +402,6 @@ void coos_task_display(void)
         {
             COOS_DELAY(500);  // pause 0.5 sec 
         }
-        
     }
 }
 // ========================================
@@ -530,7 +565,7 @@ void coos_task_msr(void)
     }
 }
 // ========================================
-// Send messages to MQTT broker at least every 10 sec to keep connection alive
+// Send messages to MQTT broker 
 // ========================================
 void coos_task_mqtt_ping(void)
 {
@@ -586,6 +621,8 @@ void coos_task_broadcast(void)
                         strcpy(topic+len, msg->tpc);
                         MqttClient.publish(topic, (uchar*)msg->pld, msg->pldlen); // publish to MQTT 
                         digitalWrite(TESTPOINT, HIGH);
+                        msr.MQTT_sent = millis();
+                        msr.flag.MQTT_sent = 1;
                         blink(20);                      // flash LED for 200 ms
 /*                                                 
                         Serial.print(" published topic=");
@@ -602,78 +639,83 @@ void coos_task_broadcast(void)
     }
 }
 // ========================================
-// Reconnect to WiFi and/or to cloud    
+// Common for MQTT connection
 // ========================================
-void coos_task_reconnect(void)
+bool mqtt_connect(void)
+{
+    bool res;
+    if ((mqtt_username[0]) && (mqtt_password[0])) // is both strings not empty
+    {
+        res = MqttClient.connect(NodeName.c_str(), mqtt_username, mqtt_password);         
+    }
+    else  // there is no credentials
+    {
+        res = MqttClient.connect(NodeName.c_str());  // send only ClientID
+    }
+    if (res)
+    {
+        was_connected = true;
+        MqttClient.publish("ping", NodeName.c_str()); // "ping", "HBus_GW_XXXX"
+        // ... and resubscribe
+        char txt[0x40];
+        uchar len = strlen(topic_root);
+        if (len < 60)
+        {
+            strcpy(txt, topic_root);
+            txt[len++] = '/'; 
+            txt[len++] = '#';  // multilevel wildcard
+            txt[len++] = 0; 
+            MqttClient.subscribe(txt); 
+        }
+    }
+    return res;    
+}
+
+// ========================================
+// Reconnect to WiFi and/or to MQTT    
+// ========================================
+void coos_task_wifi_reconnect(void)
 {
     static uint i;
     while(1)
     {
-        COOS_DELAY(1000);
+        COOS_DELAY(500);
         // -----------------------
         // re-connect to WiFi
         // -----------------------
         if (WiFi.status() != WL_CONNECTED)
         {
             WiFi.begin(ssid, password);
-            for (i=0; i<20; i++)
+            for (i=0; i<40; i++) // for 20 sec
             {
-                COOS_DELAY(1000);
+                COOS_DELAY(500);
                 if (WiFi.status() == WL_CONNECTED)
                 {
                     break;  // success
                 }
             }
         }
-        // -----------------------
-        // re-connect to cloud
-        // -----------------------
+    }
+}
+// ========================================
+// Reconnect to MQTT    
+// ========================================
+void coos_task_mqtt_reconnect(void)
+{
+    int wait = (was_connected)? 10000 : 30000;
+    COOS_DELAY(wait); 
+    while(1)
+    {
         if ((WiFi.status() == WL_CONNECTED) && (!MqttClient.connected()))
+        {                        
+            mqtt_connect();
+            wait = (was_connected)? 2000 : 30000;
+            COOS_DELAY(wait); 
+        }
+        else
         {
-            for (i=0; i<20; i++) // try to (re)connect to cloud for 10 sec
-            {
-                // ----------------------
-                // check cloud connection
-                // ----------------------
-                int state = MqttClient.state();
-                if (state) // 0 = connected
-                {
-                    if (MqttClient.connect(NodeName.c_str()))
-                    {
-                        // Once connected, publish an announcement...
-//                        Serial.println("MQTT broker (re)-connected");
-                        MqttClient.publish("ping", NodeName.c_str()); // "ping", "HBus_GW_XXXX"
-                        // ... and resubscribe
-                        char txt[0x40];
-                        uchar len = strlen(topic_root);
-                        if (len < 60)
-                        {
-                            strcpy(txt, topic_root);
-                            txt[len++] = '/'; 
-                            txt[len++] = '#';  // multilevel wildcard
-                            txt[len++] = 0; 
-                            MqttClient.subscribe(txt); 
-                        }
-                        else
-                        {
-//                            Serial.println(" topic_root string is too long");                            
-                        }
-                        break;  // success
-                    }
-                }
-                // ----------------------
-                // while wating, check WiFi connection
-                // ----------------------
-                if (WiFi.status() == WL_CONNECTED)
-                {
-                    COOS_DELAY(500); // wait 0.5 sec
-                }
-                else 
-                {
-                    break;  // WiFi connection lost
-                }
-            } // for 10 sec
-        } // if (!CloudClient.connected()
+            COOS_DELAY(500);
+        }            
     }
 }
 
@@ -740,12 +782,22 @@ void coos_task_NTP(void)
 // ========================================
 void Mqtt_callback(char* topic, byte* payload, uint len) 
 {
-    digitalWrite(TESTPOINT, LOW);   // to measure MQTT round trip 
+    digitalWrite(TESTPOINT, LOW);   // to measure MQTT round trip
+    if (msr.flag.MQTT_sent)
+    {
+        msr.flag.MQTT_sent = 0;
+        msr.MQTT_roundtrip = (uint)(millis() - msr.MQTT_sent);
+        msr.valid.roundtrip = 1; 
+    }
+//    Serial.print(" MQTT topic: ");  
+//    Serial.print(topic);  
+//    Serial.print(", payload: ");  
+//    Serial.print((char*)payload);  
     if (strcmp(topic, topic_root))  // ignore messages to topic_root
     {
 //        print_buf(payload, len);         
         // ---------------------------------
-        // detect echo message by signature
+        // detect echo message by distinctive signature {....} 00 03 04
         // ---------------------------------
         if (HBmqtt.is_signature((char*)payload))
         {
@@ -780,7 +832,7 @@ void Mqtt_callback(char* topic, byte* payload, uint len)
                 if (idx)                                    // if topic listed
                 {
 //                  Serial.print(", converted to HBus message, topic index=");
-                    Serial.print(idx);                            
+//                  Serial.print(idx);                            
                     uint tid = HBtopics.get_topic_id(idx);  // get topic ID
                     if (tid)
                     {
@@ -805,7 +857,6 @@ void print_hdr_txt(uint cnt, uint sd, uint ID)
     const char txt2[] = ", restored seed = ";  
     const char txt3[] = ", node ID = 0x"; 
     const char txt4[] = ", node name = "; 
-    Serial.println();
     Serial.printf("\n\nReason for reboot: %s\n", ESP.getResetReason().c_str());
     for (uchar i=0; i<strlen(hdr); i++)  {  Serial.print('=');  }
     Serial.println();
@@ -836,6 +887,7 @@ void setup()
     SPIFFS.begin();
     Wire.begin();
     msr.valid.all = 0;
+    msr.flag.all = 0;
 
     pinMode(LED, OUTPUT);
     pinMode(TESTPOINT, OUTPUT);
@@ -874,9 +926,12 @@ void setup()
     // WiFi    
     WiFi.mode(WIFI_STA);            // set station mode
     WiFi.begin(ssid, password);   
+    Serial.print(millis());
+    Serial.println(" WiFi begin");
+    
     NodeName = "HBus_GW_" + WiFi.macAddress().substring(12,14)+WiFi.macAddress().substring(15,17);
         
-    // MQTT broker     
+    // MQTT broker    
     MqttClient.setServer(mqtt_url, mqtt_port);
     MqttClient.setCallback(Mqtt_callback);
     
@@ -886,15 +941,20 @@ void setup()
     // OLED display
     if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) // Address 0x3C for 128x32 
     { 
+        oled_exists = false;
         Serial.println("SSD1306 allocation failed");
     }
-    display.clearDisplay();
-    display.setTextSize(2); // Draw 2X-scale text
-    display.setTextColor(WHITE);
-    display.setCursor(0, 0);
-    display.println(" HBus WiFi");
-    display.println("  Gateway");
-    display.display();      // Show initial text
+    else
+    {
+        oled_exists = true;
+        display.clearDisplay();
+        display.setTextSize(2); // Draw 2X-scale text
+        display.setTextColor(WHITE);
+        display.setCursor(0, 0);
+        display.println(" HBus WiFi");
+        display.println("  Gateway");
+        display.display();      // Show initial text
+    }
     
     // BMx280 sensor
     if (!bmx280.begin())
@@ -925,31 +985,50 @@ void setup()
             break;
         } 
     }             
+    Serial.print(millis());
     if (WiFi.status() == WL_CONNECTED)
     {
-        Serial.print("WiFi connected to ");
+        Serial.print(" WiFi connected to ");
         Serial.print(ssid);
         Serial.print(", signal strength ");
         Serial.print(WiFi.RSSI());
         Serial.println(" dBm");
+
+        // try to connect to MQTT first time
+        if (mqtt_connect())         
+        {
+            Serial.print(millis());
+            Serial.print(" Connected to MQTT broker ");
+            Serial.println(mqtt_url);
+        }
+        else
+        {
+            Serial.print(millis());
+            Serial.print(" Cannot connect to MQTT broker ");
+            Serial.println(mqtt_url);
+        }
     }
     else
     {
-        Serial.print("Unable to connected to ");
+        Serial.print(" Unable to connected to ");
         Serial.println(ssid);
-    }
-    ESP.wdtEnable(1000);
+    }    
     
+    // watchdog
+    ESP.wdtEnable(1000);
+
     // register COOS tasks
     coos.register_task(coos_task_HBus_rxtx);            // HBus rx/tx task
     coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation
     coos.register_task(coos_task_msr_CO2);              // CO2 measurement               
     coos.register_task(coos_task_msr);                  // voltage and BMx280 measurements
     coos.register_task(coos_task_broadcast); 
-    coos.register_task(coos_task_reconnect);            // re-connect to WiFi and to Cloud (MQTT)
-    coos.register_task(coos_task_mqtt_ping);            // keep cloud connection alive
+    coos.register_task(coos_task_wifi_reconnect);       // re-connect to WiFi 
+    coos.register_task(coos_task_mqtt_reconnect);       // re-connect to MQTT
+    coos.register_task(coos_task_mqtt_ping);           
     coos.register_task(coos_task_NTP);                  // time service
     coos.register_task(coos_task_display);              // OLED display
+
     // init registered tasks
     coos.start();     
 }
