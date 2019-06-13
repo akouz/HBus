@@ -56,7 +56,7 @@ const char* mqtt_password = "";
 #endif
 
 const uint  mqtt_port = 1883;
-boolean was_connected;
+int   mqtt_was_connected = 0;
 const char* topic_root = "HBus";    // must be less than 60 bytes
 
 String NodeName;  // "HBus_GW_XXXX"
@@ -654,7 +654,7 @@ bool mqtt_connect(void)
     }
     if (res)
     {
-        was_connected = true;
+        mqtt_was_connected = 3;
         MqttClient.publish("ping", NodeName.c_str()); // "ping", "HBus_GW_XXXX"
         // ... and resubscribe
         char txt[0x40];
@@ -668,6 +668,10 @@ bool mqtt_connect(void)
             MqttClient.subscribe(txt); 
         }
     }
+    else if (mqtt_was_connected)
+    {
+        mqtt_was_connected--;
+    }                             
     return res;    
 }
 
@@ -702,14 +706,14 @@ void coos_task_wifi_reconnect(void)
 // ========================================
 void coos_task_mqtt_reconnect(void)
 {
-    int wait = (was_connected)? 10000 : 30000;
+    int wait = (mqtt_was_connected)? 10000 : 30000;
     COOS_DELAY(wait); 
     while(1)
     {
         if ((WiFi.status() == WL_CONNECTED) && (!MqttClient.connected()))
-        {                        
+        {
             mqtt_connect();
-            wait = (was_connected)? 2000 : 30000;
+            wait = (mqtt_was_connected)? 2000 : 30000;
             COOS_DELAY(wait); 
         }
         else
