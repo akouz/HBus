@@ -1,6 +1,6 @@
 # Sketch WiFiGw.ino
 
-Current rev 1.4
+Current rev 1.5
 
 ## WiFi connection
 
@@ -10,7 +10,7 @@ In WiFi_Gateway.ino enter your WiFi network credentials:
 
 > const char* password = "your_password";
 
-In case of lost WiFi connection, sketch tries to restore it, see **coos_task_reconnect()**.
+In case of lost WiFi connection, sketch tries to restore it, see **coos_task_wifi_reconnect()**.
 
 ## MQTT broker
 
@@ -18,9 +18,13 @@ In WiFi_Gateway.ino enter MQTT broker credentials:
 
 > const char* mqtt_url = "your_mqtt_broker";
 
-> const char* mqtt_password = "mqtt_password";
+> const char* mqtt_username = "";
 
-In case of lost connection, sketch will try to re-connect to MQTT broker, see **coos_task_reconnect()**.
+> const char* mqtt_password = "";
+
+If user name or password left blank then Gateway will not use them.
+
+In case of lost connection, sketch will try to re-connect to MQTT broker, see **coos_task_mqtt_reconnect()**.
 
 Sketch keeps MQTT connection alive by sending a short message to broker every 5 sec, see **coos_task_mqtt_ping()**.
 
