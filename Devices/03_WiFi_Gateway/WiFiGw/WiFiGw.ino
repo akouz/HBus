@@ -793,6 +793,7 @@ void Mqtt_callback(char* topic, byte* payload, uint len)
         msr.MQTT_roundtrip = (uint)(millis() - msr.MQTT_sent);
         msr.valid.roundtrip = 1; 
     }
+    payload[len] = 0;	// make payload a valid 0-terminated text string
 //    Serial.print(" MQTT topic: ");  
 //    Serial.print(topic);  
 //    Serial.print(", payload: ");  
