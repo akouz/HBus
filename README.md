@@ -1,4 +1,5 @@
-# HBus
+
+![HBus](https://github.com/akouz/HBus/blob/master/HBus_50.png)
 
   * [HBus mode (config and control messages)](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages)
   * [MQTT-SN mode (broadcast messages)](https://github.com/akouz/HBus#mqtt-sn-mode-broadcast-messages)
