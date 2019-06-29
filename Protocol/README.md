@@ -1,7 +1,7 @@
 
 # HBus protocol
 
-Current firmware revision 0.8.
+[Current firmware revision 0.8.](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro)
 
 ## Byte-stuffing
 
