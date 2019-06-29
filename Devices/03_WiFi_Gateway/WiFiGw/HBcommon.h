@@ -31,10 +31,11 @@
 //##############################################################################
 
 #include <Arduino.h>
+#include <Wire.h>
 #include <EEPROM.h>
 #include <stdio.h>
 #include <ArduinoJson.h>    // https://github.com/bblanchon/ArduinoJson
-#include <coos.h>           // https://github.com/akouz/a_coos
+#include <coos.h>           // https://github.com/akouz/a_coos  rev 1.5
 
 #include <ESP8266WiFi.h>    // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/readme.md
 #include <DNSServer.h>
@@ -65,9 +66,10 @@
 // rev 1.3  -   30/05/2019, added CO2 sensor MH-Z19B, time displayed on OLED (coos rev 1.5 used)    
 // rev 1.4  -   6/06/2019, added HMmqtt.add_signature() and HBmqtt.is_signature()    
 // rev 1.5  -   11/06/2019, modified (re)connection to MQTT broker    
+// rev 1.6  -   21/06/2019, refactoring
 
 #define SW_REV_MAJ  1
-#define SW_REV_MIN  5
+#define SW_REV_MIN  6
 
 //##############################################################################
 // Def
@@ -203,6 +205,8 @@ extern StaticJsonBuffer<256> jsonBuf;
 extern Coos <COOS_TASKS, 1> coos;    // 1.024 ms ticks
 
 extern PubSubClient MqttClient;
+
+extern const uchar node_descr[];  // WiFiGw.ino
 
 //##############################################################################
 // Func

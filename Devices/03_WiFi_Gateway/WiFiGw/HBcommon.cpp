@@ -79,6 +79,35 @@ uchar print_val(uchar val, uchar i)
     }    
 }
 
+// =====================================  
+// Debug: print buf
+// =====================================
+/*  
+void print_buf(uchar* buf, uchar len)
+{    
+    if ((buf) && (len))
+    {
+        Serial.print(" printing buf, len=");        
+        Serial.println(len);        
+        for (uchar i=0; i<len; i++)
+        {
+            if (buf[i] < 0x10)
+              Serial.print('0');
+            Serial.print(buf[i], HEX);
+            Serial.print(' ');
+            if ((i & 7) == 7)
+            {
+                Serial.print(' ');
+            }
+            if ((i & 0x0F) == 0x0F)
+            {
+                Serial.println();
+            }                        
+        }
+        Serial.println();
+    }
+}
+*/
 // ========================================
 // Debug: print message buffer
 // ========================================
