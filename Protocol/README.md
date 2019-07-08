@@ -9,6 +9,8 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
 
   * 0x1B-0x02 	- start of HBus frame (SOF)
   * 0x1B-0x03 	- start of MQTT-SN frame (SOF)
+  * 0x1B-0x04 	- start of encrypted HBus frame (SOF)
+  * 0x1B-0x05 	- start of encrypted MQTT-SN frame (SOF)
   * 0x1B-0x07 	- end of frame (EOF)
   * 0x1B-0x08 	- insert 0x1B into data flow
   * 0x1B-0x09 	- insert 0x1B, 0x1B into data flow
