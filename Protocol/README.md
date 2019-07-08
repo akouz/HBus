@@ -61,7 +61,7 @@ While debugging nodes, it is possible to transfer text messages duirng the pause
 
 Cipher is a combination of XTEA block cipher and LFSR-32 stream cipher. 
 
-First 8 bytes of message are encrypted by XTEA cipher. While encrypting the block, an intermediate value is used to initialise 32-bit LFSR. The rest of the message is encrypted by LFSR stream cipher.
+First 8 bytes of message are encrypted by XTEA cipher. While encrypting the block, an intermediate value is used to initialise 32-bit LFSR. The rest of the message is encrypted by LFSR stream cipher. Cipher encrypts both message content and its CRC.
 
 Decryption is made similarly. First 8 bytes of the message decrypted by XTEA block cipher, an intermediate value is used to initialise 32-bit LFSR. The rest of the message decrypted by 32-bit LFSR stream cypher.
 
