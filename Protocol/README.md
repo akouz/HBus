@@ -63,7 +63,7 @@ Cipher is a combination of XTEA block cipher and LFSR-32 stream cipher.
 
 First 8 bytes of message are encrypted by XTEA cipher. While encrypting the block, an intermediate value is used to initialise 32-bit LFSR. The rest of the message is encrypted by LFSR stream cipher. Cipher encrypts both message content and its CRC.
 
-Decryption is made similarly. First 8 bytes of the message decrypted by XTEA block cipher, an intermediate value is used to initialise 32-bit LFSR. The rest of the message decrypted by 32-bit LFSR stream cypher.
+Decryption is made similarly. First 8 bytes of the message decrypted by XTEA block cipher, an intermediate value is used to initialise 32-bit LFSR. The rest of the message, including CRC, is decrypted by 32-bit LFSR stream cypher.
 
 XTEA uses a 128-bit key. The key is combined from two parts: EEPROM key and flash key. Flash key defined at compile time, it should be unique for the user. EEPROM key defined during node configuration, it should be unique for the particular project.
 
