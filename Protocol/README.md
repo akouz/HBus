@@ -33,13 +33,13 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
 <td>2 bytes</td>
 </tr><tr>
 <td>priority</td>
-<td>0x1B-0x02, 0x1B-0x04</td>
+<td>(0x1B-0x02) or (0x1B-0x04)</td>
 <td>HBus message content</td>
 <td>CRC</td>
 <td>0x1B-0x07</td>
 </tr><tr>
 <td>priority</td>
-<td>0x1B-0x03, 0x1B-0x05</td>
+<td>(0x1B-0x03) or (0x1B-0x05)</td>
 <td>MQTT message content</td>
 <td>CRC</td>
 <td>0x1B-0x07</td>
