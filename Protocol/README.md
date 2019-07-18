@@ -90,7 +90,7 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 </tr><tr>
 <td>MsgId</td> 	
 <td>8</td> 	
-<td>Message ID; it is incremented with every request; reply repeats MsgId of the request. Valid range 0x0001…0xFFFE</td> 	
+<td>Message ID; it is incremented with every request; reply repeats MsgId of the request. Valid range 0x01…0xFE</td> 	
 </tr><tr>
 <td>Nonce</td> 	
 <td>8</td> 	
