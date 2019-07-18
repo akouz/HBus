@@ -89,8 +89,12 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>ID of Node B, it must be unique in current network </td> 	
 </tr><tr>
 <td>MsgId</td> 	
-<td>16</td> 	
+<td>8</td> 	
 <td>Message ID; it is incremented with every request; reply repeats MsgId of the request. Valid range 0x0001…0xFFFE</td> 	
+</tr><tr>
+<td>Nonce</td> 	
+<td>8</td> 	
+<td>random number</td> 	
 </tr><tr>
 <td>OkErr</td> 	
 <td>8</td> 	
@@ -174,7 +178,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -182,6 +187,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 </tr></tbody></table>
  
@@ -192,7 +198,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <td>[8]</td>
 <td>[9]</td>
@@ -210,6 +217,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>OkErr</td>
 <td>DevType</td>
 <td>DevModel</td>
@@ -232,7 +240,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr> 
@@ -240,6 +249,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 </tr></tbody></table>
  
@@ -250,7 +260,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <td>[8:N]</td>
 </tr></thead>
@@ -259,6 +270,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>DF</td>
 <td>Data, content depends on DevType and DevModel</td>
 </tr></tbody></table>
@@ -279,7 +291,8 @@ Request from node A to a Group
 <th>[1:2]</th>
 <th>[3]</th>
 <th>[4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr> 
@@ -288,6 +301,7 @@ Request from node A to a Group
 <td>Group</td>
 <td>Slots</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 </tr></tbody></table>
  
@@ -304,7 +318,8 @@ Request from node A to a Group
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -312,6 +327,7 @@ Request from node A to a Group
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 </tr></tbody></table>
 
@@ -324,7 +340,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -332,6 +349,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>Param</td>
 </tr></tbody></table>
  
@@ -344,7 +362,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -352,6 +371,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -370,7 +390,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <td>[8:9]</td>
 </tr></thead>
@@ -379,6 +400,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 <td>New_ID</td>
 </tr></tbody></table>
@@ -392,7 +414,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -400,6 +423,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -414,7 +438,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -422,6 +447,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>Pause</td>
 </tr></tbody></table>
  
@@ -432,7 +458,8 @@ Reply from Node B to Node A
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -440,6 +467,7 @@ Reply from Node B to Node A
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -458,7 +486,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -466,6 +495,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>Duration</td>
 </tr></tbody></table>
  
@@ -478,7 +508,8 @@ Reply from Node B to Node A
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -486,6 +517,7 @@ Reply from Node B to Node A
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -500,7 +532,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -508,6 +541,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 </tr></tbody></table>
   
@@ -518,7 +552,8 @@ Reply from Node B to Node A
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8]</th>
 <th>[9:(9+N)]</th>
@@ -528,6 +563,7 @@ Reply from Node B to Node A
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 <td>N</td>
 <td>Text</td>
@@ -547,7 +583,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8]</th>
 <th>[9:(9+N)]</th>
@@ -557,6 +594,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 <td>N</td>
 <td>Text</td>
@@ -572,7 +610,8 @@ Reply from Node B to Node A
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -580,6 +619,7 @@ Reply from Node B to Node A
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>OkErr</td>
 </tr></tbody></table>
 
@@ -594,7 +634,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8:(8+N)]</th>
 </tr></thead>
@@ -603,6 +644,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>DF</td>
 <td>Cmd</td>
 <td></td>
@@ -622,7 +664,8 @@ Reply from Node B to Node A
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8:(8+X)]</th>
 </tr></thead>
@@ -631,6 +674,7 @@ Reply from Node B to Node A
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>OkErr</td>
 <td>Rply</td>
 </tr></tbody></table>
@@ -648,7 +692,8 @@ Request from Node A to Node B
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -656,6 +701,7 @@ Request from Node A to Node B
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>ti</td>
 </tr></tbody></table>
 
@@ -668,7 +714,8 @@ Reply from Node B to Node A if topic exists:
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8:9]</th>
 <th>[10:(10+N)]</th>
@@ -678,6 +725,7 @@ Reply from Node B to Node A if topic exists:
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 <td>TopicId</td>
 <td>TopicName</td>
@@ -692,7 +740,8 @@ Reply from Node B to Node A if topic index is out of list:
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
@@ -700,6 +749,7 @@ Reply from Node B to Node A if topic index is out of list:
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0xEE</td>
 </tr></tbody></table>
 
@@ -715,7 +765,8 @@ Message structure is as follows:
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8:N]</th>
 </tr></thead>
@@ -724,6 +775,7 @@ Message structure is as follows:
 <td>NodeID</td>
 <td>TopicId</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>DF</td>
 <td>Data</td>
 </tr></tbody></table>
@@ -752,7 +804,8 @@ Binds TopicId and TopicName.
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8:N]</th>
 </tr></thead>
@@ -761,6 +814,7 @@ Binds TopicId and TopicName.
 <td>NodeID</td>
 <td>TopicId</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>0</td>
 <td>TopicName</td>
 </tr></tbody></table>
@@ -789,7 +843,8 @@ Broadcast Payload to specified TopicId.
 <th>[0]</th>
 <th>[1:2]</th>
 <th>[3:4]</th>
-<th>[5:6]</th>
+<th>[5]</th>
+<th>[6]</th>
 <th>[7]</th>
 <th>[8:N]</th>
 </tr></thead>
@@ -798,6 +853,7 @@ Broadcast Payload to specified TopicId.
 <td>NodeID</td>
 <td>TopicId</td>
 <td>MsgId</td>
+<td>Nonce</td>
 <td>DF</td>
 <td>Payload</td>
 </tr></tbody></table>
