@@ -153,14 +153,15 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>Beep and LED flash to identify the node</td> 	
 </tr><tr>
 <td>8</td> 	
-<td>RD_DESCR</td> 	
+<td>DESCR</td> 	
 <td>Node</td> 	
-<td>Read node description </td> 	
+<td>Read/write node description </td> 	
+</tr><tr>
 </tr><tr>
 <td>9</td> 	
-<td>WR_DESCR</td> 	
+<td>SECURITY</td> 	
 <td>Node</td> 	
-<td>Write node description</td> 	
+<td>Set/read security settings</td> 	
 </tr><tr>
 <td>10</td> 	
 <td>C_CMD</td> 	
@@ -171,11 +172,6 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>TOPIC</td> 	
 <td>Node</td> 	
 <td>Read TopicId and TopicName</td> 	
-</tr><tr>
-<td>12</td> 	
-<td>SECURITY</td> 	
-<td>Node</td> 	
-<td>Security settings</td> 	
 </tr></tbody></table>
 
 ## [1] REV
@@ -410,7 +406,7 @@ Request from Node A to Node B
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
-<td>0</td>
+<td>1</td>
 <td>New_ID</td>
 </tr></tbody></table>
  
@@ -530,11 +526,11 @@ Reply from Node B to Node A
 <td>OkErr</td>
 </tr></tbody></table>
 
-## [8] RD_DESCR
+## [8] DESCR
 
-Read text description of the target node, such as name, location, etc.
+Read/write target node text description, such as name, location, etc.
 
-Request from Node A to Node B
+Read description, request from Node A to Node B
 
 <table>
 <thead><tr>
@@ -573,7 +569,7 @@ Reply from Node B to Node A
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
-<td>0</td>
+<td>OkErr</td>
 <td>N</td>
 <td>Text</td>
 </tr></tbody></table>
@@ -581,11 +577,7 @@ Reply from Node B to Node A
   * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
 
-## [9] WR_DESCR
-
-Write text description to the target node.
-
-Request from Node A to Node B
+Write description, request from Node A to Node B
 
 <table>
 <thead><tr>
@@ -599,12 +591,12 @@ Request from Node A to Node B
 <th>[9:(9+N)]</th>
 </tr></thead>
 <tbody><tr>
-<td>0x09</td>
+<td>0x08</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
-<td>0</td>
+<td>1</td>
 <td>N</td>
 <td>Text</td>
 </tr></tbody></table>
@@ -624,13 +616,65 @@ Reply from Node B to Node A
 <th>[7]</th>
 </tr></thead>
 <tbody><tr>
-<td>0x89</td>
+<td>0x88</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
 </tr></tbody></table>
+
+## [9] SECURITY
+
+Assign/query node security settings
+
+Request from Node A to Node B
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5]</th>
+<th>[6]</th>
+<th>[7]</th>
+<th>[8:9]</th>
+<th>[10:17]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x09</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgId</td>
+<td>Nonce</td>
+<td>RdWr</td>
+<td>Security</td>
+<td>EEPROM Key</td>
+</tr></tbody></table>
+
+Reply from Node B to Node A:
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5]</th>
+<th>[6]</th>
+<th>[7]</th>
+<th>[8:9]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x8C</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgId</td>
+<td>Nonce</td>
+<td>OkErr</td>
+<td>Security</td>
+</tr></tbody></table>
+
+8-byte long EEPROM Key field is optional. EEPROM Key can be written only once when EEPROM is blank. Once assigned, it cannot be rewritten, field value is ignored.
 
 ## [10] C_CMD
 
@@ -761,59 +805,6 @@ Reply from Node B to Node A if topic index is out of list:
 <td>Nonce</td>
 <td>0xEE</td>
 </tr></tbody></table>
-
-## [12] SECURITY
-
-Assign/query node security settings
-
-Request from Node A to Node B
-
-<table>
-<thead><tr>
-<th>[0]</th>
-<th>[1:2]</th>
-<th>[3:4]</th>
-<th>[5]</th>
-<th>[6]</th>
-<th>[7]</th>
-<th>[8:9]</th>
-<th>[10:17]</th>
-</tr></thead>
-<tbody><tr>
-<td>0x0C</td>
-<td>NodeA_ID</td>
-<td>NodeB_ID</td>
-<td>MsgId</td>
-<td>Nonce</td>
-<td>0</td>
-<td>Security</td>
-<td>EEPROM Key</td>
-</tr></tbody></table>
-
-Reply from Node B to Node A:
-
-<table>
-<thead><tr>
-<th>[0]</th>
-<th>[1:2]</th>
-<th>[3:4]</th>
-<th>[5]</th>
-<th>[6]</th>
-<th>[7]</th>
-<th>[8:9]</th>
-</tr></thead>
-<tbody><tr>
-<td>0x8C</td>
-<td>NodeA_ID</td>
-<td>NodeB_ID</td>
-<td>MsgId</td>
-<td>Nonce</td>
-<td>OkErr</td>
-<td>Security</td>
-</tr></tbody></table>
-
-8-byte long EEPROM Key field is optional. EEPROM Key can be written only once when EEPROM is blank. Once assigned, it cannot be rewritten, field value is ignored.
-
 
 # MQTT-SN mode (broadcast messages)
 
