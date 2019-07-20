@@ -167,6 +167,11 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>TOPIC</td> 	
 <td>Node</td> 	
 <td>Read TopicId and TopicName</td> 	
+</tr><tr>
+<td>12</td> 	
+<td>SECURITY</td> 	
+<td>Node</td> 	
+<td>Security settings</td> 	
 </tr></tbody></table>
 
 ## [1] REV
@@ -752,6 +757,59 @@ Reply from Node B to Node A if topic index is out of list:
 <td>Nonce</td>
 <td>0xEE</td>
 </tr></tbody></table>
+
+## [12] SECURITY
+
+Assign/query node security settings
+
+Request from Node A to Node B
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5]</th>
+<th>[6]</th>
+<th>[7]</th>
+<th>[8:9]</th>
+<th>[10:17]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x0C</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgId</td>
+<td>Nonce</td>
+<td>0</td>
+<td>Security</td>
+<td>EEPROM Key</td>
+</tr></tbody></table>
+
+Reply from Node B to Node A:
+
+<table>
+<thead><tr>
+<th>[0]</th>
+<th>[1:2]</th>
+<th>[3:4]</th>
+<th>[5]</th>
+<th>[6]</th>
+<th>[7]</th>
+<th>[8:9]</th>
+</tr></thead>
+<tbody><tr>
+<td>0x8C</td>
+<td>NodeA_ID</td>
+<td>NodeB_ID</td>
+<td>MsgId</td>
+<td>Nonce</td>
+<td>OkErr</td>
+<td>Security</td>
+</tr></tbody></table>
+
+8-byte long EEPROM Key field is optional. EEPROM Key can be written only once when EEPROM is blank. Once assigned, it cannot be rewritten, field value is ignored.
+
 
 # MQTT-SN mode (broadcast messages)
 
