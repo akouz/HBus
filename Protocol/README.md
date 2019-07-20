@@ -96,6 +96,10 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>8</td> 	
 <td>random number</td> 	
 </tr><tr>
+<td>RdWr</td> 	
+<td>8</td> 	
+<td>Read/write operation: 0 = read, 1 = write</td> 	
+</tr><tr>
 <td>OkErr</td> 	
 <td>8</td> 	
 <td>OK = 0; error codes must be in the range [0x80...0xFE], other codes reserved </td> 	
