@@ -61,3 +61,5 @@ Transceivers with slope control produce less noise on the bus, ie have better EM
 ## HBus protocol
 
 [HBus protocol description](https://github.com/akouz/HBus/blob/master/Protocol/README.md)
+
+Some additional [design notes in Russian.](https://mjdm.ru/forum/viewtopic.php?f=22&t=4271)
