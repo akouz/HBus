@@ -42,13 +42,16 @@ const
   CMD_SET_ID         = 5;
   CMD_BOOT           = 6;
   CMD_BEEP           = 7;
-  CMD_RD_DESCR       = 8;
-  CMD_WR_DESCR       = 9;
+  CMD_DESCR          = 8;
+  CMD_SECURITY       = 9;
   CMD_CUSTOM         = 10;
   CMD_TOPIC          = 11;
 
   MT_PUBLISH         = $0C;
   MT_REGISTER        = $0A;
+
+  // -------------------
+
 
   // -------------------
   DEV_TYPE           = 1; // bridge/gateway
@@ -84,11 +87,11 @@ type
     function FRplyBoot(hdr : string; param : byte) : THbMsg;
     procedure FAlienBoot(param : byte);
     function FRplyBeep(hdr : string; param : byte) : THbMsg;
-    function FRplyRdDescr(hdr : string) : THbMsg;
-    function FRplyWrDescr(hdr : string; msg : THbMsg) : THbMsg;
+    function FRplyDescr(hdr : string; msg : THbMsg) : THbMsg;
+    function FRplySecurity(hdr : string; msg : THbMsg) : THbMsg;
   public
     OwnID : word;             // own HBus ID
-    MsgId : word;             // message ID
+    MsgId : byte;             // message ID
     Description : string;     // own description
     ErrMsg : string;
     // HBus replies
@@ -101,10 +104,10 @@ type
     function CmdSetID(dest : word; newID : word) : THbMsg;
     function CmdBoot(dest : word; pause : byte) : THbMsg;
     function CmdBeep(dest : word; dur : byte) : THbMsg;
-    function CmdRdDescr(dest : word) : THbMsg;
-    function CmdWrDescr(dest : word; descr : string) : THbMsg;
+    function CmdDescr(dest : word; descr : string; wr : boolean) : THbMsg;
     function CmdCustom(dest : word; json : string) : THbMsg;
     function CmdRdTopic(dest : word; ti : byte) : THbMsg;
+    function CmdSecurity(dest : word; security : string; wr : boolean) : THbMsg;
     function Publish(topicId : word; Msg_ID : word; val : string) : THbMsg;
     function Register(topicId : word; Msg_ID : word; val : string) : THbMsg;
     // receive HBus commands
@@ -130,14 +133,14 @@ begin
   // command
   s := char(cmd) + char(byte(OwnID >> 8)) + char(byte(OwnID and $FF));
   s := s + char(byte(dest >> 8)) + char(byte(dest and $FF));
-  s := s + char(byte(MsgId >> 8)) + char(byte(MsgId and $FF));
+  s := s + char(byte(MsgId)) + char(byte(Random($100)));
   result := s + char(param);
   // expected reply
   FExpRplyHdr := char(cmd or $80) + copy(result,2,6); // omit param
   FRplyTmout := 100;
   // increment MsgID
   inc(MsgId);
-  if MsgId >= $FFFE then
+  if MsgId >= $FE then
     MsgId := 1;
 end;
 
@@ -161,7 +164,8 @@ end;
 function THbCmd.FMakeRplyHdr(msg : THbMsg; param : byte) : string;
 var s : string;
 begin
-  s :=  char(ord(msg.s[1]) or $80) + copy(msg.s,2,6); // copy up to MsgID
+  s :=  char(ord(msg.s[1]) or $80) + copy(msg.s,2,5); // copy up to MsgID
+  s := s + char(byte(Random($100)));
   result := s + char(param);
 end;
 
@@ -260,7 +264,7 @@ function THbCmd.CmdSetID(dest : word; newID : word) : THbMsg;
 var s : string;
     c : char;
 begin
-  if FMakeCmd(CMD_SET_ID, dest, 0) then begin
+  if FMakeCmd(CMD_SET_ID, dest, 1) then begin
      c := char(byte(newID shr 8));
      FCmdStr := FCmdStr + c;
      c := char(byte(newID and $FF));
@@ -302,32 +306,28 @@ begin
 end;
 
 // =====================================  
-// RD_DESCR command
+// DESCR command
 // =====================================  
-function THbCmd.CmdRdDescr(dest : word) : THbMsg;
-begin
-  if FMakeCmd(CMD_RD_DESCR, dest, 0) then begin
-    result.s := FCmdStr;
-    result.mqtt := false;
-    result.valid := true;
-  end else
-    result.valid := false;
-end;
-
-// =====================================  
-// WR_DESCR command
-// =====================================  
-function THbCmd.CmdWrDescr(dest : word; descr : string) : THbMsg;
+function THbCmd.CmdDescr(dest : word; descr : string; wr : boolean) : THbMsg;
 var b : byte;
 begin
-  if FMakeCmd(CMD_WR_DESCR, dest, 0) and (Length(descr) < 64) then begin
-    b := Length(descr);
-    FCmdStr := FCmdStr + char(b) + descr;
-    result.s := FCmdStr;
-    result.mqtt := false;
-    result.valid := true;
-  end else
-    result.valid := false;
+  if wr then begin  // write
+    if FMakeCmd(CMD_DESCR, dest, 1) and (Length(descr) < 64) then begin
+      b := Length(descr);
+      FCmdStr := FCmdStr + char(b) + descr;
+      result.s := FCmdStr;
+      result.mqtt := false;
+      result.valid := true;
+    end else
+      result.valid := false;
+  end else begin  // read
+    if FMakeCmd(CMD_DESCR, dest, 0) then begin
+      result.s := FCmdStr;
+      result.mqtt := false;
+      result.valid := true;
+    end else
+      result.valid := false;
+  end
 end;
 
 // =====================================
@@ -356,6 +356,29 @@ begin
     result.valid := true;
   end else
     result.valid := false;
+end;
+
+// =====================================
+// Read/write security
+// =====================================
+function THbCmd.CmdSecurity(dest : word; security : string; wr : boolean) : THbMsg;
+begin
+  if wr then begin  // write
+    if FMakeCmd(CMD_SECURITY, dest, 1) then begin
+      FCmdStr := FCmdStr + security;
+      result.s := FCmdStr;
+      result.mqtt := false;
+      result.valid := true;
+    end else
+      result.valid := false;
+  end else begin  // read
+    if FMakeCmd(CMD_SECURITY, dest, 0) then begin
+      result.s := FCmdStr;
+      result.mqtt := false;
+      result.valid := true;
+    end else
+      result.valid := false;
+  end
 end;
 
 // =====================================
@@ -414,8 +437,8 @@ begin
           CMD_SET_ID:    result := FRplySetID(rx);
           CMD_BOOT:      result := FRplyBoot(hdr, param);
           CMD_BEEP:      result := FRplyBeep(hdr, param);
-          CMD_RD_DESCR:  result := FRplyRdDescr(hdr);
-          CMD_WR_DESCR:  result := FRplyWrDescr(hdr, rx);
+          CMD_DESCR:     result := FRplyDescr(hdr, rx);
+          CMD_SECURITY:  result := FRplySecurity(hdr, rx);
         end;
       end else begin
         case cmd of
@@ -472,11 +495,11 @@ begin
     end;
     if result.valid then begin
       slots := ord(msg.s[5]);
-      r := slots*random;
+      r := Random(slots);
       result.postpone := byte(Trunc(r));
       s :=  char(CMD_COLLECT or $80) + copy(msg.s,2,2);
       s := s + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
-      result.s := s + copy(msg.s,6,2) + char(0); // copy MsgID
+      result.s := s + copy(msg.s,2,5) + char(byte(Random($100))) + char(0); // copy MsgID
       result.mqtt := false;
       result.valid := true;;
     end;
@@ -504,7 +527,7 @@ begin
     ownID := $100*ord(msg.s[9]) + ord(msg.s[10]);
     result.s := char(CMD_SET_ID or $80) + copy(msg.s,2,2);
     result.s := result.s + char(byte(ownID shr 8)) + char(byte(ownID and $FF));
-    result.s := result.s +  copy(msg.s,6,2) + char(0);  // MsgID and OK
+    result.s := result.s +  copy(msg.s,2,5) + char(byte(Random($100))) + char(0);  // MsgID and OK
   end else begin
     result.s := char(CMD_SET_ID or $80) + copy(msg.s,2,6) + char(2); // Err
   end;
@@ -546,35 +569,43 @@ begin
 end;
 
 // =====================================  
-// Reply RD_DESCR
+// Reply DESCR
 // =====================================  
-function THbCmd.FRplyRdDescr(hdr : string) : THbMsg;
-var i : integer;
+function THbCmd.FRplyDescr(hdr : string; msg : THbMsg) : THbMsg;
+var i, len : byte;
 begin
-  if Length(Description) > 100 then
-    Description := Copy(Description, 1, 100);
-  result.s := hdr + char(byte(length(Description)));
-  for i:=1 to length(Description) do
-    result.s := result.s + Description[i];
+  if (ord(msg.s[8]) = 0) then begin // read
+    if Length(Description) > 100 then
+      Description := Copy(Description, 1, 100);
+    result.s := hdr + char(byte(length(Description)));
+    for i:=1 to length(Description) do
+      result.s := result.s + Description[i];
+  end else begin // write
+    result.s := hdr;
+    result.s[8] := char(0); // OK
+    result.postpone := 0;
+    if length(msg.s) > 8 then begin
+      len := ord(msg.s[9]);
+      Description := copy(msg.s,10, len);
+    end;
+  end;
   result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
 end;
 
-// =====================================  
-// Reply WR_DESCR
-// =====================================  
-function THbCmd.FRplyWrDescr(hdr : string; msg : THbMsg) : THbMsg;
-var len : byte;
+// =====================================
+// Reply SECURITY
+// =====================================
+function THbCmd.FRplySecurity(hdr : string; msg : THbMsg) : THbMsg;
+var i, len : byte;
 begin
-  result.s := hdr;
+  if (ord(msg.s[8]) = 0) then begin // read
+  end else begin // write
+  end;
   result.mqtt := false;
   result.postpone := 0;
   result.valid := true;
-  if length(msg.s) > 8 then begin
-    len := ord(msg.s[9]);
-    Description := copy(msg.s,10, len);
-  end;
 end;
 
 // =====================================

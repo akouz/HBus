@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="NodeTest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -52,6 +52,10 @@
         <Filename Value="FindPortU.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="HBcipherU.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

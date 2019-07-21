@@ -35,25 +35,28 @@ interface
 //##############################################################################
 
 uses
-  Classes, SysUtils, Dialogs, CPort;
+  Classes, SysUtils, Dialogs, CPort, HBcipherU;
 
 const
-  _ESC          = $1B;
-  _ESC_START_HB = 2;
-  _ESC_START_MQ = 3;
-  _ESC_END      = 7;
-  _ESC_ESC      = 8;
-  _ESC_2ESC     = 9;
-  _PRI_LO       = $FF;
-  _PRI_MED      = $FC;
-  _PRI_HI       = $F0;
-  TX_TMOUT      = 20;  // 200 ms
+  _ESC           = $1B;
+  _ESC_START_HB  = 2; // HBus
+  _ESC_START_MQ  = 3; // MQTT
+  _ESC_START_HBE = 4; // HBus encrypted
+  _ESC_START_MQE = 5; // MQTT encrypted
+  _ESC_END       = 7;
+  _ESC_ESC       = 8;
+  _ESC_2ESC      = 9;
+  _PRI_LO        = $FF;
+  _PRI_MED       = $FC;
+  _PRI_HI        = $F0;
+  TX_TMOUT       = 20;  // 200 ms
 
 type
   THbMsg = record
     pri : byte;      // priority (prefix)
     s : string;      // data
-    mqtt : boolean;    // HBus/MQTT
+    mqtt : boolean;  // HBus/MQTT
+    encrypted : boolean;
     err : boolean;
     valid : boolean;
     postpone : byte; // 10 ms ticks
@@ -99,13 +102,16 @@ type
   public
     ComPort: TComPort;
     PortOk : boolean;
+    EncryptHB : boolean;
+    EncryptMQ : boolean;
     ErrCnt:  integer;       // errors while receiving
     NoRx:    boolean;       // no receiption
     DbgList : TStringList;
     DampList : TStringList;
     TxStatus : integer;
-    MsgID : word;
+    MsgID : byte;
     Reply : string;         // when a reply received
+    Cipher : THbCipher;
     property Gate : boolean read FGate;
     function Rx: THbMsg;    // get received string and remove it from the list
     function Tx(msg: THbMsg) : string; // transmit if not busy
@@ -138,7 +144,7 @@ begin
      FDampHex := FDampHex + ' ';
   inc(FDampCnt);
   if (FDampCnt >= 16) then begin
-    DampList.Add(FDampHex+FDampStr);
+    DampList.Add(FDampHex+' '+FDampStr);
     FDampCnt := 0;
     FDampHex := '';
     FDampStr := '';
@@ -178,7 +184,7 @@ begin
     FEsc := False;
     case Ord(c) of
       // --------------
-      _ESC_START_HB.._ESC_START_MQ: // beginning of a frame
+      _ESC_START_HB.._ESC_START_MQE: // beginning of a frame
       begin
         if FStr <> '' then begin
           DbgList.Add(FStr);
@@ -195,10 +201,14 @@ begin
         FGate := True;
         FGateTmout := 0;
         FRxMsg.s := '';
-        if (Ord(c) = _ESC_START_HB) then
+        if ((Ord(c) = _ESC_START_HB) or (Ord(c) = _ESC_START_HBE)) then
            FRxMsg.mqtt := false
         else
-            FRxMsg.mqtt := true;
+           FRxMsg.mqtt := true;
+        if ((Ord(c) = _ESC_START_HBE) or (Ord(c) = _ESC_START_MQE)) then
+           FRxMsg.encrypted := true
+        else
+           FRxMsg.encrypted := false;
       end;
       // --------------
       _ESC_END: // end of a frame
@@ -207,8 +217,10 @@ begin
           Inc(ErrCnt)   // STOP without START
         else
         begin
-          //DbgList.Add('<end>');
-          Result := FRxMsg.s; // message completed
+          if (FRxMsg.encrypted) then
+            Result := Cipher.decrypt(FRxMsg.s)
+          else
+            Result := FRxMsg.s; // message completed
           FRxMsg.s := '';
           FGate  := False;
         end;
@@ -359,20 +371,17 @@ end;
  // =====================================  
 procedure THbRxtx.FDecode(ss: string);
 var
-  i: integer;
+  i, j: integer;
   c: char;
   s: string;
 begin
   for i := 1 to Length(ss) do  begin
     c := ss[i];
     s := FAddChar(c);
-    if s <> '' then  begin
-      //DbgList.Add('RX_msg');
+    if (s <> '') then  begin
       NoRx := False;
       if FCheckCrc(s) then begin   // if crc matches
-        //DbgList.Add('CRC_matched');
-        if s = Fexpected then  begin // it is echo
-          //DbgList.Add('expected');
+        if (s = Fexpected) then  begin // it is echo
           TxStatus := 2;
           Fexpected := '';
           Fsent  := '';
@@ -383,7 +392,6 @@ begin
           else
             Add(char(FRxMsg.pri)+'H' + s);
         end else begin
-          //DbgList.Add('unexpected');
           if FRxMsg.mqtt then
             Add(char(FRxMsg.pri) + 'M' + s)   // mark MQTT message
           else
@@ -412,7 +420,7 @@ begin
     self.Delete(0);                        // remove it from the list
     Result.valid := true;
     if (Result.mqtt = true) and (Result.err = false) then begin
-       MsgID := $100*ord(Result.s[6]) + ord(Result.s[7]);
+       MsgID := ord(Result.s[6]);
     end;
   end;
 end;
@@ -421,12 +429,19 @@ end;
  // Encode string, e.g. add crc and byte-stuffing
  // =====================================  
 function THbRxtx.FEncodeHB(ss: string): string;
+var s : string;
 begin
   Result := '';
   if not FTxBusy then begin
+    Result    := '' + char(_PRI_LO) + char(_ESC);
     Fexpected := ss;
-    Result    := '' + char(_PRI_LO) + char(_ESC) + char(_ESC_START_HB);
-    Result    := Result + FEncode(FAddCrc(ss));
+    s := FAddCrc(ss);
+    if (EncryptHB) then begin
+      s := Cipher.encrypt(s);
+      Result := Result + char(_ESC_START_HBE);
+    end else
+      Result := Result + char(_ESC_START_HB);
+    Result    := Result + FEncode(s);
     Result    := Result + char(_ESC) + char(_ESC_END);
     Fsent     := Result;
     FTxBusy   := True;
@@ -436,12 +451,19 @@ begin
 end;
 // =====================================  
 function THbRxtx.FEncodeMQ(ss: string): string;
+var s : string;
 begin
   Result := '';
   if not FTxBusy then begin
+    Result    := '' + char(_PRI_LO) + char(_ESC);
     Fexpected := ss;
-    Result    := '' + char(_PRI_LO) + char(_ESC) + char(_ESC_START_MQ);
-    Result    := Result + FEncode(FAddCrc(ss));
+    s := FAddCrc(ss);
+    if (EncryptMQ) then begin
+      s := Cipher.encrypt(s);
+      Result := Result + char(_ESC_START_MQE);
+    end else
+      Result := Result + char(_ESC_START_MQ);
+    Result    := Result + FEncode(s);
     Result    := Result + char(_ESC) + char(_ESC_END);
     Fsent     := Result;
     FTxBusy   := True;
@@ -471,14 +493,14 @@ function THbRxtx.Tx(msg: THbMsg): string;
 var s : string;
 begin
   result := '';
-  if ComPort.Connected and PortOk then begin
+  if (ComPort.Connected and PortOk) then begin
     try
       if not FTxBusy then begin
         if msg.mqtt then
           s := FEncodeMQ(msg.s)
         else
           s := FEncodeHB(msg.s);
-        if s <> '' then begin
+        if (s <> '') then begin
           ComPort.WriteStr(s);
           TxStatus := 1;
           result := s;
@@ -566,7 +588,7 @@ begin
       inc(FDampPause);
       if (FDampPause > 100) and (FDampHex <> '') then begin
         FDampPause := 0;
-        DampList.Add(FDampHex+FDampStr);
+        DampList.Add(FDampHex+'  '+FDampStr);
         FDampCnt := 0;
         FDampHex := '';
         FDampStr := '';
@@ -584,6 +606,7 @@ end;
  // =====================================  
 constructor THbRxtx.Create(port : string);
 begin
+  Cipher := THbCipher.Create;
   ComPort:= TComPort.Create(nil);
   ComPort.BaudRate := br19200;
   ComPort.DataBits := dbEight;
@@ -618,6 +641,7 @@ begin
   ComPort.Free;
   DbgList.Free;
   DampList.Free;
+  Cipher.Free;
   inherited Destroy;
 end;
 
