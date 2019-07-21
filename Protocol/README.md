@@ -1,7 +1,8 @@
 
 # HBus protocol
 
-[Current firmware revision 0.8.](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro)
+[Matching NodeTest rev 1.10](https://github.com/akouz/HBus/tree/master/NodeTest)
+[Matching firmware rev 0.9](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro) not ready yet
 
 ## Byte-stuffing
 
