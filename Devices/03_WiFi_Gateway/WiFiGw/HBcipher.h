@@ -1,7 +1,7 @@
 /*
- * File     HBrxtx.h
+ * File     HBcipher.h
  * Target   Arduino
-
+ * 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,10 +21,30 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */
+ * 
+ * -----------------------------------------------------------------------------
+ *                  --- Notes ---
+ *                  -------------
+ * 
+ * This is a combined XTEA+LFSR cipher. First 8 bytes of buffer 
+ * encypted/decripted by XTEA block cipher with 128-bit key. The rest of the
+ * buffer encrypted/decrypted by 32-bit LFSR used as a stream cipher.
+ * 
+ * XTEA key combines two keys:
+ * -- fixed key called flashkey stored in mucrocontroller's program memory
+ * -- user assigned key stored in EEPROM
+ * At start-up cipher reads EEPROM key and encrypts it using flaskey. The 
+ * resulting 128-bit key used as XTEA key. 
+ * 
+ * Number of XTEA encryption rounds is arbitrary, but it should not be less 
+ * than 6,  see https://www.tayloredge.com/reference/Mathematics/VRAndem.pdf
+ * "A CRYPTANALYSIS OF THE TINY ENCRYPTION ALGORITHM by VIKRAM REDDY ANDEM"
+ * TUSCALOOSA, ALABAMA, 2003 
+ * -----------------------------------------------------------------------------
+*/
  
-#ifndef __HB_RXTX_H
-#define __HB_RXTX_H
+#ifndef __HB_CIPHER_H
+#define __HB_CIPHER_H
 
 //##############################################################################
 // Inc                                              
@@ -36,60 +56,37 @@
 // Def
 //##############################################################################
 
-enum{  
-  _PRI_LO       = 0xFF,
-  _PRI_MED      = 0xFC,
-  _PRI_HI       = 0xF0,
-  
-  TX_TMOUT      = 20,  // 200 ms
-};
+typedef union __attribute__((aligned(4))) {
+    ulong ulo[2];
+    uchar uch[8];    // uch[0] is lsb byte of ulo[0]
+} c_union8_t;
 
-//##############################################################################
-// Var
-//##############################################################################
+typedef union __attribute__((aligned(4))) {
+    ulong  ulo[4];
+    uchar  uch[16];
+} c_union16_t;
 
 
 //##############################################################################
 // Class
 //##############################################################################
 
-class Hb_rxtx{
+class HB_cipher{
+
     public:
-                Hb_rxtx(void);
-    uchar       err_cnt;
-    union{
-        uchar   all;
-        struct{
-            unsigned rx_busy    : 1;     
-            unsigned busy       : 1;
-            unsigned debug      : 1;
-            unsigned no_crc     : 1;
-            unsigned seed       : 1;    // when random seed is set
-        };
-    }flag;
-    uchar       priority;
-    uchar       txpos;
-    uchar       txcnt;
-    hb_msg_t    rxmsg;
-    uchar       rx_decode(uchar* src, uchar* src_len, hb_msg_t* dest);
-    uchar       tx_encode(hb_msg_t* src, hb_msg_t* dest);
-    hb_msg_t*   rx(uchar c);
-    uchar       rtr_cnt;
-    uchar       start_tx(hb_msg_t* buf);
-    uchar       tx(uchar* pause_cnt);
-       
+        HB_cipher(void);
+        uchar   valid;
+        void    get_EE_key(void);
+        void    encrypt(uchar* buf, uint len);
+        void    decrypt(uchar* buf, uint len);
+        c_union16_t    key;
+
     private:
-    uchar       tx_tmout;
-    hb_msg_t*   txbuf;
-    uchar       echobuf[3];
-    uchar       echolen;
-    uchar       start;  
-    uint        txcrc;
-    uchar       add_rx_uchar(uchar c, hb_msg_t* dest);
-    void        add_crc(hb_msg_t* msg);
-    uchar       check_crc(hb_msg_t* msg);
+        uchar   gamma(void);
+        void    set_lfsr(ulong* val);
+        void    encrypt8(uchar rounds, uchar* buf, ulong* kp);
+        void    decrypt8(uchar rounds, uchar* buf, ulong* kp);
 };
-extern Hb_rxtx HBrxtx;
+extern HB_cipher HBcipher;
 
-#endif /* __HB_RXTX_H */
-
+#endif /* __HB_CIPHER_H */

@@ -35,6 +35,7 @@
 //##############################################################################
 
 #include "HBcommon.h"               
+#include "HBcipher.h"  
 #include "HBus.h"  
 #include "HBmsr.h"                  // sensors and OLED display
 #include "data\credentials.h"	
@@ -507,6 +508,10 @@ void setup()
     HBmqtt.read_topic_id();                     // read from EEPROM
     HBnodes.init_node_list();                   // read from EEPROM and sort
     HBtopics.init_topic_list();                 // read from EEPROM and sort 
+
+    // cipher and security
+    HBcipher.get_EE_key();
+    HBcmd.read_security(HBcipher.valid);
 
     // WiFi    
     WiFi.mode(WIFI_STA);            // set station mode

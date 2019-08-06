@@ -67,9 +67,11 @@
 // rev 1.4  -   6/06/2019, added HMmqtt.add_signature() and HBmqtt.is_signature()    
 // rev 1.5  -   11/06/2019, modified (re)connection to MQTT broker    
 // rev 1.6  -   21/06/2019, refactoring
+// rev 1.7  -   31/07/2019, byte-stuffing on-fly while transmitting
+// rev 1.8  -   5/08/2019, HBcipher added
 
 #define SW_REV_MAJ  1
-#define SW_REV_MIN  6
+#define SW_REV_MIN  8
 
 //##############################################################################
 // Def
@@ -77,6 +79,7 @@
 
 
 #define LED             2    // GPIO2
+// #define TAG(x)          {tag[1] = tag[0]; tag[0] = x;}
 
 enum{
 
@@ -96,6 +99,8 @@ enum{
     _ESC            = 0x1B,
     _ESC_START_HB   = 2,
     _ESC_START_MQ   = 3,
+    _ESC_START_HBE  = 4,
+    _ESC_START_MQE  = 5,
     _ESC_END        = 7,
     _ESC_ESC        = 8,
     _ESC_2ESC       = 9,
@@ -117,7 +122,9 @@ enum{
     ERR_PARAM       = 0xE1,
     ERR_ECHO        = 0xE2,   
     ERR_UNKNOWN     = 0xE3,
-    ERR_OVERFLOW    = 0xE4,   
+    ERR_OVERFLOW    = 0xE4,
+    ERR_SECURITY    = 0xE5,
+    ERR_TMOUT       = 0xE6,   
 
     // settings
     MAX_BUF         = 0x90,
@@ -130,7 +137,10 @@ enum{
     EE_SEED         = 4,    // random seed  
     EE_OWN_ID       = 6,    // own NodeId
     EE_TZ           = 10,   // time zone
-    EE_DESCR        = 0x10, // description c-string, up to 100 chars
+    EE_SECURITY     = 12,   // access control settings
+    EE_SECURITY_INV = 14,   // inverted access control settings 
+    EE_XTEA_KEY     = 0x30, // XTEA cipher key, 16 bytes 
+    EE_DESCR        = 0x40, // description c-string, up to 64 chars
     EE_TOPIC_ID     = 0x80, // own TopicIds, 2-bytes each, up to 64 topics
     
     // Topics table, up to 256 entries
@@ -173,6 +183,7 @@ typedef struct{
       unsigned gate     : 1;
       unsigned esc      : 1;
       unsigned hb       : 1;
+      unsigned encrypt  : 1;      
       unsigned valid    : 1;
       unsigned busy     : 1;
     };
@@ -208,6 +219,8 @@ extern PubSubClient MqttClient;
 
 extern const uchar node_descr[];  // WiFiGw.ino
 
+extern uint tag[];
+
 //##############################################################################
 // Func
 //##############################################################################
@@ -216,11 +229,15 @@ void blink(uint dur);
 
 uchar print_val(uchar val, uchar i);
 void print_buf(const char* name, hb_msg_t* msg);
+void printbuf(uchar* buf, uchar len);
 
 void copy_buf(uchar* src, uchar* dst, uchar len);
+void rev_4_bytes(uchar* buf);
+
 void shift_buf(uchar* buf, uchar pos, uchar len);
 void crc_add_uchar(uchar b, uint* crc);
 uint calc_crc(uchar* buf, uchar len);
+void crc_to_msg(hb_msg_t* msg);
 
 uchar begin_txmsg(hb_msg_t* txmsg, uchar hb);
 uchar add_txmsg_uchar(hb_msg_t* txmsg, uchar c);

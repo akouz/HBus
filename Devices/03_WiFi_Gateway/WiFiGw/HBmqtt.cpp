@@ -125,16 +125,16 @@ char HB_mqtt::is_own_topic_id(uint tid)
 // =============================================
 // Get MsgID from the bus
 // =============================================
-void  HB_mqtt::get_MsgID(uint msg_id)
+void  HB_mqtt::get_MsgID(uchar msg_id)
 {    
-    if ((msg_id == MsgID+1) || ((MsgID == 0xFFFE) && (msg_id == 1)))
+    if ((msg_id == MsgID+1) || ((MsgID == 0xFE) && (msg_id == 1)))
     {
         MsgID = msg_id;       
     }
     else
     {
         MsgID_err_cnt++;
-        if ((msg_id > MsgID) || ((msg_id < 0x10) && (MsgID > 0xFFF0)))
+        if ((msg_id > MsgID) || ((msg_id < 0x10) && (MsgID > 0xF0)))
         {
             MsgID = msg_id;
         }       
@@ -147,16 +147,15 @@ void  HB_mqtt::get_MsgID(uint msg_id)
 char HB_mqtt::rd_msg(hb_msg_t* msg)
 {
     schar res = -2;
-    MsgID_cnt = (MsgID_cnt < 0xFFFFFFFF)? MsgID_cnt+1 : 1;
-    uchar mt = msg->buf[0];                             // MsgType 
+    uchar mt = msg->buf[0] & 0x0F;                      // MsgType is low nibble            
     uint tid = 0x100*(uint)msg->buf[3] + msg->buf[4];   // TopicId
-    uint mid = 0x100*(uint)msg->buf[5] + msg->buf[6];   // MsgId
-    get_MsgID(mid);
+    get_MsgID(msg->buf[5]);                             // MsgId
     // ------------------------------------
     // PUBLISH messages
     // ------------------------------------
-    if (mt == MT_PUBLISH)
+    if ((mt == MT_PUBLISH) && ((msg->encrypt) || (allow.publish)))
     {
+        MsgID_cnt = (MsgID_cnt < 0xFFFFFFFF)? MsgID_cnt+1 : 1;
         res =  is_own_topic_id(tid);
         if (res >= 0)
         {
@@ -177,8 +176,9 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
     // ------------------------------------
     // REGISTER messages
     // ------------------------------------
-    if ((mt == MT_REGISTER) && (msg->buf[8]))  
+    if ((mt == MT_REGISTER) && (msg->buf[8]) && ((msg->encrypt) || (allow.reg)))  
     {
+        MsgID_cnt = (MsgID_cnt < 0xFFFFFFFF)? MsgID_cnt+1 : 1;
         msg->buf[msg->len] = 0;   // make 0-terminated string
         res = is_own_topic_name((const char *)msg->buf + 8);
         if (res >= 0)
@@ -252,15 +252,16 @@ uchar HB_mqtt::is_signature(char* buf)
 void HB_mqtt::make_msg_header(uchar MsgType, uint tid)
 {
     begin_txmsg(&mqmsg, 0);
-    add_txmsg_uchar(&mqmsg, MsgType);          
-    add_txmsg_uchar(&mqmsg, HBcmd.own.id[1]);
+    uchar msb_nibble = random(0x100) & 0xF0;
+    add_txmsg_uchar(&mqmsg, (msb_nibble | MsgType)); // MsgType           
+    add_txmsg_uchar(&mqmsg, HBcmd.own.id[1]);       // NodeId
     add_txmsg_uchar(&mqmsg, HBcmd.own.id[0]);    
-    add_txmsg_uchar(&mqmsg, (uchar)(tid >> 8));
+    add_txmsg_uchar(&mqmsg, (uchar)(tid >> 8));     // TopicId
     add_txmsg_uchar(&mqmsg, (uchar)tid);
-    MsgID = (MsgID < 0xFFFE)? MsgID+1 : 1;          
-    add_txmsg_uchar(&mqmsg, (uchar)(MsgID >> 8));
-    add_txmsg_uchar(&mqmsg, (uchar)(MsgID));                
-    add_txmsg_uchar(&mqmsg, 1);    // JSON
+    MsgID = (MsgID < 0xFE)? MsgID+1 : 1;          
+    add_txmsg_uchar(&mqmsg, MsgID);                 // MsgId
+    add_txmsg_uchar(&mqmsg, random(0x100));         // nonce                
+    add_txmsg_uchar(&mqmsg, 1);                     // DF = JSON
  }
 
 // =============================================
@@ -277,6 +278,7 @@ uchar HB_mqtt::make_msg_reg(uchar ti)
             add_txmsg_z_str(&mqmsg, (char*)ownTopicName[ti]);  
         }
         finish_txmsg(&mqmsg);
+        mqmsg.encrypt = (allow.broadcast)? 0 : 1;   // can send unencrypted?
         mqmsg.hb = 0;
         mqmsg.valid = 1;
         return OK;
@@ -337,6 +339,7 @@ uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
             add_txmsg_uchar(&mqmsg, '}');            
         } 
         finish_txmsg(&mqmsg);
+        mqmsg.encrypt = (allow.broadcast)? 0 : 1;   // can send unencrypted?
         mqmsg.hb = 0;
         mqmsg.valid = 1;
         return OK;
@@ -366,8 +369,9 @@ mqtt_msg_t* HB_mqtt::publish_own_val(uint idx)
         {
             len += sprintf(mbuf+len, "0}");
         }                
-        add_txmsg_z_str(&mqmsg, mbuf);      // add mbuf as a z-string to HBus message
-        finish_txmsg(&mqmsg);               // finish message to HBus
+        add_txmsg_z_str(&mqmsg, mbuf);              // add mbuf as a z-string to HBus message
+        finish_txmsg(&mqmsg);                       // finish message to HBus
+        mqmsg.encrypt = (allow.broadcast)? 0 : 1;   // can send unencrypted?
         mqmsg.hb = 0;
         mqmsg.valid = 1;
         strcpy(brmsg.tpc, ownTopicName[idx]);       // topic for MQTT broker

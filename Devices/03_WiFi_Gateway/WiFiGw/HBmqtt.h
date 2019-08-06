@@ -100,6 +100,15 @@ union mq_valid_uni{
 class HB_mqtt{
     public:
                 HB_mqtt(void);
+    union{
+        uint all;
+        struct{
+            unsigned                : 13;   // not used here, those flags for HBus mode
+            unsigned    publish     : 1;    // can read unencrypted PUBLISH
+            unsigned    reg         : 1;    // can read unencrypted REGISTER
+            unsigned    broadcast   : 1;    // broadcast unencrypted PUBLISH and REGISTER              
+        };
+    } allow;    // allowed unecrypted access        
     hb_msg_t    mqmsg;
     float       value[MAX_TOPIC];                       // topic values
     union mq_valid_uni   valid[MAX_TOPIC];              // set of flags
@@ -123,7 +132,7 @@ class HB_mqtt{
     uint        MsgID; 
     ulong       MsgID_cnt;                              // count all received MQTT messages 
     uint        MsgID_err_cnt;
-    void        get_MsgID(uint msg_id);
+    void        get_MsgID(uchar msg_id);
     void        make_msg_header(uchar MsgType, uint tid); // make header
     char        mbuf[0x80]; 
 };    
