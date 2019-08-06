@@ -1,6 +1,6 @@
 # Sketch WiFiGw.ino
 
-Current rev 1.6
+Current rev 1.8
 
 ## WiFi connection
 
