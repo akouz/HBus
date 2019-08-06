@@ -835,7 +835,7 @@ Message structure is as follows:
 <td>Data</td>
 </tr></tbody></table>
 
-  * MsgType - message type as per [MQTT-SN](http://mqtt.org/documentation):
+  * MsgType - four msb bits are random; four lsb bits of that byte is message type as per [MQTT-SN](http://mqtt.org/documentation):
     * 0x0A - REGISTER
     * 0x0C - PUBLISH
   * NodeId - ID of the broadcasting node; used for debug and monitoring.
