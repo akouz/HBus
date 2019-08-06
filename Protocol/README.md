@@ -1,7 +1,7 @@
 
 # HBus protocol
 
-Matching [NodeTest rev 1.10](https://github.com/akouz/HBus/tree/master/NodeTest) and WiFi Gateway sketch [WiFiGw.ino rev 1.8](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway/WiFiGw)
+Matching [NodeTest rev 1.11](https://github.com/akouz/HBus/tree/master/NodeTest) and WiFi Gateway sketch [WiFiGw.ino rev 1.8](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway/WiFiGw)
 
 Matching [firmware rev 0.9](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro) not ready yet
 
