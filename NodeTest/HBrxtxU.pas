@@ -70,6 +70,7 @@ type
 
   THbRxtx = class(TStringList)
   private
+    Fcnt : integer;
     FGate:    boolean;        // message gate
     FGateTmout : integer;
     FEsc:     boolean;        // ESC flag
@@ -110,6 +111,7 @@ type
     DampList : TStringList;
     TxStatus : integer;
     MsgID : byte;
+    LastCrc : array [0..1] of word;
     Reply : string;         // when a reply received
     Cipher : THbCipher;
     property Gate : boolean read FGate;
@@ -317,16 +319,20 @@ end;
  // Check crc
  // ===========================================
 function THbRxtx.FCheckCrc(var ss: string): boolean;
-var
-  len : integer;
-  crc : word;
+var  len : integer;
 begin
   result := False;
+  LastCrc[0] := 0;
+  LastCrc[1] := $FFFF;
   len := Length(ss);
   if len > 1 then begin
-    crc    := $100*ord(ss[len-1]) + ord(ss[len]); // supplied CRC
+    LastCrc[0] := $100*ord(ss[len-1]) + ord(ss[len]); // supplied CRC
     ss     := copy(ss, 1, len - 2); // string without CRC
-    result := (Fcrc(ss) = crc);     // calculated CRC equal to supplied CRC
+    LastCrc[1] := Fcrc(ss);
+    result := (LastCrc[0] = LastCrc[1]);  // calculated CRC equal to supplied CRC
+    if not result then  begin
+       len := Length(ss);
+    end;
   end;
 end;
 
@@ -381,24 +387,22 @@ begin
     if (s <> '') then  begin
       NoRx := False;
       if FCheckCrc(s) then begin   // if crc matches
-        if (s = Fexpected) then  begin // it is echo
+        if (Fexpected <> '') and (s = Fexpected) then  begin // it is echo
           TxStatus := 2;
           Fexpected := '';
           Fsent  := '';
           FTxTmout := 0;
           FTxBusy  := False;
-          if FRxMsg.mqtt then
-            Add(char(FRxMsg.pri)+'M' + s)
-          else
-            Add(char(FRxMsg.pri)+'H' + s);
-        end else begin
-          if FRxMsg.mqtt then
-            Add(char(FRxMsg.pri) + 'M' + s)   // mark MQTT message
-          else
-            Add(char(FRxMsg.pri) + 'H' + s);  // mark HBus message
         end;
+        if FRxMsg.mqtt then
+          Self.Add(char(FRxMsg.pri) + 'M' + s)   // mark MQTT message
+        else
+          Self.Add(char(FRxMsg.pri) + 'H' + s);  // mark HBus message
       end else begin
-        Add(char(FRxMsg.pri) + 'E' + s);      // mark error
+        if FRxMsg.mqtt then
+          Self.Add(char(FRxMsg.pri) + 'E' + s)    // mark error
+        else
+          Self.Add(char(FRxMsg.pri) + 'e' + s);   // mark error
       end;
     end;
   end;
@@ -414,10 +418,15 @@ begin
   if self.Count > 0 then  begin
     s := self.Strings[0];
     Result.pri := byte(s[1]);
-    Result.err := (s[2] = 'E');
-    Result.mqtt := (s[2] = 'M');           // first letter 'M' means MQTT message
+    if (s[2] = 'E') or (s[2] = 'e') then begin
+      Result.err := true;
+      Result.mqtt := (s[2] = 'E')
+    end else begin
+      Result.err := false;
+      Result.mqtt := (s[2] = 'M');         // first letter 'M' means MQTT message
+    end;
     Result.s := Copy(s, 3, Length(s) - 2); // remove first letter
-    self.Delete(0);                        // remove it from the list
+    self.Delete(0);                        // remove string from the list
     Result.valid := true;
     if (Result.mqtt = true) and (Result.err = false) then begin
        MsgID := ord(Result.s[6]);

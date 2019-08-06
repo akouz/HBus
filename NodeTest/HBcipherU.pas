@@ -35,7 +35,7 @@ uses
   Classes, SysUtils, IniFiles;
 
 const
-  DELTA     = $9E3779B9;
+  DELTA     = $9E3779B9;    // XTEA constant
 
 type
   byte_p = ^byte;
@@ -48,10 +48,9 @@ THbCipher = class(TStringList)
 private
   v : array [0..1] of longword;
   sum : longword;
-  function buf_to_longword(buf : byte_p) : longword;
   procedure longword_to_buf(val : longword; buf : byte_p);
-  function str_to_longword(s : string) : longword;
-  function longword_to_str(val : longword) : string;
+  function strbuf_to_longword(s : string) : longword;
+  function longword_to_strbuf(val : longword) : string;
   procedure set_lfsr(val : longword_p);
   function encrypt8(s : string; kp : longword_p; rnds : byte) : string;
   function decrypt8(s : string; kp : longword_p; rnds : byte) : string;
@@ -79,21 +78,11 @@ public
   destructor Destroy; override;
 end;
 
-
 //##############################################################################
 implementation
 //##############################################################################
 
 { THbCipher }
-
-// =====================================
-// Convert buffer to longword
-// =====================================
-function THbCipher.buf_to_longword(buf : byte_p) : longword;
-begin
-  result := buf^ or ((buf+1)^ shl 8);
-  result := result or ((buf+2)^ shl 16) or ((buf+3)^ shl 24);
-end;
 
 // =====================================
 // Convert longword to buffer
@@ -107,31 +96,33 @@ begin
 end;
 
 // =====================================
-// Convert string to longword
+// Convert string buffer to longword
 // =====================================
-function THbCipher.str_to_longword(s : string) : longword;
+// string buff is little endian
+function THbCipher.strbuf_to_longword(s : string) : longword;
 begin
-  result := (ord(s[1]) shl 24) or (ord(s[2]) shl 16);
-  result := result or (ord(s[3]) shl 8) or (ord(s[4]));
+  result := ord(s[1]) + $100*ord(s[2]);
+  result := result + $10000*ord(s[3]) + $1000000*ord(s[4]);
 end;
 
 // =====================================
-// Convert longword to string
+// Convert longword to buffer
 // =====================================
-function THbCipher.longword_to_str(val : longword) : string;
+// string buff is little endian
+function THbCipher.longword_to_strbuf(val : longword) : string;
 begin
-  result := '' + char(byte(val shr 24)) + char(byte(val shr 16));
-  result := result + char(byte(val shr 8)) + char(byte(val));
+  result := '' + char(val) + char(val shr 8);
+  result := result + char(val shr 16) + char(val shr 24);
 end;
 
 // =====================================
-// XTEA encryption
+// XTEA encryption - block of 8 bytes
 // =====================================
 function THbCipher.encrypt8(s : string; kp : longword_p; rnds : byte) : string;
 var i : byte;
 begin
-  v[0] := str_to_longword(copy(s,1,4));
-  v[1] := str_to_longword(copy(s,5,4));
+  v[0] := strbuf_to_longword(copy(s,1,4));
+  v[1] := strbuf_to_longword(copy(s,5,4));
   sum := 0;
   for i:=1 to rnds do begin
     v[0] := v[0] + ((((v[1] shl 4) xor (v[1] shr 5)) + v[1]) xor (sum + (kp + (sum and 3))^));
@@ -140,16 +131,16 @@ begin
     if (i = 3) then
        set_lfsr(v);   // use partially encrypted buffer as LFSR seed
   end;
-  result := longword_to_str(v[0]) + longword_to_str(v[1]);
+  result := longword_to_strbuf(v[0]) + longword_to_strbuf(v[1]);
 end;
 // =====================================
-// XTEA decryption
+// XTEA decryption - block of 8 bytes
 // =====================================
 function THbCipher.decrypt8(s : string; kp : longword_p; rnds : byte) : string;
 var i : byte;
 begin
-  v[0] := str_to_longword(copy(s,1,4));
-  v[1] := str_to_longword(copy(s,5,4));
+  v[0] := strbuf_to_longword(copy(s,1,4));
+  v[1] := strbuf_to_longword(copy(s,5,4));
   sum := DELTA*rnds;
   for i:=1 to rnds do begin
     v[1] := v[1] - ((((v[0] shl 4) xor (v[0] shr 5)) + v[0]) xor (sum + (kp + ((sum shr 11) and 3))^));
@@ -158,7 +149,7 @@ begin
     if (i = rnds-3) then
        set_lfsr(v);   // use partially decrypted buffer as LFSR seed
   end;
-  result := longword_to_str(v[0]) + longword_to_str(v[1]);
+  result := longword_to_strbuf(v[0]) + longword_to_strbuf(v[1]);
 end;
 
 // =====================================
@@ -168,14 +159,14 @@ procedure THbCipher.Calc_Key;
 var i : integer;
     s : string;
 begin
-  s := longword_to_str(EEkey[0]) + longword_to_str(EEkey[1]);
+  s := longword_to_strbuf(EEkey[0]) + longword_to_strbuf(EEkey[1]);
   s := encrypt8(s, FlashKey, 13);
-  Key[0] := str_to_longword(copy(s,1,4));
-  Key[1] := str_to_longword(copy(s,5,4));
-  s := longword_to_str(EEkey[2]) + longword_to_str(EEkey[3]);
+  Key[0] := strbuf_to_longword(copy(s,1,4));
+  Key[1] := strbuf_to_longword(copy(s,5,4));
+  s := longword_to_strbuf(EEkey[2]) + longword_to_strbuf(EEkey[3]);
   s := encrypt8(s, FlashKey, 17);
-  Key[2] := str_to_longword(copy(s,1,4));
-  Key[3] := str_to_longword(copy(s,5,4));
+  Key[2] := strbuf_to_longword(copy(s,1,4));
+  Key[3] := strbuf_to_longword(copy(s,5,4));
 end;
 
 // =====================================
@@ -254,7 +245,6 @@ begin
   end;
 end;
 
-
 // =====================================
 // Read flash cipher
 // =====================================
@@ -315,6 +305,7 @@ begin
   ini.WriteString('Cipher','LFSR16', s);
   ini.Free;
 end;
+
 // =====================================
 // Save EEPROM cipher
 // =====================================

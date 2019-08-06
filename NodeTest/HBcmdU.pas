@@ -386,8 +386,10 @@ end;
 // =====================================
 function THbCmd.Publish(topicId : word; Msg_ID : word; val : string) : THbMsg;
 var  s : string;
+     b : byte;
 begin
-  result.s := '' + char(MT_PUBLISH) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
+  b := random($100) and $F0;
+  result.s := '' + char(b or MT_PUBLISH) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
   result.s := result.s + char(byte(topicId shr 8)) + char(byte(topicId and $FF));
   result.s := result.s + char(byte(Msg_ID shr 8)) + char(byte(Msg_ID and $FF));
   result.s := result.s + char(1);
@@ -402,8 +404,10 @@ end;
 // Make MQTT-SN message REGISTER
 // =====================================
 function THbCmd.Register(topicId : word; Msg_ID : word; val : string) : THbMsg;
+var b : byte;
 begin
-  result.s := '' + char(MT_REGISTER) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
+  b := random($100) and $F0;
+  result.s := '' + char(b or MT_REGISTER) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
   result.s := result.s + char(byte(topicId shr 8)) + char(byte(topicId and $FF));
   result.s := result.s + char(byte(Msg_ID shr 8)) + char(byte(Msg_ID and $FF));
   result.s := result.s + char(1) + val;

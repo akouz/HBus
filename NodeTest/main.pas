@@ -31,7 +31,7 @@ interface
 //##############################################################################
 
 uses
-  Classes, SysUtils, FileUtil, CPort, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, FileUtil, CPort, Forms, Controls, Graphics, Dialogs, md5, sha1,
   ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, Clipbrd, HBrxtxU, HBcmdU;
 
 type
@@ -60,6 +60,8 @@ type
     BtnRdSecurity : TButton;
     BtnWrSecurity : TButton;
     BtnSaveSecurity : TButton;
+    BtnCreateKey : TButton;
+    BtnEECreate : TButton;
     CbPorts : TComboBox;
     CbDamp : TCheckBox;
     CbStatusRpt : TCheckBox;
@@ -81,6 +83,7 @@ type
     CBregister : TCheckBox;
     CBbroadcast : TCheckBox;
     CbEEcipher : TCheckBox;
+    CbTs : TCheckBox;
     EdEENotes : TEdit;
     EdGroup : TEdit;
     EdBootPause : TEdit;
@@ -146,6 +149,7 @@ type
     Panel3 : TPanel;
     SaveCipher : TSaveDialog;
     TabSheet1 : TTabSheet;
+    Timer1ms : TTimer;
     Timer1sec : TTimer;
     TsHBus : TTabSheet;
     TabSheet2 : TTabSheet;
@@ -153,7 +157,9 @@ type
     procedure BtnBeepClick(Sender : TObject);
     procedure BtnBootClick(Sender : TObject);
     procedure BtnCollectClick(Sender : TObject);
+    procedure BtnCreateKeyClick(Sender : TObject);
     procedure BtnCustomCmdClick(Sender : TObject);
+    procedure BtnEECreateClick(Sender : TObject);
     procedure BtnLoadEECipClick(Sender : TObject);
     procedure BtnLoadFlashCipClick(Sender : TObject);
     procedure BtnMakeCipClick(Sender : TObject);
@@ -190,12 +196,14 @@ type
     procedure PageControl1Exit(Sender : TObject);
     procedure Panel1DblClick(Sender : TObject);
     procedure Timer10msTimer(Sender : TObject);
+    procedure Timer1msTimer(Sender : TObject);
     procedure Timer1secTimer(Sender : TObject);
   private
     { private declarations }
     ComPortStr : string;
     NodeID : word;
     NewID : word;
+    millis : longword;
     WasConnected : boolean;
     function CB_to_security : word;
     procedure security_to_CB(val : word);
@@ -290,52 +298,70 @@ end;
 // 10 ms
 // =====================================================
 procedure TForm1.Timer10msTimer(Sender : TObject);
+begin
+  HBcmd.Tick10ms;
+  HB.Tick10ms;
+end;
+
+// =====================================================
+// 1 ms
+// =====================================================
+procedure TForm1.Timer1msTimer(Sender : TObject);
 var i, cnt : integer;
     rx : THbMsg;
     msg_id : word;
+    s : string;
 begin
-   if HB.ComPort.Connected then begin
+  inc(millis);
+  if HB.ComPort.Connected then begin
      try
-       HBcmd.Tick10ms;
-        HB.Tick10ms;
         rx := HB.Rx;
         // debug messages
         cnt := HB.DbgList.Count;
         if (cnt > 0) then begin
-          for i:=0 to cnt-1 do
-            LB.Items.Add(' - dbg: '+HB.DbgList.Strings[i]);
+          s := '';
+          if CbTs.Checked then
+            s := ' -- <'+IntToStr(millis)+' ms>';
+          for i:=0 to cnt-1 do begin
+            LB.Items.Add(' - dbg: '+HB.DbgList.Strings[i]+s);
+            s := '';
+          end;
           for i:=0 to cnt-1 do
             HB.DbgList.Delete(cnt-1-i);
         end;
         // dump
         cnt := HB.DampList.Count;
         if (cnt > 0) then begin
-          if (cnt > 0) then begin
-            if CbDamp.Checked then begin
-              for i:=0 to cnt-1 do
-                LB.Items.Add(' --- bus: '+HB.DampList.Strings[i]);
+          s := '';
+          if CbTs.Checked then
+            s := ' -- <'+IntToStr(millis)+' ms>';
+          if CbDamp.Checked then begin
+            for i:=0 to cnt-1 do begin
+              LB.Items.Add(' --- bus: '+HB.DampList.Strings[i]+s);
+              s := '';
             end;
-            for i:=0 to cnt-1 do
-              HB.DampList.Delete(cnt-1-i);
           end;
+          for i:=0 to cnt-1 do
+            HB.DampList.Delete(cnt-1-i);
         end;
+        // received
         if rx.valid then begin
-          if (rx.mqtt) and (rx.err = false) then begin
-            msg_id := HB.MsgID;   // received
-            if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $F0) and (msg_id < $10)) then begin
-               HBcmd.MsgID := msg_id +1;
-               if (HBcmd.MsgID > $FE) or (HBcmd.MsgID = 0) then
-                 HBcmd.MsgID := 1;
-               EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
+          if not rx.err then begin
+            if (rx.mqtt) then begin
+              msg_id := HB.MsgID;   // received
+              if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $F0) and (msg_id < $10)) then begin
+                 HBcmd.MsgID := msg_id +1;
+                 if (HBcmd.MsgID > $FE) or (HBcmd.MsgID = 0) then
+                   HBcmd.MsgID := 1;
+                 EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
+              end;
             end;
           end;
           PrintHbMsg(rx);
           rx.valid := false;
         end;
-        if HB.TxStatus = 2 then begin
-        // LB.Items.Add('Echo OK');
-        HB.TxStatus := 0;
-        end;
+        if HB.TxStatus = 2 then
+           HB.TxStatus := 0;
     except
       if HB.ComPort.Connected then
         HB.ComPort.Connected := false;
@@ -444,46 +470,61 @@ begin
     cmd := ord(msg.s[1]);
     OkErr := ord(msg.s[8]);
     // ---------------------------
-    // HBus message
+    // error
     // ---------------------------
-    if (not msg.mqtt) then begin
-      s := s + ' HBus ';
-      if (cmd = $82) and (OkErr = 1) then    // STATUS reply
-        s := s + StrToHex(msg.s, 8)          // JSON
-      else if (cmd = $88) then
-        s := s + StrToHex(msg.s, 9)          // description
-      else if (cmd = $A) or (cmd = $8A) then // custom cmd and reply
-        s := s + StrToHex(msg.s, 8)
-      else if (cmd = $8B) then begin         // topic
-        if (OkErr = 0) then begin
-          if (length(msg.s) >= 10) then begin
-            NewTopicId := $100*ord(msg.s[9]) + ord(msg.s[10]);
-            s := s + StrToHex(msg.s, 10);
-            s := s + ' <'+IntToStr(NewTopicId)+'>';
-          end;
-        end else begin
-          s := s + StrToHex(msg.s, 0);
-          EdTopicI.Text:='0';
-        end;
-      end else
-        s := s + StrToHex(msg.s, 0); // binary
-    // ---------------------------
-    // MQTT message
-    // ---------------------------
-    end  else begin
-      s := s + ' MQTT ';
-      TopicId := $100*ord(msg.s[4]) + ord(msg.s[5]);
-      if (OkErr = 1) then begin
-        s := s + StrToHex(msg.s, 8) // JSON
-      end else begin
-        s := s + StrToHex(msg.s, 0); // binary
-      end;
-      s := s + ' <TopicId=';
-      if (TopicId > 0) then
-        s := s + IntToStr(TopicId) + '>'
+    if msg.err then begin
+      if (msg.mqtt) then
+        s := ' Error--> MQTT '
       else
-        s := s + '?>';
-    end;
+        s := ' Error--> HBus ';
+      s := s + StrToHex(msg.s, 0); // binary
+      s := s + ', crc=' + IntToHex(HB.LastCrc[0],4);
+      s := s + '/' + IntToHex(HB.LastCrc[1],4);
+    end else begin
+      // ---------------------------
+      // HBus message
+      // ---------------------------
+      if (not msg.mqtt) then begin
+        s := s + ' HBus ';
+        if (cmd = $82) and (OkErr = 1) then    // STATUS reply
+          s := s + StrToHex(msg.s, 8)          // JSON
+        else if (cmd = $88) then
+          s := s + StrToHex(msg.s, 9)          // description
+        else if (cmd = $A) or (cmd = $8A) then // custom cmd and reply
+          s := s + StrToHex(msg.s, 8)
+        else if (cmd = $8B) then begin         // topic
+          if (OkErr = 0) then begin
+            if (length(msg.s) >= 10) then begin
+              NewTopicId := $100*ord(msg.s[9]) + ord(msg.s[10]);
+              s := s + StrToHex(msg.s, 10);
+              s := s + ' <'+IntToStr(NewTopicId)+'>';
+            end;
+          end else begin
+            s := s + StrToHex(msg.s, 0);
+            EdTopicI.Text:='0';
+          end;
+        end else
+          s := s + StrToHex(msg.s, 0); // binary
+      // ---------------------------
+      // MQTT message
+      // ---------------------------
+      end  else begin
+        s := s + ' MQTT ';
+        TopicId := $100*ord(msg.s[4]) + ord(msg.s[5]);
+        if (OkErr = 1) then begin
+          s := s + StrToHex(msg.s, 8) // JSON
+        end else begin
+          s := s + StrToHex(msg.s, 0); // binary
+        end;
+        s := s + ' -- <TopicId=';
+        if (TopicId > 0) then
+          s := s + IntToStr(TopicId) + '>'
+        else
+          s := s + '?>';
+      end;
+    end; // not err
+    if CbTs.Checked then
+      s := s + ' -- <'+IntToStr(millis)+' ms>';
     LB.Items.Add(s);
   end;
 end;
@@ -626,12 +667,13 @@ begin
 end;
 
 // =====================================================
-// Test cipher
+// Debug cipher
 // =====================================================
 procedure TForm1.Panel1DblClick(Sender : TObject);
 var i : integer;
     s, ss : string;
 begin
+{
   s := '';
   for i:=0 to 8 do
     s := s + char($30 + i);
@@ -640,7 +682,7 @@ begin
   LB.Items.Add(s);
   s := HB.Cipher.encrypt(s);
   ss := '';
-  for i:=1 to length(s) do begin
+  for i:=1 to length(s)-1 do begin
     ss := ss + IntToHex(ord(s[i]),2) + ' ';
     if (i and 7) = 0 then
       ss := ss + ' ';
@@ -648,6 +690,7 @@ begin
   LB.Items.Add(ss);
   ss := HB.Cipher.decrypt(s);
   LB.Items.Add(ss);
+}
 end;
 
 // =====================================================
@@ -751,6 +794,33 @@ begin
 end;
 
 // =====================================================
+// Create key
+// =====================================================
+procedure TForm1.BtnCreateKeyClick(Sender : TObject);
+var s1, s2, ss : string;
+    i : integer;
+begin
+  if InputQuery('Create KEY from a passphrase', 'Enter a passphrase', TRUE, s1) then begin
+    if InputQuery('Create KEY from a passphrase', 'Enter the same passphrase again', TRUE, s2) then begin
+       if s1 = s2 then begin
+          s1 := s1 + 'HBsalt1_<nTw[q3z';
+          ss := AnsiUpperCase(SHA1Print(SHA1String(s1)));
+          s1 := copy(ss, 1, 8);
+          EdKey1.Text := '0x'+s1;
+          s1 := copy(ss, 9, 8);
+          EdKey2.Text := '0x'+s1;
+          s1 := copy(ss, 17, 8);
+          EdKey3.Text := '0x'+s1;
+          s1 := copy(ss, 25, 8);
+          EdKey4.Text := '0x'+s1;
+          ShowMessage('New flash keys generated');
+       end else
+         ShowMessage('Entered passphrases do not match, try again');
+    end;
+  end;
+end;
+
+// =====================================================
 // Send costom command
 // =====================================================
 procedure TForm1.BtnCustomCmdClick(Sender : TObject);
@@ -789,6 +859,33 @@ begin
     HB.Cipher.ReadFlashCip(OpenCipher.FileName);
     EdCipNotesDblClick(Sender);
     HB.Cipher.Calc_Key;
+  end;
+end;
+
+// =====================================================
+// Create EEPROM key
+// =====================================================
+procedure TForm1.BtnEECreateClick(Sender : TObject);
+var s1, s2, ss : string;
+    i : integer;
+begin
+  if InputQuery('Create KEY from a passphrase', 'Enter a passphrase', TRUE, s1) then begin
+    if InputQuery('Create KEY from a passphrase', 'Enter the same passphrase again', TRUE, s2) then begin
+       if s1 = s2 then begin
+          s1 := s1 + 'HBsalt2_<nTw[q3z';
+          ss := AnsiUpperCase(SHA1Print(SHA1String(s1)));
+          s1 := copy(ss, 1, 8);
+          EdKey5.Text := '0x'+s1;
+          s1 := copy(ss, 9, 8);
+          EdKey6.Text := '0x'+s1;
+          s1 := copy(ss, 17, 8);
+          EdKey7.Text := '0x'+s1;
+          s1 := copy(ss, 25, 8);
+          EdKey8.Text := '0x'+s1;
+          ShowMessage('New EEPROM keys generated');
+       end else
+         ShowMessage('Entered passphrases do not match, try again');
+    end;
   end;
 end;
 
