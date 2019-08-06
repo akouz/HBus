@@ -1,5 +1,5 @@
 # NodeTest
-#### Current rev 1.10
+#### Current rev 1.11
 
 #### Notes:
   * Compiled by Lazarus with installed Cportlaz_v1.0.0 serial port component
