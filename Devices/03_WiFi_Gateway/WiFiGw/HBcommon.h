@@ -34,7 +34,7 @@
 #include <Wire.h>
 #include <EEPROM.h>
 #include <stdio.h>
-#include <ArduinoJson.h>    // https://github.com/bblanchon/ArduinoJson
+#include <ArduinoJson.h>    // https://github.com/bblanchon/ArduinoJson rev 5.13.4
 #include <coos.h>           // https://github.com/akouz/a_coos  rev 1.5
 
 #include <ESP8266WiFi.h>    // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/readme.md
