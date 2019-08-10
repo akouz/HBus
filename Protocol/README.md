@@ -913,11 +913,10 @@ Broadcast Payload to specified TopicId.
 <td>Payload</td>
 </tr></tbody></table>
 
-Example of pre-defined topic "time" message:
+Example of pre-defined topic "time" message (headershown  in hex, payload in ASCII):
 
-FF MQTT DC 00 06 00 01 02 B8 01  {atime:1565402914, tz:570, daysec:41914, hr:11, min:38} -- <TopicId=1>
+DC 00 06 00 01 02 B8 01  {atime:1565402914, tz:570, daysec:41914, hr:11, min:38}
 
-  * FF - prefix, low priority message
   * DC - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
   * 00 06 - message issued by NodeID = 0x0006
   * 00 01 - TopicID=1, it is pre-defined topic "time"
