@@ -913,3 +913,19 @@ Broadcast Payload to specified TopicId.
 <td>Payload</td>
 </tr></tbody></table>
 
+Example of pre-defined topic "time" message:
+
+FF MQTT DC 00 06 00 01 02 B8 01  {atime:1565402914, tz:570, daysec:41914, hr:11, min:38} -- <TopicId=1>
+
+  * FF - prefix, low priority message
+  * DC - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
+  * 00 06 - message issued by NodeID = 0x0006
+  * 00 01 - TopicID=1, it is pre-defined topic "time"
+  * 02 - MsgId = 0x02
+  * B8 - Nonce = 0xB8, random value
+  * 01 - DF=1, JSON payload
+  * atime - absolute time, number of seconds since 00:00:00 01/01/2001 UTC
+  * tz - time zone, offset 570 min from UTC, it is 9hr 30 min, eg Adelaide time zone
+  * daysec - number of seconds since midnight, local time zone
+  * hr - day hour,  local time zone
+  * min - minute of the hour,  local time zone
