@@ -1,3 +1,3 @@
 # HBus implementation for Arduino Mini Pro
 
-Current firmware revision 0.8.
+Current firmware revision 0.9.
