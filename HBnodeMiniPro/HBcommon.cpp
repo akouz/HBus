@@ -38,9 +38,13 @@ uint pup_cnt;
 uint node_seed;
 uint led_cnt;     // until LED switched off, in 10 ms ticks
 
-StaticJsonBuffer <128> jsonBuf;
+StaticJsonBuffer <256> jsonBuf;
 
 Coos <COOS_TASKS, 1> coos;  // declare cooperative operating system
+
+// char tmp_str[0x20];
+
+//uint tag[2];
 
 //##############################################################################
 // Func
@@ -52,7 +56,8 @@ Coos <COOS_TASKS, 1> coos;  // declare cooperative operating system
 void blink(uint dur) // 10ms ticks
 {
     led_cnt = dur;
-    digitalWrite(LED_BUILTIN, HIGH);
+//    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED, HIGH);
 }
 
 // ========================================
@@ -77,6 +82,34 @@ uchar print_val(uchar val, uchar i)
     }    
 }
 
+// =====================================  
+// Debug: print buf
+// =====================================
+void printbuf(uchar* buf, uchar len)
+{    
+    if ((buf) && (len))
+    {
+        Serial.print(" printing buf, len=");        
+        Serial.println(len);        
+        for (uchar i=0; i<len; i++)
+        {
+            if (buf[i] < 0x10)
+              Serial.print('0');
+            Serial.print(buf[i], HEX);
+            Serial.print(' ');
+            if ((i & 7) == 7)
+            {
+                Serial.print(' ');
+            }
+            if ((i & 0x0F) == 0x0F)
+            {
+                Serial.println();
+            }                        
+        }
+        Serial.println();
+    }
+}
+
 // ========================================
 // Debug: print message buffer
 // ========================================
@@ -84,7 +117,8 @@ void print_buf(const char* name, hb_msg_t* msg)
 {
     uchar nl = 1;
     Serial.println();
-    Serial.println(name);
+    Serial.print(name);
+    Serial.print(":");
     if (msg->hb)
         Serial.print(" hbus");
     else    
@@ -120,6 +154,20 @@ void copy_buf(uchar* src, uchar* dst, uchar len)
     }
 }
 // =============================================
+// Reverse byte order 
+// =============================================
+void rev_4_bytes(uchar* buf)
+{
+    uchar tmp;
+    tmp = buf[0];
+    buf[0] = buf[3];
+    buf[3] = tmp;
+    tmp = buf[1];
+    buf[1] = buf[2];
+    buf[2] = tmp;
+}
+
+// =============================================
 // Shift buffer down
 // =============================================
 void shift_buf(uchar* buf, uchar pos, uchar len)
@@ -140,10 +188,9 @@ void crc_add_uchar(uchar b, uint* crc)
     *crc ^= (b << 8);
     for (uchar j=0; j<8; j++)
     {
-        *crc = (*crc & 0x8000)? ((*crc << 1) ^ 0x1021) : (*crc << 1);
+        *crc = (*crc & 0x8000)? 0xFFFF & ((*crc << 1) ^ 0x1021) : 0xFFFF & (*crc << 1);
     }
 }
-
 // =============================================
  // Calculate CRC
 // =============================================
@@ -168,6 +215,18 @@ uint calc_crc(uchar* buf, uchar len)
     return crc;
 }
 // =============================================
+// Append txmsg with calculated crc
+// =============================================
+void crc_to_msg(hb_msg_t* msg)
+{
+    if (msg)
+    {
+        msg->buf[msg->len++] = (uchar)(msg->crc >> 8);
+        msg->buf[msg->len++] = (uchar)msg->crc;
+    }
+}
+
+// =============================================
 // Reset Tx buffer and start a new message
 // =============================================
 uchar begin_txmsg(hb_msg_t* txmsg, uchar hb)
@@ -179,10 +238,8 @@ uchar begin_txmsg(hb_msg_t* txmsg, uchar hb)
     else
     {
         txmsg->hb = (hb)? 1 : 0;  
-        txmsg->buf[0] = _ESC;
-        txmsg->buf[1] = (hb)? _ESC_START_HB : _ESC_START_MQ;   // HBus/MQTT
         txmsg->crc = 0xFFFF;    // init crc
-        txmsg->len = 2;
+        txmsg->len = 0;
         return READY;   
     }    
 }
@@ -196,24 +253,7 @@ uchar add_txmsg_uchar(hb_msg_t* txmsg, uchar c)
         return ERR;
     }
     crc_add_uchar(c, &txmsg->crc);   // calculate crc
-    if (c == _ESC)
-    {
-        if (txmsg->len >= 4) // it could be _ESC_ESC sequence
-        {
-            if  ((txmsg->buf[txmsg->len-2] == _ESC) && 
-                 (txmsg->buf[txmsg->len-1] == _ESC_ESC))
-            {
-                txmsg->buf[txmsg->len-1] = _ESC_2ESC;  // replace 
-                return OK;
-            }
-        }
-        txmsg->buf[txmsg->len++] = _ESC;
-        txmsg->buf[txmsg->len++] = _ESC_ESC;
-    }
-    else
-    {
-        txmsg->buf[txmsg->len++] = c;
-    }
+    txmsg->buf[txmsg->len++] = c;
     return OK;
 }
 // =============================================
@@ -262,18 +302,36 @@ void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_msg_t* txmsg)
 // Finish Tx message
 // =============================================
 uchar finish_txmsg(hb_msg_t* txmsg)
-{
-    uchar crcL = (uchar)txmsg->crc;          // crc lsb
-    add_txmsg_uchar(txmsg, (uchar)(txmsg->crc >> 8));  // crc msb
-    add_txmsg_uchar(txmsg, crcL);
-    if (txmsg->len <= MAX_BUF-2)
+{    
+    if ((txmsg) && (txmsg->len < MAX_BUF-1))
     {
-        txmsg->buf[txmsg->len++] = _ESC;
-        txmsg->buf[txmsg->len++] = _ESC_END;
+        crc_to_msg(txmsg);
         txmsg->busy = 1;
         return OK;
     }
     return ERR;
 }
+
+// =============================================
+// Bubble sort
+// =============================================
+uchar sort(uint* arr, uint len)
+{
+    uchar res = 0;
+    for (uint i=len-1; i>0; i--)
+    {
+        for (uint j=0; j<i; j++)
+        {
+            if ((0xFFFF & arr[j]) > (0xFFFF & arr[j+1]))
+            {
+                uint tmp = arr[j] & 0xFFFF;
+                arr[j] = arr[j+1] & 0xFFFF;
+                arr[j+1] = tmp;
+                res = 1;    // changes made
+            }
+        }
+    }
+    return res;        
+}             
                            
 /* EOF */

@@ -36,55 +36,78 @@
 // Def
 //##############################################################################
 
-#define    MAX_TOPIC      4    // this node can handle 4 topics
+#define    MAX_TOPIC      8     // because of limited memory in Arduino Pro Mini    
 
-const char topic0[] = "topic0";
-const char topic1[] = "topic1";
-const char topic2[] = "topic1/a1";
-const char topic3[] = "topic1/a2";
+const char topic0[] = ""; 
+const char topic1[] = ""; 
+const char topic2[] = ""; 
+const char topic3[] = "";     
+const char topic4[] = ""; 
+const char topic5[] = ""; 
+const char topic6[] = "";
+const char topic7[] = "";
 
+enum{
+    // MessageType
+    MT_REGISTER     = 0x0A,
+    MT_PUBLISH      = 0x0C,    
+};
 
 //##############################################################################
 // Var
 //##############################################################################
 
-extern const char* TopicName[MAX_TOPIC];    
-extern uint TopicId[MAX_TOPIC];         
+extern const char* ownTopicName[MAX_TOPIC];    
+extern uint ownTopicId[MAX_TOPIC];         
 
 //##############################################################################
 // Class
 //##############################################################################
 
-union mq_flag_uni{
-    uchar all;
+union mq_valid_uni{
+    uint all;
     struct{
-        unsigned    value_valid         : 1;
-        unsigned    topic_valid         : 1;
-        unsigned    topic_name_valid    : 1;
+        unsigned    value       : 1;
+        unsigned    topic       : 1;
+        unsigned    topic_name  : 1;
     };
 };
 
 class HB_mqtt{
     public:
                 HB_mqtt(void);
+    union{
+        uint all;
+        struct{
+            unsigned                : 13;   // not used here, those flags for HBus mode
+            unsigned    publish     : 1;    // can read unencrypted PUBLISH
+            unsigned    reg         : 1;    // can read unencrypted REGISTER
+            unsigned    broadcast   : 1;    // broadcast unencrypted PUBLISH and REGISTER              
+        };
+    } allow;    // allowed unecrypted access        
     hb_msg_t    mqmsg;
-    float       value[MAX_TOPIC];           // topic values
-    union mq_flag_uni   flag[MAX_TOPIC];    // set of flags
+    float       value[MAX_TOPIC];                       // topic values
+    union mq_valid_uni   valid[MAX_TOPIC];              // set of flags
     char        rd_msg(hb_msg_t* msg);
-    uchar       make_msg_pub(uchar ti);     // make PUBLISH message    
-    uchar       make_msg_reg(uchar ti);     // make REGISTER message
-    uchar       init_topic_id(uint node_id); // after power-up call this function  
-                                            // repeatedly until it returns OK    
+    uchar       make_msg_reg(uchar ti);                 // make REGISTER message
+    uchar       make_msg_publish(uint tid, uchar* buf, uchar len); // make PUBLISH message    
+    hb_msg_t*   publish_own_val(uint idx);             // make PUBLISH message for own value    
+    uchar       make_msg_err(char* txt, uint errcode);  // make PUBLISH message topic="err"
+    void        read_topic_id(void);                    // restorew TopicId from EEPROM
+    uchar       init_topic_id(uint node_id);            // after power-up call this function  
+                                                        // repeatedly until it returns OK
+    void        add_signature(char* buf, uint* len);
+    uchar       is_signature(char* buf);
     
     private:
-    uint*       descriptor;                 // list of topics 
-    char        is_topic_name(const char* tn);
-    char        is_topic_id(uint tid);
+    uint*       descriptor;                             // list of own topics 
+    char        is_own_topic_name(const char* tn);
+    char        is_own_topic_id(uint tid);
     uint        MsgID; 
-    ulong       MsgID_cnt;                  // count all received MQTT messages 
+    ulong       MsgID_cnt;                              // count all received MQTT messages 
     uint        MsgID_err_cnt;
-    void        get_MsgID(uint msg_id);
-    void        make_msg_header(uchar MsgType, uchar ti); // make header 
+    void        get_MsgID(uchar msg_id);
+    void        make_msg_header(uchar MsgType, uint tid); // make header
 };    
 
 extern HB_mqtt HBmqtt;

@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+                                                                                                                                          
 //##############################################################################
 // Inc
 //##############################################################################
@@ -30,16 +30,12 @@
 #include <avr/wdt.h>
 #include <coos.h>  // https://github.com/akouz/a_coos
 #include "HBus.h"	
+#include "HBcipher.h"  
 
 //##############################################################################
 // Def
 //##############################################################################
 
-#ifndef BUILTIN_LED
-  #define BUILTIN_LED   13
-#endif
-
-#define LED             BUILTIN_LED 
 
 //##############################################################################
 // Descriptors
@@ -55,9 +51,9 @@ const uchar node_descr[8] = {
 0,  // h/w rev major
 1,  // h/w rev minor
 0,  // boot rev major
-1,  // boot rev minor
+1,  // boot rev minor, 0.1 is a native Arduino bootloader
 0,  // sketch rev major
-8   // sketch rev minor
+9   // sketch rev minor
 };
 
 
@@ -72,7 +68,7 @@ const uchar node_descr[8] = {
 // check next topic and broadcast its value if value is valid  
 void coos_task_broadcast(void)
 {
-    static uchar ti = 0;    // topic index
+    static uchar idx = 0;    // topic index
     static uchar topic_id_refresh = 250;
     COOS_DELAY(5000);                                   // initial pause 5 sec 
     // -------------------------------
@@ -82,21 +78,20 @@ void coos_task_broadcast(void)
     {
         if (++topic_id_refresh >= 200)  // after power-up and once in a while
         {
-            topic_id_refresh = 0;            
-            while (HBmqtt.init_topic_id(HBcmd.own.ID) != OK)     // set all TopicId
-            {        
-                COOS_DELAY(1000);
+            topic_id_refresh = 0;
+            // annonce own topics at HBus                        
+            while (HBmqtt.init_topic_id(HBcmd.own.ID) != OK)     
+            {
+                COOS_DELAY(500);
             }
         } 
         COOS_DELAY(10000);  // pause 10 sec 
         if (HBcmd.own.ID < 0xF000) // if not a temporary ID
         {
-            if ((HBmqtt.flag[ti].value_valid) && (TopicId[ti]))  // broadcast only valid values
+            if ((HBmqtt.valid[idx].value) && (ownTopicId[idx]))  // broadcast only valid values
             {
-                HBmqtt.make_msg_pub(ti); // prepare MQTT message with topic value,
-                                         // then it will be automatically transmitted
-            }    
-            ++ti = (ti >= MAX_TOPIC)? 0 : ti;  // next topic
+                HBmqtt.publish_own_val(idx);      // to HBus, also prepare MQTT message
+            }                
         }
     }
 }
@@ -148,6 +143,10 @@ void setup()
         EEPROM.write(EE_OWN_ID+1, HBcmd.own.id[0]);
     }
     HBcmd.set_descriptor((uchar*)node_descr);           // set descriptor for REV command
+
+    // cipher and security
+    HBcipher.get_EE_key();
+    HBcmd.read_security(HBcipher.valid);
     
     print_hdr_txt(pup_cnt, node_seed, HBcmd.own.ID);    // optional splash screen for debug
     wdt_enable(WDTO_120MS);                             // watchdog time-out 120 ms
