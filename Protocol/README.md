@@ -4,7 +4,7 @@
 Matching code:
   * [NodeTest rev 1.11](https://github.com/akouz/HBus/tree/master/NodeTest)
   * WiFi Gateway sketch [WiFiGw.ino rev 1.8](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway/WiFiGw)
-  * [Arduino firmware core rev 0.9](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro) 
+  * [Arduino firmware core rev 0.10](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro) 
 
 ## Byte-stuffing
 
