@@ -1,6 +1,6 @@
 # Sketch WiFiGw.ino
 
-Current rev 1.8
+Current rev 1.9
 
 ## Encryption
 
