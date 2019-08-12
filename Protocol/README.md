@@ -391,6 +391,8 @@ If a node does not have permanent ID, it assigns itself a random temporary ID of
 
 It is recommended to limit permanent ID by the range [0x0001..0x07FF] (eg by the range [1..2047]).
 
+Permanent ID can be assigned only once. Node will refuse to re-write permanent Node ID.
+
 Request from Node A to Node B
 
 <table>
