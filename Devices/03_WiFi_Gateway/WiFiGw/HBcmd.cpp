@@ -348,10 +348,10 @@ uchar HB_cmd::rply_ping(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 uchar HB_cmd::rply_setID(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
-    if ((rxmsg->encrypt) || (this->allow.setID))
+    if ((rxmsg->encrypt) || (this->allow.setID)) 
     {
-        uchar res;
-        if (rxmsg->len > 9)
+        uchar res = ERR;
+        if ((rxmsg->len > 9) && (own.ID >= 0xF000))  // only tmp ID can be set 
         {
             own.id[1] = rxmsg->buf[8];
             own.id[0] = rxmsg->buf[9];
@@ -359,10 +359,6 @@ uchar HB_cmd::rply_setID(hb_msg_t* rxmsg, hb_msg_t* rply)
             EEPROM.write(EE_OWN_ID+1, own.id[0]);
             EEPROM.commit();
             res = OK;
-        }
-        else
-        {
-            res = ERR;
         }
         copy_msg_hdr(rxmsg, 0, 3, rply);
         add_txmsg_uchar(rply, own.id[1]); 
@@ -506,7 +502,10 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
                     }
                     EEPROM.commit();
                     HBcipher.get_EE_key();  // restore new keys from EEPROM
+                    read_security(HBcipher.valid);
                     add_txmsg_uchar(rply, OK);
+                    add_txmsg_uchar(rply, (uchar)(this->allow.all >> 8));
+                    add_txmsg_uchar(rply, (uchar)this->allow.all);
                     return READY;
                 }
                 else 
@@ -524,6 +523,8 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
             }             
             EEPROM.commit();   // write access settings aqnyway
             read_security(HBcipher.valid);
+            add_txmsg_uchar(rply, (uchar)(this->allow.all >> 8));
+            add_txmsg_uchar(rply, (uchar)this->allow.all);
             return READY;
         }
         return ERR_SECURITY;                    

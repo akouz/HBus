@@ -34,7 +34,7 @@
 #include <Wire.h>
 #include <EEPROM.h>
 #include <stdio.h>
-#include <ArduinoJson.h>    // https://github.com/bblanchon/ArduinoJson rev 5.13.4
+#include <ArduinoJson.h>    // https://github.com/bblanchon/ArduinoJson  rev 5.13.4
 #include <coos.h>           // https://github.com/akouz/a_coos  rev 1.5
 
 #include <ESP8266WiFi.h>    // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/readme.md
@@ -68,10 +68,11 @@
 // rev 1.5  -   11/06/2019, modified (re)connection to MQTT broker    
 // rev 1.6  -   21/06/2019, refactoring
 // rev 1.7  -   31/07/2019, byte-stuffing on-fly while transmitting
-// rev 1.8  -   5/08/2019, HBcipher added
+// rev 1.8  -   5/08/2019, HBcipher added, HBus rev 0.9
+// rev 1.9  -   12/08/2019, SET_ID command can change only tmp ID 
 
 #define SW_REV_MAJ  1
-#define SW_REV_MIN  8
+#define SW_REV_MIN  9
 
 //##############################################################################
 // Def
@@ -87,7 +88,7 @@ enum{
 
     // HBus revision
     HB_REV_MAJ      = 0,
-    HB_REV_MIN      = 8,     
+    HB_REV_MIN      = 10,     
 
     // coos
     COOS_TASKS      = 16,   // this node uses up to 16 coos tasks            
