@@ -44,7 +44,8 @@
 //              descriptors for HBcmd and HBmqtt; remove local file revisions
 // rev 0.7  -   16/03/2019, report value as 0 (no decimal point) if it is not valid
 // rev 0.8  -   29/04/2019, added CMP_TOPIC and REGISTER
-// rev 0.9  -   7/08/2019, HBcipher added, Tx byte-stuffing on-fly
+// rev 0.9  -   7/08/2019, HBcipher added, Tx byte-stuffing on-fly 
+// rev 0.10 -   12/08/2019, SET_ID command can change only tmp ID 
 
 //##############################################################################
 // Def
@@ -62,7 +63,7 @@ enum{
 
     // HBus revision
     HB_REV_MAJ      = 0,
-    HB_REV_MIN      = 9,     
+    HB_REV_MIN      = 10,     
 
     // coos
     COOS_TASKS      = 4,               
