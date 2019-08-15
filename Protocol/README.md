@@ -918,7 +918,7 @@ Broadcast Payload to specified TopicId.
 
 Example of pre-defined topic "time" message (header shown  in hex, payload in ASCII):
 
-DC 00 06 00 01 02 B8 01  {atime:1565402914, tz:570, daysec:41914, hr:11, min:38}
+DC 00 06 00 01 02 B8 01  {atime:587564121, tz:570, daysec:78321, hr:21, min:45}
 
   * DC - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
   * 00 06 - message issued by NodeID = 0x0006
