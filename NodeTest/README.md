@@ -2,8 +2,7 @@
 #### Current rev 1.11
 
 #### Notes:
-  * Compiled by Lazarus with installed Cportlaz_v1.0.0 serial port component
-  * Use Lazarus 1.4.2;  newer revisions of Lazarus do not work with Cportlaz
+  * Compiled by Lazarus 2.0.4 with installed Cportlaz_v1.0.0 serial port component
 
 ## Scope
 
