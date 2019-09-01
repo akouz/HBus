@@ -70,9 +70,10 @@
 // rev 1.7  -   31/07/2019, byte-stuffing on-fly while transmitting
 // rev 1.8  -   5/08/2019, HBcipher added, HBus rev 0.9
 // rev 1.9  -   12/08/2019, SET_ID command can change only tmp ID 
+// rev 1.10  -  16/08/2019, timestamp added to the header - HBus rev 1.0 
 
 #define SW_REV_MAJ  1
-#define SW_REV_MIN  9
+#define SW_REV_MIN  10
 
 //##############################################################################
 // Def
@@ -87,14 +88,15 @@ enum{
     TIME_ZONE       = 9*60 + 30,     // +9:30, Adelaide
 
     // HBus revision
-    HB_REV_MAJ      = 0,
-    HB_REV_MIN      = 10,     
+    HB_REV_MAJ      = 1,
+    HB_REV_MIN      = 0,     
 
     // coos
     COOS_TASKS      = 16,   // this node uses up to 16 coos tasks            
 
     // misc
-    DF_STATUS       = 1,    // use JSON in STATUS command    
+    DF_STATUS       = 1,    // use JSON in STATUS command
+    TIME_TOLERANCE  = 60,   // +/- 1 min because Windows time is inaccurate     
   
     // byte-stuffing
     _ESC            = 0x1B,
@@ -185,6 +187,7 @@ typedef struct{
       unsigned esc      : 1;
       unsigned hb       : 1;
       unsigned encrypt  : 1;      
+      unsigned ts_ok    : 1;
       unsigned valid    : 1;
       unsigned busy     : 1;
     };
@@ -244,7 +247,9 @@ uchar begin_txmsg(hb_msg_t* txmsg, uchar hb);
 uchar add_txmsg_uchar(hb_msg_t* txmsg, uchar c);
 uchar add_txmsg_z_str(hb_msg_t* txmsg, char* str);
 void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_msg_t* txmsg);
+void add_ts(hb_msg_t* txmsg);
 uchar finish_txmsg(hb_msg_t* txmsg);
+uchar ts_valid(hb_msg_t* rxmsg); 
 
 uchar sort(uint* arr, uint len);
 

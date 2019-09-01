@@ -44,6 +44,20 @@ topic16, topic17, topic18, topic19, topic20, topic21, topic22, topic23,
 topic24, topic25, topic26, topic27, topic28, topic29, topic30, topic31
 };
 
+#ifdef BROADCAST_TOPIC_NAME
+const uchar ownTopicNameLen[MAX_TOPIC] = {
+sizeof(topic0), sizeof(topic1), sizeof(topic2), sizeof(topic3),  
+sizeof(topic4), sizeof(topic5), sizeof(topic6), sizeof(topic7),
+sizeof(topic8), sizeof(topic9), sizeof(topic10), sizeof(topic11), 
+sizeof(topic12), sizeof(topic13), sizeof(topic14), sizeof(topic15),
+sizeof(topic16), sizeof(topic17), sizeof(topic18), sizeof(topic19), 
+sizeof(topic20), sizeof(topic21), sizeof(topic22), sizeof(topic23),
+sizeof(topic24), sizeof(topic25), sizeof(topic26), sizeof(topic27), 
+sizeof(topic28), sizeof(topic29), sizeof(topic30), sizeof(topic31)
+};
+#endif
+
+
 uint ownTopicId[MAX_TOPIC];
 
 //##############################################################################
@@ -155,59 +169,88 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
     // ------------------------------------
     if ((mt == MT_PUBLISH) && ((msg->encrypt) || (allow.publish)))
     {
-        MsgID_cnt = (MsgID_cnt < 0xFFFFFFFF)? MsgID_cnt+1 : 1;
-        res =  is_own_topic_id(tid);
-        if (res >= 0)
+        if ((this->allow.ignore_ts) || (msg->ts_ok) || (!msg->encrypt))  // timestamp
         {
-            jsonBuf.clear();            
-            JsonObject& root = jsonBuf.parseObject(msg->buf+8);
-            if (root.success())
+            MsgID_cnt = (MsgID_cnt < 0xFFFFFFFF)? MsgID_cnt+1 : 1;
+            if (tid >= 0x20) // it is a user-defined topic
             {
-                value[(uchar)res] = root["val"];
-                valid[(uchar)res].value = 1;  
-                blink(10);
-            }
-            else
+                res =  is_own_topic_id(tid);
+                if (res >= 0) // it is one of own topics
+                {
+                    jsonBuf.clear();            
+                    JsonObject& root = jsonBuf.parseObject(msg->buf+8);
+                    if (root.success())
+                    {
+                        value[(uchar)res] = root["val"];
+                        valid[(uchar)res].value = 1;  
+                        blink(10);
+                    }
+                }
+            }      
+            else if (tid == 1) // it is pre-defined topic "time"
             {
-//              Serial.println(" JSON parser failed");
+                jsonBuf.clear();            
+                JsonObject& root = jsonBuf.parseObject(msg->buf+8);
+                if (root.success())
+                {
+                    if (coos.uptime < 0x10000000) // time never been updated
+                    {
+                        coos.uptime = (ulong)root["atime"];
+                        coos.daysec = (ulong)root["daysec"];
+                        blink(10);
+                    } 
+                    else
+                    {
+                        ulong atime = (ulong)root["atime"];
+                        if ((atime < coos.uptime+TIME_TOLERANCE) && (atime > coos.uptime-TIME_TOLERANCE))  // +/- 10 sec
+                        {
+                            coos.uptime = atime;  // time accepted
+                            coos.daysec = (ulong)root["daysec"];
+                            blink(10);
+                        }                  
+                    }
+                }
             }
-        }      
+        } // timestamp OK     
     }
     // ------------------------------------
     // REGISTER messages
     // ------------------------------------
     if ((mt == MT_REGISTER) && (msg->buf[8]) && ((msg->encrypt) || (allow.reg)))  
     {
-        MsgID_cnt = (MsgID_cnt < 0xFFFFFFFF)? MsgID_cnt+1 : 1;
-        msg->buf[msg->len] = 0;   // make 0-terminated string
-        res = is_own_topic_name((const char *)msg->buf + 8);
-        if (res >= 0)
+        if ((this->allow.ignore_ts) || (msg->ts_ok) || (!msg->encrypt))  // timestamp
         {
-            if (tid > 0) // if it is an assignment    
+            MsgID_cnt = (MsgID_cnt < 0xFFFFFFFF)? MsgID_cnt+1 : 1;
+            msg->buf[msg->len] = 0;   // make 0-terminated string
+            res = is_own_topic_name((const char *)msg->buf + 8);
+            if (res >= 0)
             {
-                uint addr = EE_TOPIC_ID + 2*res;
-                EEPROM.write(addr, (uchar)(tid >> 8));
-                EEPROM.write(addr+1, (uchar)tid);
-                EEPROM.commit();
-                if (tid < 0xFFFF) // if valid tid  
+                if (tid > 0) // if it is an assignment    
                 {
-                    ownTopicId[(uchar)res] = tid;   //  bind ownTopicId and ownTopicName
-                    valid[(uchar)res].topic = 1;  
-                }
-                else // if tid==0xFFFF then clear ownTopicId
-                {
-                    ownTopicId[(uchar)res] = 0;    
-                    valid[(uchar)res].topic = 0;
-                }
-                blink(10);
-            }
-            else   // if t is a query
-            {
-                if (ownTopicId[(uchar)res]) // ownTopicId was assigned
-                {
-                    make_msg_reg((uchar)res);  // broadcast it  
+                    uint addr = EE_TOPIC_ID + 2*res;
+                    EEPROM.write(addr, (uchar)(tid >> 8));
+                    EEPROM.write(addr+1, (uchar)tid);
+                    EEPROM.commit();
+                    if (tid < 0xFFFF) // if valid tid  
+                    {
+                        ownTopicId[(uchar)res] = tid;   //  bind ownTopicId and ownTopicName
+                        valid[(uchar)res].topic = 1;  
+                    }
+                    else // if tid==0xFFFF then clear ownTopicId
+                    {
+                        ownTopicId[(uchar)res] = 0;    
+                        valid[(uchar)res].topic = 0;
+                    }
                     blink(10);
-                } 
+                }
+                else   // if t is a query
+                {
+                    if (ownTopicId[(uchar)res]) // ownTopicId was assigned
+                    {
+                        make_msg_reg((uchar)res);  // broadcast it  
+                        blink(10);
+                    } 
+                }
             }
         }
     }    
@@ -262,7 +305,8 @@ void HB_mqtt::make_msg_header(uchar MsgType, uint tid)
     add_txmsg_uchar(&mqmsg, MsgID);                 // MsgId
     add_txmsg_uchar(&mqmsg, random(0x100));         // nonce                
     add_txmsg_uchar(&mqmsg, 1);                     // DF = JSON
- }
+    add_ts(&mqmsg);
+}
 
 // =============================================
 // Make a pseudo-MQTT-SN message REGISTER  
@@ -347,6 +391,26 @@ uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
     return ERR;
 }
 
+#ifdef BROADCAST_TOPIC_NAME
+// =============================================
+// Add topic name to the publishet message 
+// =============================================
+uchar  HB_mqtt::add_tname(uchar idx, char* buf)
+{
+    uchar len = 0;
+    const char str[] = ", topic:";
+    if (ownTopicNameLen[idx])
+    {
+        copy_buf((uchar*)str, (uchar*)buf, 8);
+        buf[8] = '"';
+        copy_buf((uchar*)ownTopicName[idx], (uchar*)(buf+9), ownTopicNameLen[idx]-1);
+        len = 8 + ownTopicNameLen[idx];
+         buf[len++] = '"';
+    }
+    return len; 
+}
+#endif            
+
 // =============================================
 // PUBLISH own value  to HBus and to MQTT
 // =============================================
@@ -362,6 +426,9 @@ mqtt_msg_t* HB_mqtt::publish_own_val(uint idx)
         {
             dtostrf(value[idx], 4,2, mbuf+len);
             len = strlen(mbuf);
+#ifdef BROADCAST_TOPIC_NAME
+            len += add_tname(idx, mbuf+len);
+#endif            
             mbuf[len++] = '}';
             mbuf[len] = 0;
         }
@@ -391,8 +458,17 @@ mqtt_msg_t* HB_mqtt::make_msg_time(ulong atime)
 {
     if (atime > 0x10000000)
     {
+        uint len;
+        coos.uptime = atime;
         coos.daysec = (atime + TIME_ZONE*60) % 86400L;
-        uint len = sprintf(mbuf, "atime:%lu, tz:%d, daysec:%lu", atime, TIME_ZONE, coos.daysec);
+        if ((coos.uptime > 0x10000000) && (allow.broadcast==0)) // if time valid and must encrypt
+        {
+            len = sprintf(mbuf, "atime:%lu, tz:%d, daysec:%lu", atime, TIME_ZONE, coos.daysec);
+        }
+        else
+        {
+            len = sprintf(mbuf, "atime:%lu, tz:%d, daysec:%lu", atime, TIME_ZONE, coos.daysec);
+        }
         uint hr = coos.daysec / 3600L;
         uint min = (coos.daysec % 3600L) / 60;
         len = sprintf(mbuf+len, ", hr:%d, min:%d", hr, min);

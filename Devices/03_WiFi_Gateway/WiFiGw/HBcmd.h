@@ -69,15 +69,14 @@ class HB_cmd{
             unsigned    status      : 1;
             unsigned    collect     : 1;
             unsigned    ping        : 1;
-            unsigned    setID       : 1;
             unsigned    boot        : 1;
             unsigned    rddescr     : 1;
             unsigned    wrdescr     : 1;
             unsigned    customcmd   : 1;
             unsigned    topic       : 1;
             unsigned    rdsecurity  : 1;
-            unsigned    wrsecurity  : 1;
-            unsigned                : 1;    // spare
+            unsigned    ignore_ts   : 1;    // ignore time stamp mismatch for encrypted messages
+            unsigned                : 2;    // not used
             unsigned                : 3;    // not used here, those flags are for MQTT mode
         };
     } allow;    // allowed unecrypted access    
@@ -110,7 +109,7 @@ class HB_cmd{
     uchar       rply_descr(hb_msg_t* rxmsg, hb_msg_t* rply);
     uchar       rply_security(hb_msg_t* rxmsg, hb_msg_t* rply);    
     uchar       rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply);    // read MQTT topic 
+    uchar       rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply);    // read MQTT topic
     hb_msg_t*   (*custom_cmd)(hb_msg_t* msg);   // user-defined custom command    
 };
 extern HB_cmd HBcmd;

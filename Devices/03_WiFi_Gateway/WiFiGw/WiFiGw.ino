@@ -131,6 +131,16 @@ hb_msg_t* custom_command(hb_msg_t* rxmsg)
                 Serial.println(" Please wait, MQTT roundtrip not measured yet...");            
             }
             break;
+        case 4:
+            coos.uptime = 0;
+        case 5:
+            uint val;
+            Serial.print(" coos.uptime = 0x");
+            val = (uint)(coos.uptime >> 16) & 0xFFFF;
+            Serial.print(val,HEX); 
+            val = (uint)(coos.uptime & 0xFFFF);
+            Serial.println(val,HEX); 
+            break;
         default:
             break;    
         }
@@ -205,8 +215,7 @@ void coos_task_broadcast(void)
                         Serial.println(msg->pld);
 */                        
                     }                
-                }
-                
+                }                
             }    
             ++idx = (idx >= MAX_TOPIC)? 0 : idx;  // next topic
         }
@@ -322,14 +331,14 @@ void coos_task_NTP(void)
             {
                 timeClient.sendNTPPacket();
                 // ----------------
-                // for 2 sec check for reply
+                // for 5 sec check for reply
                 // ----------------
-                for (cnt=0; cnt<20; cnt++)
+                for (cnt=0; cnt<50; cnt++)
                 {
                     COOS_DELAY(100); 
                     if (timeClient.checkReply())  // if reply received
                     {
-                        ulong tmp = timeClient.getEpochTime();
+                        ulong tmp = timeClient.getEpochTime2001();  // sec since 00:00:00 of 01/01/2001
                         msg = HBmqtt.make_msg_time(tmp); // PUBLISH to HBus, topic="time"
                         if ((msg) && (MqttClient.connected()))
                         {
@@ -442,7 +451,8 @@ void print_hdr_txt(uint cnt, uint sd, uint ID)
     const char txt1[] = "Power-up cnt = "; 
     const char txt2[] = ", restored seed = ";  
     const char txt3[] = ", node ID = 0x"; 
-    const char txt4[] = ", node name = "; 
+    const char txt4[] = ", cipher valid";
+    const char txt5[] = ", node name = "; 
     Serial.printf("\n\nReason for reboot: %s\n", ESP.getResetReason().c_str());
     for (uchar i=0; i<strlen(hdr); i++)  {  Serial.print('=');  }
     Serial.println();
@@ -455,7 +465,9 @@ void print_hdr_txt(uint cnt, uint sd, uint ID)
     Serial.print(sd);
     Serial.print(txt3);
     Serial.print(ID, HEX);
-    Serial.print(txt4);
+    if (HBcipher.valid) 
+      Serial.print(txt4);
+    Serial.print(txt5);
     Serial.println(NodeName);
 }
 
@@ -494,7 +506,7 @@ void setup()
     HBcmd.read_own_ID();    // read from EEPROM
     if ((HBcmd.own.ID == 0) || (HBcmd.own.ID >= 0xF000))
     {
-        HBcmd.own.ID = 0xF000 | random(0x1000); // then randomize it        
+        HBcmd.own.ID = 0xF000 | (random(0x10000) ^ random(0x10000) ^ pup_cnt) ; // then randomize it        
         EEPROM.write(EE_OWN_ID, (uchar)(HBcmd.own.ID >> 8));
         EEPROM.write(EE_OWN_ID+1, (uchar)HBcmd.own.ID);
         changed |= 2;
