@@ -32,7 +32,7 @@ interface
 //##############################################################################
 
 uses
-  Classes, SysUtils, IniFiles, HBrxtxU;
+  Classes, SysUtils, IniFiles, HBrxtxU, HButilsU;
 
 const
   CMD_REV            = 1;
@@ -129,12 +129,18 @@ implementation
 // =====================================  
 function THbCmd.FMakeHdr(cmd : byte; dest : word; param : byte) : string;
 var s : string;
+    ts : longword;
 begin
   // command
   s := char(cmd) + char(byte(OwnID >> 8)) + char(byte(OwnID and $FF));
   s := s + char(byte(dest >> 8)) + char(byte(dest and $FF));
   s := s + char(byte(MsgId)) + char(byte(Random($100)));
-  result := s + char(param);
+  s := s + char(param);
+  ts := GetUTCtime;
+  s := s + char(byte(ts >> 24));
+  s := s + char(byte(ts >> 16));
+  s := s + char(byte(ts >> 8));
+  result := s + char(byte(ts));
   // expected reply
   FExpRplyHdr := char(cmd or $80) + copy(result,2,6); // omit param
   FRplyTmout := 100;
@@ -387,13 +393,19 @@ end;
 function THbCmd.Publish(topicId : word; Msg_ID : word; val : string) : THbMsg;
 var  s : string;
      b : byte;
+     ts : longword;
 begin
   b := random($100) and $F0;
   result.s := '' + char(b or MT_PUBLISH) + char(byte(OwnID shr 8)) + char(byte(OwnID and $FF));
   result.s := result.s + char(byte(topicId shr 8)) + char(byte(topicId and $FF));
   result.s := result.s + char(byte(Msg_ID shr 8)) + char(byte(Msg_ID and $FF));
   result.s := result.s + char(1);
-  s := '{val:'+val+'}';
+  ts := GetUTCtime;
+  s := '' + char(byte(ts >> 24));
+  s := s + char(byte(ts >> 16));
+  s := s + char(byte(ts >> 8));
+  s := s + char(byte(ts));
+  s := s + '{val:'+val+'}';
   result.s := result.s + s;
   result.mqtt := true;
   result.postpone := 0;

@@ -53,13 +53,13 @@ const
 
 type
   THbMsg = record
-    pri : byte;      // priority (prefix)
-    s : string;      // data
-    mqtt : boolean;  // HBus/MQTT
+    pri       : byte;      // priority (prefix)
+    s         : string;    // data
+    mqtt      : boolean;   // HBus/MQTT
     encrypted : boolean;
-    err : boolean;
-    valid : boolean;
-    postpone : byte; // 10 ms ticks
+    err       : boolean;
+    valid     : boolean;
+    postpone  : byte;      // 10 ms ticks
   end;
 
 type
@@ -71,10 +71,10 @@ type
   THbRxtx = class(TStringList)
   private
     Fcnt : integer;
-    FGate:    boolean;        // message gate
+    FGate: boolean;           // message gate
     FGateTmout : integer;
-    FEsc:     boolean;        // ESC flag
-    FLast:    char;           // last received char outside gate
+    FEsc:  boolean;           // ESC flag
+    FLast: char;              // last received char outside gate
     FLastValid : boolean;
     FRxMsg:   THbMsg;         // decoded message
     Fexpected: string;        // string to send before encoding
@@ -400,9 +400,9 @@ begin
           Self.Add(char(FRxMsg.pri) + 'H' + s);  // mark HBus message
       end else begin
         if FRxMsg.mqtt then
-          Self.Add(char(FRxMsg.pri) + 'E' + s)    // mark error
+          Self.Add(char(FRxMsg.pri) + 'E' + s)    // mark error in MQTT frame
         else
-          Self.Add(char(FRxMsg.pri) + 'e' + s);   // mark error
+          Self.Add(char(FRxMsg.pri) + 'e' + s);   // mark error in HBus frame
       end;
     end;
   end;

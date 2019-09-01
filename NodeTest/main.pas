@@ -71,14 +71,13 @@ type
     CBstatus : TCheckBox;
     CBcollect : TCheckBox;
     CBping : TCheckBox;
-    CBsetID : TCheckBox;
     CBboot : TCheckBox;
     CBrddescr : TCheckBox;
     CBwrdescr : TCheckBox;
     CBcustomcmd : TCheckBox;
     CBtopic : TCheckBox;
     CBrdSecurity : TCheckBox;
-    CBwrSecurity : TCheckBox;
+    CBignoreTS : TCheckBox;
     CBpublish : TCheckBox;
     CBregister : TCheckBox;
     CBbroadcast : TCheckBox;
@@ -395,15 +394,13 @@ begin
   if  CBstatus.Checked then      res := res or 2;
   if  CBcollect.Checked then     res := res or 4;
   if  CBping.Checked then        res := res or 8;
-  if  CBsetID.Checked then       res := res or $10;
-  if  CBboot.Checked then        res := res or $20;
-  if  CBrddescr.Checked then     res := res or $40;
-  if  CBwrdescr.Checked then     res := res or $80;
-  if  CBcustomcmd.Checked then   res := res or $100;
-  if  CBtopic.Checked then       res := res or $200;
-  if  CBrdsecurity.Checked then  res := res or $400;
-  if  CBwrsecurity.Checked then  res := res or $800;
-  if  CBtopic.Checked then       res := res or $1000;
+  if  CBboot.Checked then        res := res or $10;
+  if  CBrddescr.Checked then     res := res or $20;
+  if  CBwrdescr.Checked then     res := res or $40;
+  if  CBcustomcmd.Checked then   res := res or $80;
+  if  CBtopic.Checked then       res := res or $100;
+  if  CBrdsecurity.Checked then  res := res or $200;
+  if  CBignoreTS.Checked then    res := res or $400;
   if  CBpublish.Checked then     res := res or $2000;
   if  CBregister.Checked then    res := res or $4000;
   if  CBbroadcast.Checked then   res := res or $8000;
@@ -419,15 +416,13 @@ begin
   CBstatus.Checked       := (val and 2) <> 0;
   CBcollect.Checked      := (val and 4) <> 0;
   CBping.Checked         := (val and 8) <> 0;
-  CBsetID.Checked        := (val and $10) <> 0;
-  CBboot.Checked         := (val and $20) <> 0;
-  CBrddescr.Checked      := (val and $40) <> 0;
-  CBwrdescr.Checked      := (val and $80) <> 0;
-  CBcustomcmd.Checked    := (val and $100) <> 0;
-  CBtopic.Checked        := (val and $200) <> 0;
-  CBrdsecurity.Checked   := (val and $400) <> 0;
-  CBwrsecurity.Checked   := (val and $800) <> 0;
-  CBtopic.Checked        := (val and $1000) <> 0;
+  CBboot.Checked         := (val and $10) <> 0;
+  CBrddescr.Checked      := (val and $20) <> 0;
+  CBwrdescr.Checked      := (val and $40) <> 0;
+  CBcustomcmd.Checked    := (val and $80) <> 0;
+  CBtopic.Checked        := (val and $100) <> 0;
+  CBrdsecurity.Checked   := (val and $200) <> 0;
+  CBignoreTS.Checked     := (val and $400) <> 0;
   CBpublish.Checked      := (val and $2000) <> 0;
   CBregister.Checked     := (val and $4000) <> 0;
   CBbroadcast.Checked    := (val and $8000) <> 0;
@@ -463,7 +458,7 @@ procedure TForm1.PrintHbMsg(msg : THbMsg);
 var s : string;
     cmd : byte;
     OkErr : byte;
-    TopicId, NewTopicId : word;
+    TopicId, NewTopicId, SecSet : word;
 begin
   if (length(msg.s) >= 8) then begin
     s := IntToHex(msg.pri, 2); // show priority byte (prefix)
@@ -487,24 +482,29 @@ begin
       if (not msg.mqtt) then begin
         s := s + ' HBus ';
         if (cmd = $82) and (OkErr = 1) then    // STATUS reply
-          s := s + StrToHex(msg.s, 8)          // JSON
+          s := s + StrToHex(msg.s, 12)          // JSON
         else if (cmd = $88) then
-          s := s + StrToHex(msg.s, 9)          // description
+          s := s + StrToHex(msg.s, 13)          // description
         else if (cmd = $A) or (cmd = $8A) then // custom cmd and reply
-          s := s + StrToHex(msg.s, 8)
+          s := s + StrToHex(msg.s, 12)
         else if (cmd = $8B) then begin         // topic
           if (OkErr = 0) then begin
-            if (length(msg.s) >= 10) then begin
-              NewTopicId := $100*ord(msg.s[9]) + ord(msg.s[10]);
-              s := s + StrToHex(msg.s, 10);
+            if (length(msg.s) >= 14) then begin
+              NewTopicId := $100*ord(msg.s[13]) + ord(msg.s[14]);
+              s := s + StrToHex(msg.s, 14);
               s := s + ' <'+IntToStr(NewTopicId)+'>';
             end;
           end else begin
             s := s + StrToHex(msg.s, 0);
             EdTopicI.Text:='0';
           end;
-        end else
+        end else begin
           s := s + StrToHex(msg.s, 0); // binary
+          if (cmd = $89) and (OkErr = 0) then begin // read secirity
+            SecSet := $100*ord(msg.s[13]) + ord(msg.s[14]);
+            security_to_CB(SecSet); // tick checkboxes
+          end;
+        end;
       // ---------------------------
       // MQTT message
       // ---------------------------
@@ -512,7 +512,7 @@ begin
         s := s + ' MQTT ';
         TopicId := $100*ord(msg.s[4]) + ord(msg.s[5]);
         if (OkErr = 1) then begin
-          s := s + StrToHex(msg.s, 8) // JSON
+          s := s + StrToHex(msg.s, 12) // JSON
         end else begin
           s := s + StrToHex(msg.s, 0); // binary
         end;
