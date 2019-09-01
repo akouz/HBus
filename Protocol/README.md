@@ -2,9 +2,9 @@
 # HBus protocol
 
 Matching code:
-  * [NodeTest rev 1.11](https://github.com/akouz/HBus/tree/master/NodeTest)
-  * WiFi Gateway sketch [WiFiGw.ino rev 1.9](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway/WiFiGw)
-  * [Arduino firmware core rev 0.10](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro) 
+  * [NodeTest rev 1.12](https://github.com/akouz/HBus/tree/master/NodeTest)
+  * WiFi Gateway sketch [WiFiGw.ino rev 1.10](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway/WiFiGw)
+  * [Arduino firmware core rev 1.0](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro)  (not ready yet)
 
 ## Byte-stuffing
 
@@ -31,7 +31,7 @@ Code 0x1B (eg ESC symbol) marks the beginning of a 2-byte sequence. The followin
 <tbody><tr>
 <td>1 byte</td>
 <td>2 bytes</td>
-<td>8...136 bytes</td>
+<td>12...136 bytes</td>
 <td>2 bytes</td>
 <td>2 bytes</td>
 </tr><tr>
@@ -106,6 +106,10 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>OkErr</td> 	
 <td>8</td> 	
 <td>OK = 0; error codes must be in the range [0x80...0xFE], other codes reserved </td> 	
+</tr><tr>
+<td>TS</td> 	
+<td>32</td> 	
+<td>Time stamp, seconds since 00:00:00 of 01/01/2001 UTC, big endian</td> 	
 </tr></tbody></table>
 
 # HBus mode (config and control messages)
@@ -189,6 +193,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x01</td>
@@ -197,6 +202,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0</td>
+<td>TS</td> 
 </tr></tbody></table>
  
  Reply from Node B to Node A
@@ -209,16 +215,17 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<td>[8]</td>
-<td>[9]</td>
-<td>[10]</td>
-<td>[11]</td>
+<th>[8:11]</th>
 <td>[12]</td>
 <td>[13]</td>
 <td>[14]</td>
 <td>[15]</td>
 <td>[16]</td>
 <td>[17]</td>
+<td>[18]</td>
+<td>[19]</td>
+<td>[20]</td>
+<td>[21]</td>
 </tr></thead>
 <tbody><tr>
 <td>0x81</td>
@@ -227,6 +234,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<td>TS</td>
 <td>DevType</td>
 <td>DevModel</td>
 <td>HwRevMaj</td>
@@ -251,6 +259,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr> 
 <td>0x02</td>
@@ -259,6 +268,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0</td>
+<td>TS</td>
 </tr></tbody></table>
  
  Reply from Node B to Node A
@@ -271,7 +281,8 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<td>[8:N]</td>
+<th>[8:11]</th>
+<td>[12:N]</td>
 </tr></thead>
 <tbody><tr> 
 <td>0x82</td>
@@ -280,6 +291,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>DF</td>
+<td>TS</td>
 <td>Data, content depends on DevType and DevModel</td>
 </tr></tbody></table>
 
@@ -302,6 +314,7 @@ Request from node A to a Group
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr> 
 <td>0x03</td>
@@ -311,6 +324,7 @@ Request from node A to a Group
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0</td>
+<th>TS</th>
 </tr></tbody></table>
  
   * Group - defines a group of nodes. The following groups defined so far:
@@ -329,6 +343,7 @@ Request from node A to a Group
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x83</td>
@@ -337,6 +352,7 @@ Request from node A to a Group
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0</td>
+<th>TS</th>
 </tr></tbody></table>
 
 ## [4] PING
@@ -351,6 +367,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x04</td>
@@ -359,6 +376,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>Param</td>
+<th>TS</th>
 </tr></tbody></table>
  
  Param - time interval, seconds. During that interval target node should not respond to the COLLECT command. 
@@ -373,6 +391,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
  <td>0x84</td>
@@ -381,6 +400,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 </tr></tbody></table>
 
 ## [5] SET_ID
@@ -403,7 +423,8 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<td>[8:9]</td>
+<th>[8:11]</th>
+<td>[12:13]</td>
 </tr></thead>
 <tbody><tr>
 <td>0x05</td>
@@ -412,6 +433,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>1</td>
+<th>TS</th>
 <td>New_ID</td>
 </tr></tbody></table>
  
@@ -427,6 +449,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x85</td>
@@ -435,6 +458,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 </tr></tbody></table>
 
 If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID value.
@@ -451,6 +475,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x06</td>
@@ -459,6 +484,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>Pause</td>
+<th>TS</th>
 </tr></tbody></table>
  
 Reply from Node B to Node A
@@ -471,6 +497,7 @@ Reply from Node B to Node A
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x86</td>
@@ -479,6 +506,7 @@ Reply from Node B to Node A
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 </tr></tbody></table>
 
 After sending reply the addressed node resets and starts its bootloader.
@@ -499,6 +527,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x07</td>
@@ -507,6 +536,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>Duration</td>
+<th>TS</th>
 </tr></tbody></table>
  
 Duration specifies duration of the beep, sec.
@@ -521,6 +551,7 @@ Reply from Node B to Node A
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x87</td>
@@ -529,6 +560,7 @@ Reply from Node B to Node A
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 </tr></tbody></table>
 
 ## [8] DESCR
@@ -545,6 +577,7 @@ Read description, request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x08</td>
@@ -553,6 +586,7 @@ Read description, request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0</td>
+<th>TS</th>
 </tr></tbody></table>
   
 Reply from Node B to Node A
@@ -565,8 +599,9 @@ Reply from Node B to Node A
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8]</th>
-<th>[9:(9+N)]</th>
+<th>[8:11]</th>
+<th>[12]</th>
+<th>[13:(13+N)]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x88</th>
@@ -575,6 +610,7 @@ Reply from Node B to Node A
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 <td>N</td>
 <td>Text</td>
 </tr></tbody></table>
@@ -592,8 +628,9 @@ Write description, request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8]</th>
-<th>[9:(9+N)]</th>
+<th>[8:11]</th>
+<th>[12]</th>
+<th>[13:(13+N)]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x08</td>
@@ -602,6 +639,7 @@ Write description, request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>1</td>
+<th>TS</th>
 <td>N</td>
 <td>Text</td>
 </tr></tbody></table>
@@ -619,6 +657,7 @@ Reply from Node B to Node A
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x88</td>
@@ -627,6 +666,7 @@ Reply from Node B to Node A
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 </tr></tbody></table>
 
 ## [9] SECURITY
@@ -643,8 +683,9 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:9]</th>
-<th>[10:17]</th>
+<th>[8:11]</th>
+<th>[12:13]</th>
+<th>[14:21]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x09</td>
@@ -653,6 +694,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>RdWr</td>
+<th>TS</th>
 <td>Security</td>
 <td>EEPROM Key</td>
 </tr></tbody></table>
@@ -667,7 +709,8 @@ Reply from Node B to Node A:
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:9]</th>
+<th>[8:11]</th>
+<th>[12:13]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x8C</td>
@@ -676,6 +719,7 @@ Reply from Node B to Node A:
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 <td>Security</td>
 </tr></tbody></table>
 
@@ -695,7 +739,8 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:(8+N)]</th>
+<th>[8:11]</th>
+<th>[12:(13+N)]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x0A</td>
@@ -704,6 +749,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>DF</td>
+<th>TS</th>
 <td>Cmd</td>
 <td></td>
 </tr></tbody></table>
@@ -725,7 +771,8 @@ Reply from Node B to Node A
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:(8+X)]</th>
+<th>[8:11]</th>
+<th>[12:(12+X)]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x89</td>
@@ -734,6 +781,7 @@ Reply from Node B to Node A
 <td>MsgId</td>
 <td>Nonce</td>
 <td>OkErr</td>
+<th>TS</th>
 <td>Rply</td>
 </tr></tbody></table>
 
@@ -753,6 +801,7 @@ Request from Node A to Node B
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x0B</td>
@@ -761,6 +810,7 @@ Request from Node A to Node B
 <td>MsgId</td>
 <td>Nonce</td>
 <td>ti</td>
+<th>TS</th>
 </tr></tbody></table>
 
   * ti - topic index.
@@ -775,8 +825,9 @@ Reply from Node B to Node A if topic exists:
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:9]</th>
-<th>[10:(10+N)]</th>
+<th>[8:11]</th>
+<th>[12:13]</th>
+<th>[14:(14+N)]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x8B</th>
@@ -785,6 +836,7 @@ Reply from Node B to Node A if topic exists:
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0</td>
+<th>TS</th>
 <td>TopicId</td>
 <td>TopicName</td>
 </tr></tbody></table>
@@ -801,6 +853,7 @@ Reply from Node B to Node A if topic index is out of list:
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
+<th>[8:11]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x8B</td>
@@ -809,6 +862,7 @@ Reply from Node B to Node A if topic index is out of list:
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0xEE</td>
+<th>TS</th>
 </tr></tbody></table>
 
 # MQTT-SN mode (broadcast messages)
@@ -826,7 +880,8 @@ Message structure is as follows:
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:N]</th>
+<th>[8:11]</th>
+<th>[12:N]</th>
 </tr></thead>
 <tbody><tr>
 <td>MsgType</td>
@@ -835,6 +890,7 @@ Message structure is as follows:
 <td>MsgId</td>
 <td>Nonce</td>
 <td>DF</td>
+<th>TS</th>
 <td>Data</td>
 </tr></tbody></table>
 
@@ -865,7 +921,8 @@ Binds TopicId and TopicName.
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:N]</th>
+<th>[8:11]</th>
+<th>[12:N]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x0A</td>
@@ -874,6 +931,7 @@ Binds TopicId and TopicName.
 <td>MsgId</td>
 <td>Nonce</td>
 <td>0</td>
+<th>TS</th>
 <td>TopicName</td>
 </tr></tbody></table>
 
@@ -904,7 +962,8 @@ Broadcast Payload to specified TopicId.
 <th>[5]</th>
 <th>[6]</th>
 <th>[7]</th>
-<th>[8:N]</th>
+<th>[8:11]</th>
+<th>[12:N]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x0C</td>
@@ -913,6 +972,7 @@ Broadcast Payload to specified TopicId.
 <td>MsgId</td>
 <td>Nonce</td>
 <td>DF</td>
+<th>TS</th>
 <td>Payload</td>
 </tr></tbody></table>
 
