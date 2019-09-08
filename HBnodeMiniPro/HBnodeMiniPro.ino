@@ -52,8 +52,8 @@ const uchar node_descr[8] = {
 1,  // h/w rev minor
 0,  // boot rev major
 1,  // boot rev minor, 0.1 is a native Arduino bootloader
-0,  // sketch rev major
-9   // sketch rev minor
+SW_REV_MAJ,     // sketch rev major
+SW_REV_MIN      // sketch rev minor       
 };
 
 
@@ -105,6 +105,7 @@ void print_hdr_txt(uint cnt, uint sd, uint ID)
     const char txt1[] = "Power-up cnt = "; 
     const char txt2[] = ", restored seed = ";  
     const char txt3[] = ", node ID = 0x"; 
+    const char txt4[] = ", cipher valid";
     Serial.println();
     for (uchar i=0; i<strlen(hdr); i++)  {  Serial.print('=');  }
     Serial.println();
@@ -116,7 +117,9 @@ void print_hdr_txt(uint cnt, uint sd, uint ID)
     Serial.print(txt2);
     Serial.print(sd);
     Serial.print(txt3);
-    Serial.println(ID, HEX);
+    Serial.print(ID, HEX);
+    if (HBcipher.valid) 
+      Serial.print(txt4);
 }
 
 // ========================================
@@ -150,10 +153,12 @@ void setup()
     
     print_hdr_txt(pup_cnt, node_seed, HBcmd.own.ID);    // optional splash screen for debug
     wdt_enable(WDTO_120MS);                             // watchdog time-out 120 ms
+
     // register COOS tasks
     coos.register_task(coos_task_HBus_rxtx);            // HBus rx/tx task
     coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation               
     coos.register_task(coos_task_broadcast);            // as a sample...
+
     // init registered tasks
     coos.start();                     
 }

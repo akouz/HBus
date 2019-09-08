@@ -36,6 +36,8 @@
 // Def
 //##############################################################################
 
+#define   BROADCAST_TOPIC_NAME             // add tname="topic_name" to PUBLISH message
+
 #define    MAX_TOPIC      8     // because of limited memory in Arduino Pro Mini    
 
 const char topic0[] = ""; 
@@ -79,7 +81,9 @@ class HB_mqtt{
     union{
         uint all;
         struct{
-            unsigned                : 13;   // not used here, those flags for HBus mode
+            unsigned                : 10;   // not used here, those flags for HBus mode
+            unsigned    ignore_ts   : 1;    // ignore time stamp mismatch for encrypted messages
+            unsigned                : 2;    // not used
             unsigned    publish     : 1;    // can read unencrypted PUBLISH
             unsigned    reg         : 1;    // can read unencrypted REGISTER
             unsigned    broadcast   : 1;    // broadcast unencrypted PUBLISH and REGISTER              
@@ -108,6 +112,10 @@ class HB_mqtt{
     uint        MsgID_err_cnt;
     void        get_MsgID(uchar msg_id);
     void        make_msg_header(uchar MsgType, uint tid); // make header
+    char        mbuf[0x40];
+#ifdef BROADCAST_TOPIC_NAME
+    uchar       add_tname(uchar idx, char* buf);       // add topic name to the string
+#endif     
 };    
 
 extern HB_mqtt HBmqtt;

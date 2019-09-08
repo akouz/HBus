@@ -84,7 +84,7 @@ void HB_cipher::get_EE_key(void)
         (this->key.uch[i] == 0) ? all0++ : all0 = 0;
         (this->key.uch[i] == 0xFF) ? allFF++ : allFF = 0;        
     }
-    ((all0 == 16) || (allFF == 16)) ? this->valid = 0 : this->valid = 1; 
+    this->valid = ((all0 == 16) || (allFF == 16)) ?  0 : 1; 
     encrypt8(13, this->key.uch, (ulong*)flashkey);    // encrypt first half of EEPROM key using flash key
     encrypt8(17, this->key.uch+8, (ulong*)flashkey);  // encrypt second half
 }

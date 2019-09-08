@@ -78,15 +78,13 @@ void HB_cmd::read_security(uchar key_valid)
         val +=(uchar)EEPROM.read(EE_SECURITY+1);   
         uint notval = 0x100*(uint)EEPROM.read(EE_SECURITY_INV);
         notval += (uchar)EEPROM.read(EE_SECURITY_INV+1);
-        notval = (~notval) & 0xFFFF;    // because ESP8266 compiler extends inversion to 32 bit
+        notval = (~notval) & 0xFFFF;    
         if (val == notval)              // if direct and inverted values are the same
         {
             this->allow.all = val;      // HBus mode settings
             HBmqtt.allow.all = val;     // MQTT mode settings
         }   
     }
-//    Serial.print(" allow=");
-//    Serial.println(this->allow.all, HEX);
 }
 
 // =====================================  
@@ -104,7 +102,7 @@ hb_msg_t* HB_cmd::process_rx_cmd(hb_msg_t* rxmsg)
 {
     uchar cmd;
     uchar res = 0; // no reply
-    if ((rxmsg) && (this->cmd_reply.busy == 0) && (rxmsg->hb) && (rxmsg->len >= 8))
+    if ((rxmsg) && (this->cmd_reply.busy == 0) && (rxmsg->hb) && (rxmsg->len >= 12))
     {
         this->cmd_reply.hb = rxmsg->hb;
         cmd = rxmsg->buf[0];
@@ -113,41 +111,50 @@ hb_msg_t* HB_cmd::process_rx_cmd(hb_msg_t* rxmsg)
         // ----------------------------
         if ((cmd == CMD_COLLECT) && (this->ignore_collect == 0))
         {
-            res = rply_collect(rxmsg, &cmd_reply);
-            rxmsg->busy = 0;
-            return &cmd_reply;            
+            if ((rxmsg->encrypt) || (this->allow.collect))
+            {
+                if ((this->allow.ignore_ts) || (rxmsg->ts_ok) || (!rxmsg->encrypt))  // timestamp
+                {
+                    res = rply_collect(rxmsg, &cmd_reply);
+                    rxmsg->busy = 0;
+                    return &cmd_reply;            
+                }
+            }
         }  
         // ----------------------------
         // if ID (eg address) matches 
         // ----------------------------
         else if ((rxmsg->buf[3] == own.id[1]) && (rxmsg->buf[4] == own.id[0]))
         {
-            this->cmd_reply.hb = rxmsg->hb;
-            this->cmd_reply.encrypt = rxmsg->encrypt;
-            begin_txmsg(&this->cmd_reply, rxmsg->hb);
-            this->cmd_reply.postpone = 0;
-            switch(cmd)
+            if ((this->allow.ignore_ts) || (rxmsg->ts_ok) || (!rxmsg->encrypt))  // timestamp 
             {
-                case CMD_REV:       res = rply_rev(rxmsg, &this->cmd_reply);      break;
-                case CMD_STATUS:    res = rply_status(rxmsg, &this->cmd_reply);   break;
-                case CMD_PING:      res = rply_ping(rxmsg, &this->cmd_reply);     break;
-                case CMD_SET_ID:    res = rply_setID(rxmsg, &this->cmd_reply);    break;
-                case CMD_BOOT:      res = rply_boot(rxmsg, &this->cmd_reply);     break;
-                case CMD_BEEP:      res = rply_beep(rxmsg, &this->cmd_reply);     break;
-                case CMD_DESCR:     res = rply_descr(rxmsg, &this->cmd_reply);    break;
-                case CMD_SECURITY:  res = rply_security(rxmsg, &this->cmd_reply); break;
-                case CMD_CUSTOM:    res = rply_custom(rxmsg, &this->cmd_reply);   break;
-                case CMD_TOPIC:     res = rply_topic(rxmsg, &this->cmd_reply);    break;
-                default:            res = rply_unknown(rxmsg, &this->cmd_reply);  break;
-            }
-            if (READY == res)
-            {                
-                if (OK == finish_txmsg(&cmd_reply))
+                this->cmd_reply.hb = rxmsg->hb;
+                this->cmd_reply.encrypt = rxmsg->encrypt;
+                begin_txmsg(&this->cmd_reply, rxmsg->hb);
+                this->cmd_reply.postpone = 0;
+                switch(cmd)
                 {
-                    rxmsg->busy = 0;
-                    rxmsg = NULL;
-                    return &cmd_reply;
-                }                
+                    case CMD_REV:       res = rply_rev(rxmsg, &this->cmd_reply);      break;
+                    case CMD_STATUS:    res = rply_status(rxmsg, &this->cmd_reply);   break;
+                    case CMD_PING:      res = rply_ping(rxmsg, &this->cmd_reply);     break;
+                    case CMD_SET_ID:    res = rply_setID(rxmsg, &this->cmd_reply);    break;
+                    case CMD_BOOT:      res = rply_boot(rxmsg, &this->cmd_reply);     break;
+                    case CMD_BEEP:      res = rply_beep(rxmsg, &this->cmd_reply);     break;
+                    case CMD_DESCR:     res = rply_descr(rxmsg, &this->cmd_reply);    break;
+                    case CMD_SECURITY:  res = rply_security(rxmsg, &this->cmd_reply); break;
+                    case CMD_CUSTOM:    res = rply_custom(rxmsg, &this->cmd_reply);   break;
+                    case CMD_TOPIC:     res = rply_topic(rxmsg, &this->cmd_reply);    break;
+                    default:            res = rply_unknown(rxmsg, &this->cmd_reply);  break;
+                }
+                if (READY == res)
+                {                
+                    if (OK == finish_txmsg(&cmd_reply))
+                    {
+                        rxmsg->busy = 0;
+                        rxmsg = NULL;
+                        return &cmd_reply;
+                    }                
+                }
             }
         }
         // ----------------------------
@@ -155,7 +162,10 @@ hb_msg_t* HB_cmd::process_rx_cmd(hb_msg_t* rxmsg)
         // ----------------------------
         else if (cmd == CMD_BOOT)   
         {
-            alien_boot(rxmsg);  
+            if ((this->allow.ignore_ts) || (rxmsg->ts_ok))  // timestamp
+            {
+                alien_boot(rxmsg);
+            }  
         }
     }
     rxmsg->busy = 0;
@@ -167,9 +177,15 @@ hb_msg_t* HB_cmd::process_rx_cmd(hb_msg_t* rxmsg)
 // =====================================  
 uchar HB_cmd::rply_unknown(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
-    copy_msg_hdr(rxmsg, 0, 7, rply);
-    add_txmsg_uchar(rply,  ERR_UNKNOWN);  
-    return READY;
+    if (!rxmsg->encrypt)
+    {
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
+        add_txmsg_uchar(rply,  ERR_UNKNOWN);
+        add_ts(rply);   // timestamp  
+        return READY;
+    }
+    return ERR_SECURITY; // do not reply to unknown encrypted commands    
 }
 
 // =====================================  
@@ -179,8 +195,10 @@ uchar HB_cmd::rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.rev))
     {
-        copy_msg_hdr(rxmsg, 0, 7, rply);
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
         add_txmsg_uchar(rply,  OK);
+        add_ts(rply);   // timestamp  
         for (uchar i=0; i<8; i++)
         {
             if (node_descr) // if descriptor supplied
@@ -207,11 +225,13 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
     if ((rxmsg->encrypt) || (this->allow.status))
     {
         uint tpc;
-        copy_msg_hdr(rxmsg, 0, 7, rply);
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
         if (DF_STATUS == 1) // DF = JSON 
         {
             char buf[32];
             add_txmsg_uchar(rply,  DF_STATUS);
+            add_ts(rply);   // timestamp  
             // list all topics
             snprintf(buf, sizeof(buf),"{tid:[");
             add_txmsg_z_str(rply, buf);       
@@ -259,6 +279,7 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
         else // DF = binary, other formats not implemented yet
         {
             add_txmsg_uchar(rply,  0); // 0 = binary data
+            add_ts(rply);   // timestamp  
             add_txmsg_uchar(rply, MAX_TOPIC);
             for (uchar i=0; i<MAX_TOPIC; i++)
             {
@@ -277,53 +298,51 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 uchar HB_cmd::rply_collect(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
-    if ((rxmsg->encrypt) || (this->allow.collect))
+    uchar grp = rxmsg->buf[3];
+    uchar res = 0;
+    // -----------------------------
+    // check group
+    // -----------------------------
+    switch (grp)
     {
-        uchar grp = rxmsg->buf[3];
-        uchar res = 0;
-        // -----------------------------
-        // check group
-        // -----------------------------
-        switch (grp)
-        {
-            case 1: // all nodes
-                res = READY;
-                break;
-            case 2: // nodes with tmp ID
-                res = ((own.ID & 0xF000) == 0xF000)? READY : NOT_READY;
-                break;
-            case 3: // nodes with permanent ID
-                res = ((own.ID & 0xF000) == 0xF000)? NOT_READY : READY;
-                break;
-            default:
-                break;  
-        }
-        // -----------------------------
-        // if reply required
-        // -----------------------------
-        uchar slots = rxmsg->buf[4];
-        if (READY == res)
-        {
-            rply->postpone = random(slots);
-            cmd_reply.hb = rxmsg->hb;
-            cmd_reply.encrypt = rxmsg->encrypt;
-            begin_txmsg(&cmd_reply, rxmsg->hb);
-            copy_msg_hdr(rxmsg, 0, 3, rply);
-            add_txmsg_uchar(rply, own.id[1]); 
-            add_txmsg_uchar(rply, own.id[0]); 
-            copy_msg_hdr(rxmsg, 5, 7, rply);
-            add_txmsg_uchar(rply, OK);
-            finish_txmsg(&cmd_reply);
-        }
-        else
-        {
-            rply->postpone = slots;
-            rply->len = 0;
+        case 1: // all nodes
             res = READY;
-        }
-        return res;
+            break;
+        case 2: // nodes with tmp ID
+            res = ((own.ID & 0xF000) == 0xF000)? READY : NOT_READY;
+            break;
+        case 3: // nodes with permanent ID
+            res = ((own.ID & 0xF000) == 0xF000)? NOT_READY : READY;
+            break;
+        default:
+            break;  
     }
-    return ERR_SECURITY;                    
+    // -----------------------------
+    // if reply required
+    // -----------------------------
+    uchar slots = rxmsg->buf[4];
+    if (READY == res)
+    {
+        rply->postpone = random(slots);
+        cmd_reply.hb = rxmsg->hb;
+        cmd_reply.encrypt = rxmsg->encrypt;
+        begin_txmsg(&cmd_reply, rxmsg->hb);
+        copy_msg_hdr(rxmsg, 0, 3, rply);
+        add_txmsg_uchar(rply, own.id[1]); 
+        add_txmsg_uchar(rply, own.id[0]); 
+        copy_msg_hdr(rxmsg, 5, 6, rply);
+        add_txmsg_uchar(rply, random(0x100)); // nonce
+        add_txmsg_uchar(rply, OK);
+        add_ts(rply);   // timestamp  
+        finish_txmsg(&cmd_reply);
+    }
+    else
+    {
+        rply->postpone = slots;
+        rply->len = 0;
+        res = READY;
+    }
+    return res;
 }
 
 // =====================================  
@@ -334,8 +353,10 @@ uchar HB_cmd::rply_ping(hb_msg_t* rxmsg, hb_msg_t* rply)
     if ((rxmsg->encrypt) || (this->allow.ping))
     {
         ignore_collect = (uint)rxmsg->buf[7]*100;
-        copy_msg_hdr(rxmsg, 0, 7, rply);
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
         add_txmsg_uchar(rply,  OK);
+        add_ts(rply);   // timestamp  
         return READY;
     }
     return ERR_SECURITY;                    
@@ -346,23 +367,28 @@ uchar HB_cmd::rply_ping(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 uchar HB_cmd::rply_setID(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
-    if ((rxmsg->encrypt) || (this->allow.setID)) 
+    if (own.ID >= 0xF000) // only tmp ID can be set 
     {
-        uchar res = ERR;
-        if ((rxmsg->len > 9) && (own.ID >= 0xF000))  // only tmp ID can be set 
+        if ((HBcipher.valid == 0) || (rxmsg->encrypt))
         {
-            own.id[1] = rxmsg->buf[8];
-            own.id[0] = rxmsg->buf[9];
-            EEPROM.write(EE_OWN_ID, own.id[1]);
-            EEPROM.write(EE_OWN_ID+1, own.id[0]);
-            res = OK;
+            uchar res = ERR;
+            if (rxmsg->len > 12)   
+            {
+                own.id[1] = rxmsg->buf[12];
+                own.id[0] = rxmsg->buf[13];
+                EEPROM.write(EE_OWN_ID, own.id[1]);
+                EEPROM.write(EE_OWN_ID+1, own.id[0]);
+                res = OK;
+            }
+            copy_msg_hdr(rxmsg, 0, 3, rply);
+            add_txmsg_uchar(rply, own.id[1]); 
+            add_txmsg_uchar(rply, own.id[0]);
+            copy_msg_hdr(rxmsg, 5, 6, rply); 
+            add_txmsg_uchar(rply, random(0x100));  // nonce
+            add_txmsg_uchar(rply,  res);
+            add_ts(rply);   // timestamp  
+            return READY;
         }
-        copy_msg_hdr(rxmsg, 0, 3, rply);
-        add_txmsg_uchar(rply, own.id[1]); 
-        add_txmsg_uchar(rply, own.id[0]);
-        copy_msg_hdr(rxmsg, 5, 7, rply); 
-        add_txmsg_uchar(rply,  res);
-        return READY;
     }
     return ERR_SECURITY;                    
 }
@@ -374,8 +400,10 @@ uchar HB_cmd::rply_boot(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.boot))
     {
-        copy_msg_hdr(rxmsg, 0, 7, rply); 
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
         add_txmsg_uchar(rply,  OK);
+        add_ts(rply);   // timestamp  
         return READY;
     }
     return ERR_SECURITY;                    
@@ -401,8 +429,10 @@ uchar HB_cmd::rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply)
     if ((rxmsg->encrypt) || (this->allow.ping))
     {
         blink((uint)rxmsg->buf[7]*100);
-        copy_msg_hdr(rxmsg, 0, 7, rply); 
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
         add_txmsg_uchar(rply,  OK);
+        add_ts(rply);   // timestamp  
         return READY; 
     }
     return ERR_SECURITY;                    
@@ -414,23 +444,25 @@ uchar HB_cmd::rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply)
 uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_msg_t* rply)
 {    
     uchar len, rdwr;
-    copy_msg_hdr(rxmsg, 0, 7, rply);
+    copy_msg_hdr(rxmsg, 0, 6, rply);
+    add_txmsg_uchar(rply, random(0x100));  // nonce
     rdwr = rxmsg->buf[7];
     // ----------------------
     // write
     // ----------------------
-    if ((rdwr) && (rxmsg->len > 8)) 
+    if ((rdwr) && (rxmsg->len > 12)) 
     {
         if ((rxmsg->encrypt) || (this->allow.wrdescr))
         {
-            len = rxmsg->buf[8];
+            len = rxmsg->buf[12];
             if (len < 64)
             {
                 add_txmsg_uchar(rply,  OK);
+                add_ts(rply);   // timestamp  
                 EEPROM.write(EE_DESCR, len);
                 for (uchar i=0; i<len; i++)
                 {
-                    EEPROM.write(EE_DESCR+1+i, rxmsg->buf[9+i]); 
+                    EEPROM.write(EE_DESCR+1+i, rxmsg->buf[13+i]); 
                 }
             }
             else
@@ -448,6 +480,7 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_msg_t* rply)
         if ((rxmsg->encrypt) || (this->allow.rddescr))
         {
             add_txmsg_uchar(rply,  OK);
+            add_ts(rply);   // timestamp  
             len = EEPROM.read(EE_DESCR);
             len = (len < 64)? len : 0;
             add_txmsg_uchar(rply,  len);
@@ -475,16 +508,21 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
     // ----------------------
     if ((rdwr) && (rxmsg->len > 9))
     {
-        if ((rxmsg->encrypt) || (this->allow.wrsecurity))
-        {
-            copy_msg_hdr(rxmsg, 0, 7, rply);
+        if ((rxmsg->encrypt) || (!HBcipher.valid))
+        {            
+            copy_msg_hdr(rxmsg, 0, 6, rply);
+            add_txmsg_uchar(rply, random(0x100));  // nonce
             // store unencrypted access settings
-            EEPROM.write(EE_SECURITY, rxmsg->buf[8]);
-            EEPROM.write(EE_SECURITY+1, rxmsg->buf[9]);
-            EEPROM.write(EE_SECURITY_INV, ~rxmsg->buf[8]);
-            EEPROM.write(EE_SECURITY_INV+1, ~rxmsg->buf[9]);
+            uint newval = 0x100*rxmsg->buf[12] + rxmsg->buf[13];
+            if (newval != this->allow.all)  // if new settings are differend
+            {
+                EEPROM.write(EE_SECURITY, rxmsg->buf[12]);
+                EEPROM.write(EE_SECURITY+1, rxmsg->buf[13]);
+                EEPROM.write(EE_SECURITY_INV, ~rxmsg->buf[12]);
+                EEPROM.write(EE_SECURITY_INV+1, ~rxmsg->buf[13]);
+            } 
             // store EEPROM key
-            if (rxmsg->len > 25) // new cipher supplied
+            if (rxmsg->len > 20) // new cipher supplied
             {
                 if (HBcipher.valid == 0) // stored cipher is blank 
                 {
@@ -493,12 +531,13 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
                         for (uchar j=0; j<4; j++) // 4 bytes each
                         {
                             // reverse byte order in every key
-                            EEPROM.write(EE_XTEA_KEY+ 4*i + j, rxmsg->buf[10+4*i + 3-j]); 
+                            EEPROM.write(EE_XTEA_KEY + 4*i + j, rxmsg->buf[14 + 4*i + 3-j]); 
                         }                    
                     }
                     HBcipher.get_EE_key();  // restore new keys from EEPROM
                     read_security(HBcipher.valid);
                     add_txmsg_uchar(rply, OK);
+                    add_ts(rply);   // timestamp  
                     add_txmsg_uchar(rply, (uchar)(this->allow.all >> 8));
                     add_txmsg_uchar(rply, (uchar)this->allow.all);
                     return READY;
@@ -511,10 +550,12 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
             else if (rxmsg->len == 10) // header + access_settings 
             {
                 add_txmsg_uchar(rply, OK);
+                add_ts(rply);   // timestamp  
             }
             else
             {
                 add_txmsg_uchar(rply, ERR_PARAM); // wrong length
+                add_ts(rply);   // timestamp  
             }             
             read_security(HBcipher.valid);
             add_txmsg_uchar(rply, (uchar)(this->allow.all >> 8));
@@ -530,8 +571,10 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
     {
         if ((rxmsg->encrypt) || (this->allow.rdsecurity))
         {
-            copy_msg_hdr(rxmsg, 0, 7, rply);
+            copy_msg_hdr(rxmsg, 0, 6, rply);
+            add_txmsg_uchar(rply, random(0x100));  // nonce
             add_txmsg_uchar(rply, OK);
+            add_ts(rply);   // timestamp  
             add_txmsg_uchar(rply, (uchar)(this->allow.all >> 8));
             add_txmsg_uchar(rply, (uchar)this->allow.all);
             return READY;
@@ -548,15 +591,18 @@ uchar HB_cmd::rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.customcmd))
     {
-        copy_msg_hdr(rxmsg, 0, 7, rply);
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
         if (custom_cmd)
         {
             add_txmsg_uchar(rply,  OK);
+            add_ts(rply);   // timestamp  
             rply = custom_cmd(rxmsg);        // whatever defined
         }
         else
         {
             add_txmsg_uchar(rply,  ERR);    // custom command not defined
+            add_ts(rply);   // timestamp  
         }    
         return READY;
     } 
@@ -582,7 +628,8 @@ uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply)
         uchar ti;
         char c;
         char* tn;
-        copy_msg_hdr(rxmsg, 0, 7, rply);
+        copy_msg_hdr(rxmsg, 0, 6, rply);
+        add_txmsg_uchar(rply, random(0x100));  // nonce
         ti = rxmsg->buf[7];  // topic index
         if (ti >= MAX_TOPIC)
         {
@@ -595,6 +642,7 @@ uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply)
                 if (HBmqtt.valid[ti].topic_name)            
                 {
                     add_txmsg_uchar(rply, i); // reply next valid index
+                    add_ts(rply);   // timestamp  
                     return READY;
                 }
             }
@@ -603,6 +651,7 @@ uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply)
         else
         {
             add_txmsg_uchar(rply, OK);
+            add_ts(rply);   // timestamp  
             add_txmsg_uchar(rply, (uchar)(ownTopicId[ti] >> 8));
             add_txmsg_uchar(rply, (uchar)ownTopicId[ti]);
             tn = (char*)ownTopicName[ti];

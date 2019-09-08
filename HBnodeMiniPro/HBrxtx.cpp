@@ -265,11 +265,13 @@ uchar Hb_rxtx::rx_decode(uchar* src, uchar* src_len, hb_msg_t* dest)
                     copy_buf(dest->buf, buf, dest->len);
                     HBcipher.decrypt(dest->buf, dest->len);    
                 }
+                dest->ts_ok = (ts_valid(dest)) ? 1 : 0; // check received time stamp
                 if ((flag.no_crc) || (OK == check_crc(dest)))  // if crc matches
                 {
                     dest->valid = 1;
                     res = READY;
                 }
+/*                
                 else // crc mismatch
                 {
                     rev_4_bytes(buf);
@@ -287,6 +289,7 @@ uchar Hb_rxtx::rx_decode(uchar* src, uchar* src_len, hb_msg_t* dest)
                         dest->all = 0;          
                     }
                 }
+*/                
                 return res;
             }
         }

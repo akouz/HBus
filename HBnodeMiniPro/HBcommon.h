@@ -46,6 +46,12 @@
 // rev 0.8  -   29/04/2019, added CMP_TOPIC and REGISTER
 // rev 0.9  -   7/08/2019, HBcipher added, Tx byte-stuffing on-fly 
 // rev 0.10 -   12/08/2019, SET_ID command can change only tmp ID 
+// rev 0.11 -   13/08/2019, reject published values if time stamp mismatch 
+// rev 1.0 -    05/09/2019, timestamps added to message headers 
+
+
+#define SW_REV_MAJ  1
+#define SW_REV_MIN  0
 
 //##############################################################################
 // Def
@@ -62,8 +68,8 @@ enum{
     TIME_ZONE       = 9*60 + 30,     // +9:30, Adelaide
 
     // HBus revision
-    HB_REV_MAJ      = 0,
-    HB_REV_MIN      = 10,     
+    HB_REV_MAJ      = 1,
+    HB_REV_MIN      = 0,     
 
     // coos
     COOS_TASKS      = 4,               
@@ -148,6 +154,7 @@ typedef struct{
       unsigned esc      : 1;
       unsigned hb       : 1;
       unsigned encrypt  : 1;      
+      unsigned ts_ok    : 1;
       unsigned valid    : 1;
       unsigned busy     : 1;
     };
@@ -174,7 +181,7 @@ extern uint pup_cnt;
 extern uint node_seed;
 extern uint led_cnt;
 
-extern StaticJsonBuffer<256> jsonBuf;
+extern StaticJsonBuffer<192> jsonBuf;
 extern Coos <COOS_TASKS, 1> coos;    // 1.024 ms ticks
 
 //##############################################################################
@@ -199,8 +206,10 @@ uchar begin_txmsg(hb_msg_t* txmsg, uchar hb);
 uchar add_txmsg_uchar(hb_msg_t* txmsg, uchar c);
 uchar add_txmsg_z_str(hb_msg_t* txmsg, char* str);
 void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_msg_t* txmsg);
+void add_ts(hb_msg_t* txmsg);
 uchar finish_txmsg(hb_msg_t* txmsg);
 
+uchar ts_valid(hb_msg_t* rxmsg);
 uchar sort(uint* arr, uint len);
 
 #endif /* __HB_COMMON_H */

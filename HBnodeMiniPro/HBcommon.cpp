@@ -38,7 +38,7 @@ uint pup_cnt;
 uint node_seed;
 uint led_cnt;     // until LED switched off, in 10 ms ticks
 
-StaticJsonBuffer <256> jsonBuf;
+StaticJsonBuffer <192> jsonBuf;
 
 Coos <COOS_TASKS, 1> coos;  // declare cooperative operating system
 
@@ -299,6 +299,22 @@ void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_msg_t* txmsg)
 }
 
 // =============================================
+// Add timestamp
+// =============================================
+void add_ts(hb_msg_t* txmsg)
+{
+    union {
+        ulong   ulo;
+        uchar   uch[4];
+    } tmp;
+    tmp.ulo = coos.uptime;
+    for (uchar i=0; i<4; i++)
+    {
+        add_txmsg_uchar(txmsg, tmp.uch[3-i]);
+    }
+}
+
+// =============================================
 // Finish Tx message
 // =============================================
 uchar finish_txmsg(hb_msg_t* txmsg)
@@ -310,6 +326,25 @@ uchar finish_txmsg(hb_msg_t* txmsg)
         return OK;
     }
     return ERR;
+}
+
+// =====================================  
+// Check if received timestamp valid
+// =====================================  
+uchar ts_valid(hb_msg_t* rxmsg)
+{
+    ulong ts = (ulong)rxmsg->buf[8] << 24;
+    ts |= (ulong)rxmsg->buf[9] << 16;    
+    ts |= (uint)rxmsg->buf[10] << 8;    
+    ts |= rxmsg->buf[11];
+    if ((ts < coos.uptime + TIME_TOLERANCE) && (ts > coos.uptime -TIME_TOLERANCE))
+    {
+        return 1;
+    }    
+    else
+    {
+        return 0;
+    }
 }
 
 // =============================================
