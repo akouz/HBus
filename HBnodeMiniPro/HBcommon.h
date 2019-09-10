@@ -43,15 +43,16 @@
 // rev 0.6  -   15/03/2019, refactoring, use installed library <coos.h>, use
 //              descriptors for HBcmd and HBmqtt; remove local file revisions
 // rev 0.7  -   16/03/2019, report value as 0 (no decimal point) if it is not valid
-// rev 0.8  -   29/04/2019, added CMP_TOPIC and REGISTER
+// rev 0.8  -   29/04/2019, added CMD_TOPIC and REGISTER
 // rev 0.9  -   7/08/2019, HBcipher added, Tx byte-stuffing on-fly 
 // rev 0.10 -   12/08/2019, SET_ID command can change only tmp ID 
 // rev 0.11 -   13/08/2019, reject published values if time stamp mismatch 
 // rev 1.0 -    05/09/2019, timestamps added to message headers 
+// rev 1.1 -    10/09/2019, to save SRAM, hb_tx_msg_t used for tx messages 
 
 
 #define SW_REV_MAJ  1
-#define SW_REV_MIN  0
+#define SW_REV_MIN  1
 
 //##############################################################################
 // Def
@@ -111,6 +112,7 @@ enum{
 
     // settings
     MAX_BUF         = 0x90,
+    MAX_TX_BUF      = 0x50,
     
     // ------------------------------------    
     // EEPROM addresses (max EEPROM size 1024 bytes)
@@ -141,7 +143,8 @@ enum{
 
 
 #ifndef __HB_MSG_T__
-#define __HB_MSG_T__ 
+#define __HB_MSG_T__
+ 
 typedef struct{
   uchar buf[MAX_BUF];
   uint  crc;
@@ -160,16 +163,25 @@ typedef struct{
     };
   };
 }hb_msg_t;
-#endif
 
-#ifndef __MQTT_MSG_T__
-#define __MQTT_MSG_T__ 
 typedef struct{
-  char tpc[MAX_BUF];    // topic
-  uint tpclen;
-  char pld[MAX_BUF];    // payload
-  uint pldlen;  
-}mqtt_msg_t;
+  uchar buf[MAX_TX_BUF];
+  uint  crc;
+  uchar len;
+  uchar postpone;
+  union{
+    uchar all;
+    struct{
+      unsigned gate     : 1;
+      unsigned esc      : 1;
+      unsigned hb       : 1;
+      unsigned encrypt  : 1;      
+      unsigned ts_ok    : 1;
+      unsigned valid    : 1;
+      unsigned busy     : 1;
+    };
+  };
+}hb_tx_msg_t;
 #endif
 
  
@@ -181,7 +193,7 @@ extern uint pup_cnt;
 extern uint node_seed;
 extern uint led_cnt;
 
-extern StaticJsonBuffer<192> jsonBuf;
+extern StaticJsonBuffer<128> jsonBuf;
 extern Coos <COOS_TASKS, 1> coos;    // 1.024 ms ticks
 
 //##############################################################################
@@ -202,12 +214,12 @@ void crc_add_uchar(uchar b, uint* crc);
 uint calc_crc(uchar* buf, uchar len);
 void crc_to_msg(hb_msg_t* msg);
 
-uchar begin_txmsg(hb_msg_t* txmsg, uchar hb);
-uchar add_txmsg_uchar(hb_msg_t* txmsg, uchar c);
-uchar add_txmsg_z_str(hb_msg_t* txmsg, char* str);
-void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_msg_t* txmsg);
-void add_ts(hb_msg_t* txmsg);
-uchar finish_txmsg(hb_msg_t* txmsg);
+uchar begin_txmsg(hb_tx_msg_t* txmsg, uchar hb);
+uchar add_txmsg_uchar(hb_tx_msg_t* txmsg, uchar c);
+uchar add_txmsg_z_str(hb_tx_msg_t* txmsg, char* str);
+void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_tx_msg_t* txmsg);
+void add_ts(hb_tx_msg_t* txmsg);
+uchar finish_txmsg(hb_tx_msg_t* txmsg);
 
 uchar ts_valid(hb_msg_t* rxmsg);
 uchar sort(uint* arr, uint len);

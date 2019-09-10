@@ -402,7 +402,7 @@ uchar  HB_mqtt::add_tname(uchar idx, char* buf)
 // =============================================
 // PUBLISH own value  to HBus and to MQTT
 // =============================================
-hb_msg_t* HB_mqtt::publish_own_val(uint idx)
+hb_tx_msg_t* HB_mqtt::publish_own_val(uint idx)
 {
     uint len;
     uint tid = ownTopicId[idx]; // topic ID

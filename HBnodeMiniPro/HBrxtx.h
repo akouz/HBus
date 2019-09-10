@@ -71,22 +71,19 @@ class Hb_rxtx{
     uchar       txpos;
     uchar       txcnt;
     hb_msg_t    rxmsg;
-    uchar       rx_decode(uchar* src, uchar* src_len, hb_msg_t* dest);
-    uchar       tx_encode(hb_msg_t* src, hb_msg_t* dest);
     hb_msg_t*   rx(uchar c);
     uchar       rtr_cnt;
-    uchar       start_tx(hb_msg_t* buf);
+    uchar       start_tx(hb_tx_msg_t* buf);
     uchar       tx(uchar* pause_cnt);
        
     private:
     uchar       tx_tmout;
-    hb_msg_t*   txbuf;
+    hb_tx_msg_t*   txbuf;
     uchar       echobuf[3];
     uchar       echolen;
     uchar       start;  
     uint        txcrc;
     uchar       add_rx_uchar(uchar c, hb_msg_t* dest);
-    void        add_crc(hb_msg_t* msg);
     uchar       check_crc(hb_msg_t* msg);
 };
 extern Hb_rxtx HBrxtx;

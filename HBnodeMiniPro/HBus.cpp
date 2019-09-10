@@ -54,7 +54,7 @@ void clr_rx(void)
 // ========================================
 // Dispose tx message
 // ========================================
-void  finish_tx(hb_msg_t* msg)
+void  finish_tx(hb_tx_msg_t* msg)
 {
     if (msg)
     {
@@ -72,7 +72,7 @@ void coos_task_HBus_rxtx(void)
     static uchar res;
     static uchar tmout;
     static hb_msg_t* rxmsg;
-    static hb_msg_t* txmsg;
+    static hb_tx_msg_t* txmsg;
     COOS_DELAY(10);
     // ---------------------------
     // loop

@@ -82,8 +82,8 @@ class HB_cmd{
     } allow;    // allowed unecrypted access    
     uint        ignore_traffic;                 // in 10 ms ticks
     void        set_descriptor(uchar* descr);   // 8-bytes long descriptor
-    hb_msg_t*   process_rx_cmd(hb_msg_t* rxmsg);
-    void        set_custom_cmd(hb_msg_t* (*c_cmd)(hb_msg_t* msg));
+    hb_tx_msg_t*   process_rx_cmd(hb_msg_t* rxmsg);
+    void        set_custom_cmd(hb_tx_msg_t* (*c_cmd)(hb_msg_t* msg));
     void        tick10ms(void);
     void        read_own_ID(void);    
     void        read_security(uchar key_valid);    
@@ -96,21 +96,21 @@ class HB_cmd{
     }msg;
     uchar       rply_tmout;
     uint        ignore_collect;         // in 10 ms ticks
-    hb_msg_t    cmd_reply;    
-    uchar       rply_unknown(hb_msg_t* rxmsg, hb_msg_t* rply);   
-    uchar       rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_status(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_collect(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_ping(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_setID(hb_msg_t* rxmsg, hb_msg_t* rply); 
-    uchar       rply_boot(hb_msg_t* rxmsg, hb_msg_t* rply); 
+    hb_tx_msg_t cmd_reply;    
+    uchar       rply_unknown(hb_msg_t* rxmsg, hb_tx_msg_t* rply);   
+    uchar       rply_rev(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_status(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_collect(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_ping(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_setID(hb_msg_t* rxmsg, hb_tx_msg_t* rply); 
+    uchar       rply_boot(hb_msg_t* rxmsg, hb_tx_msg_t* rply); 
     void        alien_boot(hb_msg_t* rxmsg); 
-    uchar       rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_descr(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_security(hb_msg_t* rxmsg, hb_msg_t* rply);    
-    uchar       rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply);
-    uchar       rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply);    // read MQTT topic 
-    hb_msg_t*   (*custom_cmd)(hb_msg_t* msg);   // user-defined custom command    
+    uchar       rply_beep(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_security(hb_msg_t* rxmsg, hb_tx_msg_t* rply);    
+    uchar       rply_custom(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_topic(hb_msg_t* rxmsg, hb_tx_msg_t* rply);    // read MQTT topic 
+    hb_tx_msg_t*   (*custom_cmd)(hb_msg_t* msg);   // user-defined custom command    
 };
 extern HB_cmd HBcmd;
 

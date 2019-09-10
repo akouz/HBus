@@ -89,13 +89,13 @@ class HB_mqtt{
             unsigned    broadcast   : 1;    // broadcast unencrypted PUBLISH and REGISTER              
         };
     } allow;    // allowed unecrypted access        
-    hb_msg_t    mqmsg;
+    hb_tx_msg_t  mqmsg;
     float       value[MAX_TOPIC];                       // topic values
     union mq_valid_uni   valid[MAX_TOPIC];              // set of flags
     char        rd_msg(hb_msg_t* msg);
     uchar       make_msg_reg(uchar ti);                 // make REGISTER message
     uchar       make_msg_publish(uint tid, uchar* buf, uchar len); // make PUBLISH message    
-    hb_msg_t*   publish_own_val(uint idx);             // make PUBLISH message for own value    
+    hb_tx_msg_t*   publish_own_val(uint idx);             // make PUBLISH message for own value    
     uchar       make_msg_err(char* txt, uint errcode);  // make PUBLISH message topic="err"
     void        read_topic_id(void);                    // restorew TopicId from EEPROM
     uchar       init_topic_id(uint node_id);            // after power-up call this function  

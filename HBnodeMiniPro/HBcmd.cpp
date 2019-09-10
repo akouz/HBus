@@ -98,7 +98,7 @@ void HB_cmd::set_descriptor(uchar* descr)
 // =====================================  
 // Process input commands, form a reply if required
 // =====================================  
-hb_msg_t* HB_cmd::process_rx_cmd(hb_msg_t* rxmsg)
+hb_tx_msg_t* HB_cmd::process_rx_cmd(hb_msg_t* rxmsg)
 {
     uchar cmd;
     uchar res = 0; // no reply
@@ -175,7 +175,7 @@ hb_msg_t* HB_cmd::process_rx_cmd(hb_msg_t* rxmsg)
 // =====================================  
 // Unknown command
 // =====================================  
-uchar HB_cmd::rply_unknown(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_unknown(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if (!rxmsg->encrypt)
     {
@@ -191,7 +191,7 @@ uchar HB_cmd::rply_unknown(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply revisions
 // =====================================  
-uchar HB_cmd::rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_rev(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.rev))
     {
@@ -220,7 +220,7 @@ uchar HB_cmd::rply_rev(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply status
 // =====================================  
-uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.status))
     {
@@ -296,7 +296,7 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply COLLECT
 // =====================================  
-uchar HB_cmd::rply_collect(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_collect(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     uchar grp = rxmsg->buf[3];
     uchar res = 0;
@@ -348,7 +348,7 @@ uchar HB_cmd::rply_collect(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply PING
 // =====================================  
-uchar HB_cmd::rply_ping(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_ping(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.ping))
     {
@@ -365,7 +365,7 @@ uchar HB_cmd::rply_ping(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply SET_ID
 // =====================================  
-uchar HB_cmd::rply_setID(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_setID(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if (own.ID >= 0xF000) // only tmp ID can be set 
     {
@@ -396,7 +396,7 @@ uchar HB_cmd::rply_setID(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply BOOT
 // =====================================  
-uchar HB_cmd::rply_boot(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_boot(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.boot))
     {
@@ -424,7 +424,7 @@ void HB_cmd::alien_boot(hb_msg_t* rxmsg)
 // =====================================  
 // Reply BEEP
 // =====================================  
-uchar HB_cmd::rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_beep(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.ping))
     {
@@ -441,7 +441,7 @@ uchar HB_cmd::rply_beep(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply DESCR
 // =====================================  
-uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {    
     uchar len, rdwr;
     copy_msg_hdr(rxmsg, 0, 6, rply);
@@ -500,7 +500,7 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // EEPROM cipher and access control settings  
 // =====================================  
-uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     uchar rdwr = rxmsg->buf[7];
     // ----------------------
@@ -587,7 +587,7 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Reply C_CMD
 // =====================================  
-uchar HB_cmd::rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar HB_cmd::rply_custom(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.customcmd))
     {
@@ -613,7 +613,7 @@ uchar HB_cmd::rply_custom(hb_msg_t* rxmsg, hb_msg_t* rply)
 // =====================================  
 // Set custom command 
 // =====================================  
-void HB_cmd::set_custom_cmd(hb_msg_t* (*c_cmd)(hb_msg_t* msg))
+void HB_cmd::set_custom_cmd(hb_tx_msg_t* (*c_cmd)(hb_msg_t* msg))
 {
     custom_cmd = c_cmd;   // set user-defined custom command
 }
@@ -621,7 +621,7 @@ void HB_cmd::set_custom_cmd(hb_msg_t* (*c_cmd)(hb_msg_t* msg))
 // =====================================  
 // Reply topic, eg pair TopicId + TopicName 
 // =====================================  
-uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_msg_t* rply)
+uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.topic))
     {

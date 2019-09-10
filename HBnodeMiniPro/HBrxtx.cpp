@@ -158,66 +158,6 @@ uchar Hb_rxtx::add_rx_uchar(uchar c, hb_msg_t* dest)
 }
 
 // =============================================
-// Add crc
-// =============================================
-void Hb_rxtx::add_crc(hb_msg_t* msg)
-{
-    uint crc = calc_crc(msg->buf, msg->len);
-    msg->buf[msg->len] = (uchar)(crc >> 8);
-    msg->buf[msg->len+1] = (uchar)crc;
-    msg->len += 2;
-}
-
-// =============================================
-// Add crc and byte-stuffing
-// =============================================
-uchar Hb_rxtx::tx_encode(hb_msg_t* src, hb_msg_t* dest)
-{
-    uchar c;
-    dest->len = 0;
-    if ((src) && (dest))
-    {
-        src->all = 0;
-        dest->all = 0;
-        if (src->len < MAX_BUF-2)
-        {
-            add_crc(src);
-            for (uchar i=0; i < src->len; i++)
-            {
-                c = src->buf[i];
-                // -----------------------------
-                if (src->esc == 0) 
-                {
-                    src->esc = (c == _ESC)? 1 : 0;
-                    dest->buf[dest->len++] = c;
-                }  
-                // -----------------------------
-                else
-                {
-                    src->esc = 0;
-                    if (c == _ESC)  // second ESC
-                    {
-                        dest->buf[dest->len++] = _ESC_2ESC;
-                    }
-                    else  // single ESC
-                    {  
-                        dest->buf[dest->len++] = _ESC_ESC;
-                        dest->buf[dest->len++] = c;
-                    }
-                }  
-            } // for
-            if (src->esc) // last char was ESC
-            {
-                dest->buf[dest->len++] = _ESC_ESC;
-            }
-            dest->valid = 1;
-            return OK;
-        }
-    }  
-    return ERR;
-}
-
-// =============================================
 // Check crc
 // =============================================
 uchar Hb_rxtx::check_crc(hb_msg_t* msg)
@@ -232,72 +172,10 @@ uchar Hb_rxtx::check_crc(hb_msg_t* msg)
         {
             return OK;
         }
-        else
-        {
-            //Serial.print(" crc=0x");
-            //Serial.print(crc,HEX);
-            //Serial.print("/0x");
-            //Serial.println(calc,HEX);
-        }
     }
     return ERR;
 }
 
-// =============================================
-// Decode received data, if message completed then check crc
-// =============================================
-uchar Hb_rxtx::rx_decode(uchar* src, uchar* src_len, hb_msg_t* dest)
-{
-    uchar c, i;
-    uchar buf[0x100];
-    uchar res = NOT_READY;
-    if ((src) && (dest)) // if both buffers exists
-    {
-        for (i=0; i < *src_len; i++)
-        {
-            c = src[i];            
-            if (add_rx_uchar(c, dest) == READY)        // if message completed
-            {
-                shift_buf(src, i, *src_len - i);    // remove used part of input buffer
-                *src_len -= (i+1);                  // keep remaining part of the buffer
-                if (dest->encrypt)                  // if message encrypted
-                {
-                    copy_buf(dest->buf, buf, dest->len);
-                    HBcipher.decrypt(dest->buf, dest->len);    
-                }
-                dest->ts_ok = (ts_valid(dest)) ? 1 : 0; // check received time stamp
-                if ((flag.no_crc) || (OK == check_crc(dest)))  // if crc matches
-                {
-                    dest->valid = 1;
-                    res = READY;
-                }
-/*                
-                else // crc mismatch
-                {
-                    rev_4_bytes(buf);
-                    rev_4_bytes(buf+4);
-                    copy_buf(buf, dest->buf, dest->len);
-                    HBcipher.decrypt(dest->buf, dest->len);    
-                    if ((flag.no_crc) || (OK == check_crc(dest)))  // if crc matches
-                    {
-                        dest->valid = 1;
-                        res = READY;
-                    }
-                    else
-                    {
-                        dest->len = 0;     // reset output buffer
-                        dest->all = 0;          
-                    }
-                }
-*/                
-                return res;
-            }
-        }
-        *src_len = 0; // input buffer is empty   
-    }
-    return res;
-}
-    
 // =============================================
 // Receive symbol (while in receive mode)
 // =============================================
@@ -331,7 +209,7 @@ hb_msg_t* Hb_rxtx::rx(uchar c)
 // =============================================
 // Start transmission
 // =============================================
-uchar Hb_rxtx::start_tx(hb_msg_t* buf)
+uchar Hb_rxtx::start_tx(hb_tx_msg_t* buf)
 {
     if ((buf == NULL) || (buf->len < 8))
     {

@@ -38,7 +38,7 @@ uint pup_cnt;
 uint node_seed;
 uint led_cnt;     // until LED switched off, in 10 ms ticks
 
-StaticJsonBuffer <192> jsonBuf;
+StaticJsonBuffer <128> jsonBuf;
 
 Coos <COOS_TASKS, 1> coos;  // declare cooperative operating system
 
@@ -217,7 +217,7 @@ uint calc_crc(uchar* buf, uchar len)
 // =============================================
 // Append txmsg with calculated crc
 // =============================================
-void crc_to_msg(hb_msg_t* msg)
+void crc_to_msg(hb_tx_msg_t* msg)
 {
     if (msg)
     {
@@ -229,7 +229,7 @@ void crc_to_msg(hb_msg_t* msg)
 // =============================================
 // Reset Tx buffer and start a new message
 // =============================================
-uchar begin_txmsg(hb_msg_t* txmsg, uchar hb)
+uchar begin_txmsg(hb_tx_msg_t* txmsg, uchar hb)
 {
     if (txmsg->busy)
     {
@@ -246,9 +246,9 @@ uchar begin_txmsg(hb_msg_t* txmsg, uchar hb)
 // =============================================
 // Add char to Tx message
 // =============================================
-uchar add_txmsg_uchar(hb_msg_t* txmsg, uchar c)
+uchar add_txmsg_uchar(hb_tx_msg_t* txmsg, uchar c)
 {
-    if ((txmsg->len >= MAX_BUF) || (txmsg->busy))
+    if ((txmsg->len >= MAX_TX_BUF) || (txmsg->busy))
     {
         return ERR;
     }
@@ -259,14 +259,14 @@ uchar add_txmsg_uchar(hb_msg_t* txmsg, uchar c)
 // =============================================
 // Add 0-terminated string to Tx message
 // =============================================
-uchar add_txmsg_z_str(hb_msg_t* txmsg, char* str)
+uchar add_txmsg_z_str(hb_tx_msg_t* txmsg, char* str)
 {
     uchar res = 0;    
     if (txmsg->busy == 0)
     {
         while (*str)    
         {
-            if (txmsg->len < MAX_BUF)
+            if (txmsg->len < MAX_TX_BUF)
             {
                 add_txmsg_uchar(txmsg, (uchar)*str);
                 str++;
@@ -283,7 +283,7 @@ uchar add_txmsg_z_str(hb_msg_t* txmsg, char* str)
 // =============================================
 // Copy message header
 // =============================================
-void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_msg_t* txmsg)
+void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_tx_msg_t* txmsg)
 {
     for (uchar i=first; i<last; i++)
     {
@@ -301,7 +301,7 @@ void copy_msg_hdr(hb_msg_t* src, uchar first, uchar last, hb_msg_t* txmsg)
 // =============================================
 // Add timestamp
 // =============================================
-void add_ts(hb_msg_t* txmsg)
+void add_ts(hb_tx_msg_t* txmsg)
 {
     union {
         ulong   ulo;
@@ -317,9 +317,9 @@ void add_ts(hb_msg_t* txmsg)
 // =============================================
 // Finish Tx message
 // =============================================
-uchar finish_txmsg(hb_msg_t* txmsg)
+uchar finish_txmsg(hb_tx_msg_t* txmsg)
 {    
-    if ((txmsg) && (txmsg->len < MAX_BUF-1))
+    if ((txmsg) && (txmsg->len < MAX_TX_BUF-1))
     {
         crc_to_msg(txmsg);
         txmsg->busy = 1;
