@@ -45,6 +45,7 @@ More expensive EIB/KNX cable can be used too. With 0.8 mm wires it can safely di
 Many CAN drivers has embedded mechanism to prevent long dominant state. If dominant state lasts longer than a pre-defined time-out, driver automatically goes into recessive state. Bit interval is 52.08 us at baud rate of 19.2 kbps. Start bit and a data byte of 0x00 produce dominant state for 9 bit-intervals, or for 0.47 ms. The following CAN transceivers are suitable for HBus: 
 
   * MCP2542 -	0.8 ms min
+  * ATA6560, ATA6561  -	0.8 ms min
   * TJA1057 -	0.8 ms min
   * NCV7342 - 1.3 ms min
   * NCV7351 - 1.5 ms min
