@@ -115,7 +115,7 @@ enum{
     MAX_TX_BUF      = 0x50,
     
     // ------------------------------------    
-    // EEPROM addresses (max EEPROM size 1024 bytes)
+    // EEPROM addresses 
     // ------------------------------------    
     EE_PUP_CNT      = 2,    // count power-ups
     EE_SEED         = 4,    // random seed  
