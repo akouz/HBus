@@ -1016,7 +1016,7 @@ Broadcast Payload to specified TopicId.
 
 A sample of pre-defined topic "time" message (header shown  in hex, payload in ASCII):
 ```
-4C 00 10 00 01 02 FA 01  23 2C A3 69 {atime:590127977, tz:570, daysec:50177, hr:13, min:56}
+4C 00 10 00 01 02 FA 01  23 2C A3 69 {atime:590127977, tz:600, daysec:51977, hr:14, min:26}
 ```
 
   * 4C - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
@@ -1027,7 +1027,7 @@ A sample of pre-defined topic "time" message (header shown  in hex, payload in A
   * 01 - DF=1, JSON payload
   * 23 2C A3 69 - timestamp, hex number of seconds since 00:00:00 01/01/2001 UTC
   * atime - absolute time, decimal number of seconds since 00:00:00 01/01/2001 UTC
-  * tz - time zone, offset 570 min from UTC, it is 9hr 30 min, eg Adelaide time zone
+  * tz - time zone, offset 600 min from UTC, it is 10hr 00 min, eg Australia East Coast time zone (Sydney/Melbourne/Brtisbane)
   * daysec - number of seconds since midnight, local time zone
   * hr - day hour,  local time zone
   * min - minute of the hour,  local time zone
