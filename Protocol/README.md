@@ -410,6 +410,10 @@ Request from Node A to Node B
  
  Param - time interval, seconds. During that interval target node should not respond to the COLLECT command. 
  
+A sample of request from node 0x0404 to node 0x0010:
+```
+04 04 04 00 10 30 0B 0A  23 2C FD B9 
+```
  Reply from Node B to Node A
 
 <table>
@@ -431,6 +435,11 @@ Request from Node A to Node B
 <td>OkErr</td>
 <th>TS</th>
 </tr></tbody></table>
+
+A sample of reply from node 0x0010 to node 0x0404
+```
+84 04 04 00 10 30 08 00  23 2C FD C9 
+```
 
 ## [5] SET_ID
 
