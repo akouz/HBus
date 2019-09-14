@@ -283,7 +283,7 @@ Request from Node A to Node B
 
 A sample of request from node 0x0404 to node 0x0010:
 ```
-FF HBus 02 04 04 00 10 2C E3 00  23 2C EB AE 
+02 04 04 00 10 2C E3 00  23 2C EB AE 
 ```
  
  Reply from Node B to Node A
