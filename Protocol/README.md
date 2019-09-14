@@ -353,6 +353,10 @@ Request from node A to a Group
     * 3 - nodes with permanent ID
   * Slots - is number of 10ms time slots. Device should output its reply in a randomly selected time slot within specified number of slots. Number of slots must be in the range [4..63]
 
+A sample of request from node 0x0404 to group 1 (all nodes), 128 slots:
+```
+03 04 04 01 80 2F 4C 00  23 2C FC 6B 
+```
  Reply from a Group member Node B to Node A
 
 <table>
@@ -374,6 +378,11 @@ Request from node A to a Group
 <td>0</td>
 <th>TS</th>
 </tr></tbody></table>
+
+A sample of reply from node 0x0010:
+```
+83 04 04 00 10 2F 76 00  23 2C FC 7B 
+```
 
 ## [4] PING
 
