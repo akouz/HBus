@@ -978,15 +978,16 @@ Broadcast Payload to specified TopicId.
 
 Example of pre-defined topic "time" message (header shown  in hex, payload in ASCII):
 
-DC 00 06 00 01 02 B8 01  {atime:587564121, tz:570, daysec:78321, hr:21, min:45}
+4C 00 10 00 01 02 FA 01  23 2C A3 69 {atime:590127977, tz:570, daysec:50177, hr:13, min:56}
 
-  * DC - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
-  * 00 06 - message issued by NodeID = 0x0006
+  * 4C - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
+  * 00 10 - message issued by NodeID = 0x0010
   * 00 01 - TopicID=1, it is pre-defined topic "time"
   * 02 - MsgId = 0x02
-  * B8 - Nonce = 0xB8, random value
+  * FA - Nonce = 0xFA, random value
   * 01 - DF=1, JSON payload
-  * atime - absolute time, number of seconds since 00:00:00 01/01/2001 UTC
+  * 23 2C A3 69 - timestamp, hex number of seconds since 00:00:00 01/01/2001 UTC
+  * atime - absolute time, decimal number of seconds since 00:00:00 01/01/2001 UTC
   * tz - time zone, offset 570 min from UTC, it is 9hr 30 min, eg Adelaide time zone
   * daysec - number of seconds since midnight, local time zone
   * hr - day hour,  local time zone
