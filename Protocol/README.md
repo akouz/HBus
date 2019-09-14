@@ -1027,7 +1027,7 @@ A sample of pre-defined topic "time" message (header shown  in hex, payload in A
   * 01 - DF=1, JSON payload
   * 23 2C A3 69 - timestamp, hex number of seconds since 00:00:00 01/01/2001 UTC
   * atime - absolute time, decimal number of seconds since 00:00:00 01/01/2001 UTC
-  * tz - time zone, offset 600 min from UTC, it is 10hr 00 min, eg Australia East Coast time zone (Sydney/Melbourne/Brtisbane)
+  * tz - time zone, offset 600 min from UTC, it is 10hr 00 min, eg Australia East Coast time zone (Sydney/Melbourne/Brisbane)
   * daysec - number of seconds since midnight, local time zone
   * hr - day hour,  local time zone
   * min - minute of the hour,  local time zone
