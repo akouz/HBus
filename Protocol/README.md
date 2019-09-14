@@ -255,6 +255,8 @@ Sample of reply from node 0x0010 to node 0x0404
 ```
 81 04 04 00 10 D2 69 00  23 2C DC AE 02 01 01 00  00 01 01 0A 01 00 
 ```
+Please note a 16 sec mismatch between TS of node 0x0404 (0x232CDC9E from NodeTest on PC) and TS of node 0x0010 (0x232CDCAE from HBus Gateway). Unfortunatelly PC time is not accurate. 
+
 ## [2] STATUS
 
 Request from Node A to Node B
