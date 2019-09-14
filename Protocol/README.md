@@ -205,7 +205,11 @@ Request from Node A to Node B
 <td>TS</td> 
 </tr></tbody></table>
  
- Reply from Node B to Node A
+Sample of request from node 0x0404 to node 0x0010:
+ 
+01 04 04 00 10 D2 8F 00  23 2C DC 9E 
+
+Reply from Node B to Node A
 
 <table>
 <thead><tr>
@@ -246,6 +250,10 @@ Request from Node A to Node B
 <td>HbusRevMaj</td>
 <td>HbusRevMin</td>
 </tr></tbody></table>
+
+Sample of reply from node 0x0010 to node 0x0404
+
+81 04 04 00 10 D2 69 00  23 2C DC AE 02 01 01 00  00 01 01 0A 01 00 
 
 ## [2] STATUS
 
