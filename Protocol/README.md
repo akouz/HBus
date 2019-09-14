@@ -1014,9 +1014,10 @@ Broadcast Payload to specified TopicId.
 <td>Payload</td>
 </tr></tbody></table>
 
-Example of pre-defined topic "time" message (header shown  in hex, payload in ASCII):
-
+A sample of pre-defined topic "time" message (header shown  in hex, payload in ASCII):
+```
 4C 00 10 00 01 02 FA 01  23 2C A3 69 {atime:590127977, tz:570, daysec:50177, hr:13, min:56}
+```
 
   * 4C - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
   * 00 10 - message issued by NodeID = 0x0010
