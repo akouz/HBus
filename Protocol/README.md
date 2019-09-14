@@ -205,7 +205,7 @@ Request from Node A to Node B
 <td>TS</td> 
 </tr></tbody></table>
  
-Sample of request from node 0x0404 to node 0x0010:
+A sample of request from node 0x0404 to node 0x0010:
 ``` 
 01 04 04 00 10 D2 8F 00  23 2C DC 9E 
 ```
@@ -251,7 +251,7 @@ Reply from Node B to Node A
 <td>HbusRevMin</td>
 </tr></tbody></table>
 
-Sample of reply from node 0x0010 to node 0x0404
+A sample of reply from node 0x0010 to node 0x0404
 ```
 81 04 04 00 10 D2 69 00  23 2C DC AE 02 01 01 00  00 01 01 0A 01 00 
 ```
@@ -280,6 +280,11 @@ Request from Node A to Node B
 <td>0</td>
 <td>TS</td>
 </tr></tbody></table>
+
+A sample of request from node 0x0404 to node 0x0010:
+```
+FF HBus 02 04 04 00 10 2C E3 00  23 2C EB AE 
+```
  
  Reply from Node B to Node A
 
@@ -310,6 +315,11 @@ Request from Node A to Node B
   * 1 = [JSON](https://www.json.org/) 
   * 2 = [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md) 
   * other - TBD.
+
+A sample of reply from node 0x0010 to node 0x0404
+```
+82 04 04 00 10 2C C9 01  23 2C EB BF {tid:[512,513,514,515,516,517], val:[0,14.01,23.02,1020.15,52.53,845.82]}
+```
 
 ## [3] COLLECT
 
