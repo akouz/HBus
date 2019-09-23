@@ -1019,7 +1019,7 @@ A sample of pre-defined topic "time" message (header shown  in hex, payload in A
 4C 00 10 00 01 02 FA 01  23 2C A3 69 {atime:590127977, tz:600, daysec:51977, hr:14, min:26}
 ```
 
-  * 4C - high nibble 0xD is a random value; low nibble 0xC is PUBLISH code
+  * 4C - high nibble 0x4 is a random value; low nibble 0xC is PUBLISH code
   * 00 10 - message issued by NodeID = 0x0010
   * 00 01 - TopicID=1, it is pre-defined topic "time"
   * 02 - MsgId = 0x02
