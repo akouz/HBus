@@ -1,6 +1,6 @@
 /*
  * File     Pwr.cpp
- * Target   Arduino 
+ * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
@@ -13,7 +13,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 //##############################################################################
 // Inc
 //##############################################################################
@@ -34,7 +34,7 @@
 // Var
 //##############################################################################
 
-Pwr pwr; 
+Pwr pwr;
 
 //##############################################################################
 // Func
@@ -65,6 +65,7 @@ void Pwr::clr(void)
     sum[i] = 0;
     ave_sum[i] = 0;
     ave[i] = 0;
+    kwhr[0] = 0;
   }
   scnt = 0;
   mcnt = 0;
@@ -74,23 +75,24 @@ void Pwr::clr(void)
 // Store and calculate
 // =================================
 void Pwr::calc(uchar pts)
-{ 
-  uchar i;   
+{
+  uchar i;
   for (i=0; i<MAX_SNS; i++)
   {
     ipwr[i] = sum[i] / pts ;
     ave_sum[i] += ipwr[i];
-    sum[i] = 0;    
-  }  
-  if (++mcnt >= AVE_PTS) 
+    sum[i] = 0;
+  }
+  if (++mcnt >= AVE_PTS)  // every 0.4 sec
   {
     mcnt = 0;
     for (i=0; i<MAX_SNS; i++)
     {
       ave[i] = (int)(ave_sum[i] / (AVE_PTS * 10));  // W
+      kwhr[i] += ave[i] * 0.4/ 3600;     // kW*hr
       ave_sum[i] = 0;
     }
-  }  
+  }
 }
 
 /* EOF */

@@ -13,7 +13,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,10 +36,15 @@
 //##############################################################################
 
 // Power measurement
-#define MAX_SNS       2     // two inputs: total CT and solar CT
-#define MAX_MSR       3     // measured values: total, solar and midpoint
-#define MAX_PTS       19    // 19 measuremets in 20 ms, 1.024 ms interval
-#define AVE_PTS       200   // average for 200 mains periods, 0.4 sec
+enum{
+    MAX_SNS         = 2,     // two inputs: total CT and solar CT
+    MAX_MSR         = 3,     // measured values: total, solar and midpoint
+    MAX_PTS         = 19,    // 19 measuremets in 20 ms, 1.024 ms interval
+    AVE_PTS         = 200,   // average for 200 mains periods, 0.4 sec
+
+    GRID_PWR_I      = 0,
+    SOLAR_PWR_I     = 1,
+};
 
 //##############################################################################
 // Var
@@ -62,18 +67,19 @@ class Pwr{
       };
     };
     int     msr[MAX_MSR];       // measurement results
-    slong   vlt[MAX_PTS];       // instant voltage, estimated  
+    slong   vlt[MAX_PTS];       // instant voltage, estimated
     slong   icurr[MAX_SNS];     // instant current
-    float   ipwr[MAX_SNS];      // instant power 
+    float   ipwr[MAX_SNS];      // instant power
     float   sum[MAX_SNS];       // power accumulated during mains period
     float   ave_sum[MAX_SNS];   // power accumulated during several mains period
-    int     ave[MAX_SNS];       // average power 
+    float   kwhr[MAX_SNS];      // total energy (kW*hr) for each sensor
+    int     ave[MAX_SNS];       // average power
     int     displ[MAX_SNS];     // displayed power
     void    calc(uchar pts);
   private:
 };
 
-extern Pwr pwr; 
+extern Pwr pwr;
 
 
  #endif /* __PWR_H */
