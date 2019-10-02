@@ -1,5 +1,5 @@
 /*
- * File     HBcommon.h 
+ * File     HBcommon.h
  * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
@@ -13,7 +13,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 #ifndef __HB_COMMON_H
 #define __HB_COMMON_H
 
@@ -30,6 +30,7 @@
 // Inc
 //##############################################################################
 
+#include "HBconfig.h"
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <stdio.h>
@@ -44,41 +45,30 @@
 //              descriptors for HBcmd and HBmqtt; remove local file revisions
 // rev 0.7  -   16/03/2019, report value as 0 (no decimal point) if it is not valid
 // rev 0.8  -   29/04/2019, added CMD_TOPIC and REGISTER
-// rev 0.9  -   7/08/2019, HBcipher added, Tx byte-stuffing on-fly 
-// rev 0.10 -   12/08/2019, SET_ID command can change only tmp ID 
-// rev 0.11 -   13/08/2019, reject published values if time stamp mismatch 
-// rev 1.0 -    05/09/2019, timestamps added to message headers 
-// rev 1.1 -    10/09/2019, to save SRAM, hb_tx_msg_t used for tx messages 
+// rev 0.9  -   7/08/2019, HBcipher added, Tx byte-stuffing on-fly
+// rev 0.10 -   12/08/2019, SET_ID command can change only tmp ID
+// rev 0.11 -   13/08/2019, reject published values if time stamp mismatch
+// rev 1.0  -   05/09/2019, timestamps added to message headers
+// rev 1.1  -   10/09/2019, to save SRAM, hb_tx_msg_t used for tx messages
+// rev 1.2  -   01/10/2019, configurable params moved into HBconfig.h,
+//              PROGMEM used to minimise RAM
 
-
-#define SW_REV_MAJ  1
-#define SW_REV_MIN  1
 
 //##############################################################################
 // Def
 //##############################################################################
 
-#ifndef BUILTIN_LED
-  #define BUILTIN_LED   13
-#endif
-
-#define LED             BUILTIN_LED 
-
 enum{
-
-    TIME_ZONE       = 9*60 + 30,     // +9:30, Adelaide
 
     // HBus revision
     HB_REV_MAJ      = 1,
-    HB_REV_MIN      = 0,     
+    HB_REV_MIN      = 2,
 
-    // coos
-    COOS_TASKS      = 4,               
 
     // misc
-    DF_STATUS       = 1,    // use JSON in STATUS command    
-    TIME_TOLERANCE  = 10,  // +/- 10 sec
-  
+    DF_STATUS       = 1,    // use JSON in STATUS command
+    TIME_TOLERANCE  = 60,  // +/- 1 min
+
     // byte-stuffing
     _ESC            = 0x1B,
     _ESC_START_HB   = 2,  // HBus
@@ -98,34 +88,33 @@ enum{
     // common constants
     READY           = 1,
     NOT_READY       = 0,
-  
+
     OK              = 0,
     SKIP            = 2,
     ERR             = 0xEE,
     ERR_BUSY        = 0xE0,
     ERR_PARAM       = 0xE1,
-    ERR_ECHO        = 0xE2,   
+    ERR_ECHO        = 0xE2,
     ERR_UNKNOWN     = 0xE3,
     ERR_OVERFLOW    = 0xE4,
     ERR_SECURITY    = 0xE5,
-    ERR_TMOUT       = 0xE6,   
+    ERR_TMOUT       = 0xE6,
 
     // settings
     MAX_BUF         = 0x90,
-    MAX_TX_BUF      = 0x50,
-    
-    // ------------------------------------    
-    // EEPROM addresses 
-    // ------------------------------------    
+
+    // ------------------------------------
+    // EEPROM addresses (max EEPROM size 1024 bytes)
+    // ------------------------------------
     EE_PUP_CNT      = 2,    // count power-ups
-    EE_SEED         = 4,    // random seed  
+    EE_SEED         = 4,    // random seed
     EE_OWN_ID       = 6,    // own NodeId
     EE_TZ           = 10,   // time zone
     EE_SECURITY     = 12,   // access control settings
-    EE_SECURITY_INV = 14,   // inverted access control settings 
-    EE_XTEA_KEY     = 0x30, // XTEA cipher key, 16 bytes 
+    EE_SECURITY_INV = 14,   // inverted access control settings
+    EE_XTEA_KEY     = 0x30, // XTEA cipher key, 16 bytes
     EE_DESCR        = 0x40, // description c-string, up to 64 chars
-    EE_TOPIC_ID     = 0x80, // own TopicIds, 2-bytes each, up to 32 topics    
+    EE_TOPIC_ID     = 0x80, // own TopicIds, 2-bytes each, up to 32 topics
 };
 
 //##############################################################################
@@ -144,7 +133,7 @@ enum{
 
 #ifndef __HB_MSG_T__
 #define __HB_MSG_T__
- 
+
 typedef struct{
   uchar buf[MAX_BUF];
   uint  crc;
@@ -156,7 +145,7 @@ typedef struct{
       unsigned gate     : 1;
       unsigned esc      : 1;
       unsigned hb       : 1;
-      unsigned encrypt  : 1;      
+      unsigned encrypt  : 1;
       unsigned ts_ok    : 1;
       unsigned valid    : 1;
       unsigned busy     : 1;
@@ -175,7 +164,7 @@ typedef struct{
       unsigned gate     : 1;
       unsigned esc      : 1;
       unsigned hb       : 1;
-      unsigned encrypt  : 1;      
+      unsigned encrypt  : 1;
       unsigned ts_ok    : 1;
       unsigned valid    : 1;
       unsigned busy     : 1;
@@ -184,23 +173,25 @@ typedef struct{
 }hb_tx_msg_t;
 #endif
 
- 
+
 //##############################################################################
 // Var
 //##############################################################################
 
-extern uint pup_cnt; 
+extern uint pup_cnt;
 extern uint node_seed;
 extern uint led_cnt;
 
 extern StaticJsonBuffer<128> jsonBuf;
 extern Coos <COOS_TASKS, 1> coos;    // 1.024 ms ticks
 
+extern const uchar node_descr[];
+
 //##############################################################################
 // Func
 //##############################################################################
 
-void blink(uint dur); 
+void blink(uint dur);
 
 uchar print_val(uchar val, uchar i);
 void print_buf(const char* name, hb_msg_t* msg);
