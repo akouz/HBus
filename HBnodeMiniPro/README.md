@@ -1,3 +1,3 @@
 # Template HBus implementation for Arduino Mini Pro
 
-Current firmware revision 1.1 uses 63% of flash and 63% of SRAM.
+Current firmware revision 1.2 uses 64% of flash and 61% of SRAM.
