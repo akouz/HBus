@@ -9,10 +9,9 @@
 NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeTest uses a USB-UART bridge with CAN transceiver. It could be a dedicated galvanically isolated [HBus USB bridge](https://github.com/akouz/HBus/tree/master/Devices/02_USB_Bridge), or a cheap [generic USB-UART bridge](https://www.ebay.com.au/sch/i.html?_from=R40&_trksid=m570.l1313&_nkw=usb+to+uart+bridge+board&_sacat=0&LH_TitleDesc=0&ul_noapp=true&_odkw=usb+to+uart+bridge) with a [CAN transceiver board](https://www.amazon.com/SN65HVD230-CAN-Board-Communication-Development/dp/B00KM6XMXO). 
 
 ## 1. Initial settings
+  * Assign NodeTest Own ID. In the sample shown NodeTest ID is set to 0x0404. Value should be in the range 0x0001...0x07FF. 
   * Select COM port connected to HBus. 
 ![Pic1_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_1.png)
-  * Assign NodeTest Own ID. In the sample shown NodeTest ID is set to 0xB055.
-![Pic1_2](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic1_2.png)
   * When NodeTest closed, it stores its settings in .ini files. 
 
 ## 2. Discover HBus nodes and assign permanent ID
