@@ -112,16 +112,15 @@ void setup()
         EEPROM.write(EE_PUP_CNT, (uchar)(pup_cnt >> 8));
         EEPROM.write(EE_PUP_CNT+1, (uchar)pup_cnt);
     }
-    randomSeed(node_seed ^ pup_cnt);    // randomize
+    randomSeed(node_seed ^ pup_cnt);            // randomize
     // if own ID is temporary
+    HBcmd.read_own_ID();                        // read NodeID from EEPROM
     if ((HBcmd.own.ID == 0) || (HBcmd.own.ID >= 0xF000))
     {
         HBcmd.own.ID = 0xF000 | random(0x1000); // then randomize it
         EEPROM.write(EE_OWN_ID, HBcmd.own.id[1]);
         EEPROM.write(EE_OWN_ID+1, HBcmd.own.id[0]);
     }
-    HBcmd.set_descriptor((uchar*)node_descr);           // set descriptor for REV command
-
     // cipher and security
     HBcipher.get_EE_key();
     HBcmd.read_security(HBcipher.valid);

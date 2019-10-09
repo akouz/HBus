@@ -13,7 +13,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,18 +22,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
 #ifndef __HB_CMD_H
 #define __HB_CMD_H
 
 //##############################################################################
-// Inc                                              
+// Inc
 //##############################################################################
 
 #include  "HBcommon.h"
 
 //##############################################################################
-// Def                                              
+// Def
 //##############################################################################
 
 enum{
@@ -47,7 +47,7 @@ enum{
   CMD_DESCR          = 8,
   CMD_SECURITY       = 9,
   CMD_CUSTOM         = 10,
-  CMD_TOPIC          = 11,   
+  CMD_TOPIC          = 11,
 };
 
 //##############################################################################
@@ -79,38 +79,36 @@ class HB_cmd{
             unsigned                : 2;    // not used
             unsigned                : 3;    // not used here, those flags are for MQTT mode
         };
-    } allow;    // allowed unecrypted access    
+    } allow;    // allowed unecrypted access
     uint        ignore_traffic;                 // in 10 ms ticks
-    void        set_descriptor(uchar* descr);   // 8-bytes long descriptor
     hb_tx_msg_t*   process_rx_cmd(hb_msg_t* rxmsg);
     void        set_custom_cmd(hb_tx_msg_t* (*c_cmd)(hb_msg_t* msg));
     void        tick10ms(void);
-    void        read_own_ID(void);    
-    void        read_security(uchar key_valid);    
+    void        read_own_ID(void);
+    void        read_security(uchar key_valid);
 
   private:
-    uchar*      node_descr;           // node descriptor 
     union{
         uint ID;
         uchar id[2];
     }msg;
     uchar       rply_tmout;
     uint        ignore_collect;         // in 10 ms ticks
-    hb_tx_msg_t cmd_reply;    
-    uchar       rply_unknown(hb_msg_t* rxmsg, hb_tx_msg_t* rply);   
+    hb_tx_msg_t cmd_reply;
+    uchar       rply_unknown(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
     uchar       rply_rev(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
     uchar       rply_status(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
     uchar       rply_collect(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
     uchar       rply_ping(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
-    uchar       rply_setID(hb_msg_t* rxmsg, hb_tx_msg_t* rply); 
-    uchar       rply_boot(hb_msg_t* rxmsg, hb_tx_msg_t* rply); 
-    void        alien_boot(hb_msg_t* rxmsg); 
+    uchar       rply_setID(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    uchar       rply_boot(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
+    void        alien_boot(hb_msg_t* rxmsg);
     uchar       rply_beep(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
     uchar       rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
-    uchar       rply_security(hb_msg_t* rxmsg, hb_tx_msg_t* rply);    
+    uchar       rply_security(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
     uchar       rply_custom(hb_msg_t* rxmsg, hb_tx_msg_t* rply);
-    uchar       rply_topic(hb_msg_t* rxmsg, hb_tx_msg_t* rply);    // read MQTT topic 
-    hb_tx_msg_t*   (*custom_cmd)(hb_msg_t* msg);   // user-defined custom command    
+    uchar       rply_topic(hb_msg_t* rxmsg, hb_tx_msg_t* rply);    // read MQTT topic
+    hb_tx_msg_t*   (*custom_cmd)(hb_msg_t* msg);   // user-defined custom command
 };
 extern HB_cmd HBcmd;
 

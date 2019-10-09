@@ -47,14 +47,14 @@ Coos <COOS_TASKS, 1> coos;  // declare cooperative operating system
 //uint tag[2];
 
 const uchar node_descr[] PROGMEM = {
-HB_DEV_TYPE,
-HB_DEV_MODEL,
-HB_HW_REV_MAJ,
-HB_HW_REV_MIN,
-HB_BOOT_REV_MAJ,
-HB_BOOT_REV_MIN,
-HB_SKETCH_REV_MAJ,
-HB_SKETCH_REV_MIN
+    HB_DEV_TYPE,
+    HB_DEV_MODEL,
+    HB_HW_REV_MAJ,
+    HB_HW_REV_MIN,
+    HB_BOOT_REV_MAJ,
+    HB_BOOT_REV_MIN,
+    HB_SKETCH_REV_MAJ,
+    HB_SKETCH_REV_MIN
 };
 
 //##############################################################################

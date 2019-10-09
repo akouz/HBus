@@ -52,7 +52,7 @@
 // rev 1.1  -   10/09/2019, to save SRAM, hb_tx_msg_t used for tx messages
 // rev 1.2  -   01/10/2019, configurable params moved into HBconfig.h,
 //              PROGMEM used to minimise RAM
-
+// rev 1.3  -   09/10/2019, bug fix
 
 //##############################################################################
 // Def

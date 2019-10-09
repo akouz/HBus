@@ -51,7 +51,6 @@ HB_cmd::HB_cmd(void)
     this->cmd_reply.len = 0;
     this->cmd_reply.all = 0;
     this->own.ID = 0;
-    this->node_descr = NULL;
     this->custom_cmd = NULL;
 }
 
@@ -61,7 +60,7 @@ HB_cmd::HB_cmd(void)
 void HB_cmd::read_own_ID(void)
 {
     this->own.id[1] = EEPROM.read(EE_OWN_ID);
-    this->own.id[0] = EEPROM.read(EE_OWN_ID+1);
+    this->own.id[0] = EEPROM.read(EE_OWN_ID + 1);
 }
 
 // =====================================
@@ -84,14 +83,6 @@ void HB_cmd::read_security(uchar key_valid)
             HBmqtt.allow.all = val;     // MQTT mode settings
         }
     }
-}
-
-// =====================================
-// Set descriptor required for REV command
-// =====================================
-void HB_cmd::set_descriptor(uchar* descr)
-{
-    this->node_descr = descr;
 }
 
 // =====================================
@@ -195,27 +186,23 @@ uchar HB_cmd::rply_rev(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
     if ((rxmsg->encrypt) || (this->allow.rev))
     {
         copy_msg_hdr(rxmsg, 0, 6, rply);
-        add_txmsg_uchar(rply, random(0x100));  // nonce
+        add_txmsg_uchar(rply, random(0x100));   // nonce
         add_txmsg_uchar(rply,  OK);
-        add_ts(rply);   // timestamp
-        for (uchar i=0; i<8; i++)
-        {
-            if (node_descr) // if descriptor supplied
-            {
-                add_txmsg_uchar(rply, node_descr[i]);
-            }
-            else
-            {
-                add_txmsg_uchar(rply, 0);
-            }
-        }
-        add_txmsg_uchar(rply, HB_REV_MAJ);   // HBus revision specified separately
+        add_ts(rply);                           // timestamp
+        add_txmsg_uchar(rply, HB_DEV_TYPE);
+        add_txmsg_uchar(rply, HB_DEV_MODEL);
+        add_txmsg_uchar(rply, HB_HW_REV_MAJ);
+        add_txmsg_uchar(rply, HB_HW_REV_MIN);
+        add_txmsg_uchar(rply, HB_BOOT_REV_MAJ);
+        add_txmsg_uchar(rply, HB_BOOT_REV_MIN);
+        add_txmsg_uchar(rply, HB_SKETCH_REV_MAJ);
+        add_txmsg_uchar(rply, HB_SKETCH_REV_MIN);
+        add_txmsg_uchar(rply, HB_REV_MAJ);      // HBus revision
         add_txmsg_uchar(rply, HB_REV_MIN);
         return READY;
     }
     return ERR_SECURITY;
 }
-
 // =====================================
 // Reply status
 // =====================================
