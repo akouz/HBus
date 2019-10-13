@@ -68,12 +68,20 @@ FF HBus 88 04 04 00 21 DF 0F 00  00 00 24 9B 09 Demo_node
 ```
 
 ## 4. MQTT mode
-  * Double click to NodeTest list box to clear it.
-  * Select MQTT tab and issue MQTT message. Issuing node ID 0xB055, eg it is NodeTest. Topic 101=0x65, value 12.3.
-  * Select HBus tab and issue STATUS command to node 0x1234.  In the reply node 0x1234 reports that its topic 101 value is 12.30.
-  * Topic 101 value becomes valid. Node sketch start broadcasting its valid topic values, issuing node 0x1234, topic 101, value 12.30. 
-  
-![Pic4_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic4_1.png)
+  * Select MQTT tab and issue MQTT message, value 12 to topic 1057 . Issuing node ID 0x0404, eg it is NodeTest.
+```  
+FF MQTT 2C 04 04 04 21 00 E0 01  23 53 11 3F {val:12} -- <TopicId=1057>
+```
+  * Select HBus tab and issue STATUS command to node 0x21.  In the reply node 0x21 reports its topics:
+```
+FF HBus 02 04 04 00 21 E1 F6 00  23 53 12 0A 
+FF HBus 82 04 04 00 21 E1 11 01  00 00 25 CF {tid:[1056,1057,1058,1059], val:[0,12.00,0,0]}
+```  
+Topic 1057 has float type value 12.00, other topics do not have valid values and displayed as 0.
+  * After a while node 0x21 will broadcast topic 1057 with value 12.00. It will repeat the broadcast approximately every 40 sec.
+```    
+FF MQTT 2C 00 21 04 21 0E 06 01  00 00 25 DF {val:12.00, topic:test2} -- <TopicId=1057>
+```    
 
 ## 5. Notes
   * You can select text in ListBox. Using Ctrl+C you can copy selected text lines to Clipboard.
