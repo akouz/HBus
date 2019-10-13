@@ -25,6 +25,20 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
   * Node replied OK, reply code 0x85. Its ID now is set to 0x0021. It is a permanent ID.
 ![Pic2_3](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_3.png)
 
+If device has topics, it tries to retrieve topic IDs from the net. For every topic it broadcast REGISTER command with TopicID=0 and waits a reply. If nobody replies, node asssigns TopicID basing on its NodeID and then broadcasts the pair [TopicID, TopicName] by REGISTER command/
+
+In the following sample node 0x021 requests TopicIDs for topics "test1", "test2", "test3", "test4". Nobody repies, therefore the node assignes TopicIDs as follows: "test1"=1056 (0x0420), "test2"=1057 (0x0421), "test3"=1058 (0x0422), "test3"=1059 (0x0423):
+
+FF MQTT 1A 00 21 00 00 02 AC 01  00 00 10 C2 test1 -- <TopicId=?>
+FF MQTT DA 00 21 04 20 03 93 01  00 00 10 C3 test1 -- <TopicId=1056>
+FF MQTT AA 00 21 00 00 04 F6 01  00 00 10 C3 test2 -- <TopicId=?>
+FF MQTT 0A 00 21 04 21 05 91 01  00 00 10 C4 test2 -- <TopicId=1057>
+FF MQTT 3A 00 21 00 00 06 29 01  00 00 10 C4 test3 -- <TopicId=?>
+FF MQTT 3A 00 21 04 22 07 FC 01  00 00 10 C5 test3 -- <TopicId=1058>
+FF MQTT AA 00 21 00 00 08 59 01  00 00 10 C5 test4 -- <TopicId=?>
+FF MQTT 2A 00 21 04 23 09 F3 01  00 00 10 C6 test4 -- <TopicId=1059>
+
+
 ## 3. Explore HBus node and set description
   * Double click to NodeTest list box to clear it.
   * NodeTest issues REV command to node 0x1234, code 0x01. Node replies DevType 2, DevModel 1, h/w revision 0.1, bootloader revision 0.1, s/w revision 0.1, HBus library revision 0.6
