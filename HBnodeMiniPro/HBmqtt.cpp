@@ -31,44 +31,91 @@
 #include "HBcmd.h"
 
 //##############################################################################
+// Def
+//##############################################################################
+
+#ifndef TOPIC0
+    #define TOPIC0 ""
+#endif
+#ifndef TOPIC1
+    #define TOPIC1 ""
+#endif
+#ifndef TOPIC2
+    #define TOPIC2 ""
+#endif
+#ifndef TOPIC3
+    #define TOPIC3 ""
+#endif
+#ifndef TOPIC4
+    #define TOPIC4 ""
+#endif
+#ifndef TOPIC5
+    #define TOPIC5 ""
+#endif
+#ifndef TOPIC6
+    #define TOPIC6 ""
+#endif
+#ifndef TOPIC7
+    #define TOPIC7 ""
+#endif
+#ifndef TOPIC8
+    #define TOPIC8 ""
+#endif
+#ifndef TOPIC9
+    #define TOPIC9 ""
+#endif
+#ifndef TOPIC10
+    #define TOPIC10 ""
+#endif
+#ifndef TOPIC11
+    #define TOPIC11 ""
+#endif
+#ifndef TOPIC12
+    #define TOPIC12 ""
+#endif
+#ifndef TOPIC13
+    #define TOPIC13 ""
+#endif
+#ifndef TOPIC14
+    #define TOPIC14 ""
+#endif
+#ifndef TOPIC14
+    #define TOPIC14 ""
+#endif
+#ifndef TOPIC15
+    #define TOPIC15 ""
+#endif
+
+//##############################################################################
 // Var
 //##############################################################################
 
 HB_mqtt HBmqtt;
 
-const char topic0[] PROGMEM = {TOPIC0};
-const char topic1[] PROGMEM = {TOPIC1};
-const char topic2[] PROGMEM = {TOPIC2};
-const char topic3[] PROGMEM = {TOPIC3};
-const char topic4[] PROGMEM = {TOPIC4};
-const char topic5[] PROGMEM = {TOPIC5};
-const char topic6[] PROGMEM = {TOPIC6};
-const char topic7[] PROGMEM = {TOPIC7};
+const char topic0[] PROGMEM = TOPIC0;
+const char topic1[] PROGMEM = TOPIC1;
+const char topic2[] PROGMEM = TOPIC2;
+const char topic3[] PROGMEM = TOPIC3;
+const char topic4[] PROGMEM = TOPIC4;
+const char topic5[] PROGMEM = TOPIC5;
+const char topic6[] PROGMEM = TOPIC6;
+const char topic7[] PROGMEM = TOPIC7;
 
-const char topic8[] PROGMEM = {TOPIC8};
-const char topic9[] PROGMEM = {TOPIC9};
-const char topic10[] PROGMEM = {TOPIC10};
-const char topic11[] PROGMEM = {TOPIC11};
-const char topic12[] PROGMEM = {TOPIC12};
-const char topic13[] PROGMEM = {TOPIC13};
-const char topic14[] PROGMEM = {TOPIC14};
-const char topic15[] PROGMEM = {TOPIC15};
+const char topic8[] PROGMEM = TOPIC8;
+const char topic9[] PROGMEM = TOPIC9;
+const char topic10[] PROGMEM = TOPIC10;
+const char topic11[] PROGMEM = TOPIC11;
+const char topic12[] PROGMEM = TOPIC12;
+const char topic13[] PROGMEM = TOPIC13;
+const char topic14[] PROGMEM = TOPIC14;
+const char topic15[] PROGMEM = TOPIC15;
 
 
-// topics
+// up to 16 topic names
 const char* const ownTopicName[] PROGMEM = {
 topic0,  topic1,  topic2,  topic3,   topic4,  topic5,  topic6,  topic7,
 topic8,  topic9,  topic10, topic11,  topic12, topic13, topic14, topic15
 };
-
-#ifdef BROADCAST_TOPIC_NAME
-const uchar ownTopicNameLen[] PROGMEM = {
-sizeof(topic0),  sizeof(topic1),  sizeof(topic2),  sizeof(topic3),
-sizeof(topic4),  sizeof(topic5),  sizeof(topic6),  sizeof(topic7),
-sizeof(topic8),  sizeof(topic9),  sizeof(topic10), sizeof(topic11),
-sizeof(topic12), sizeof(topic13), sizeof(topic14), sizeof(topic15)
-};
-#endif
 
 uint ownTopicId[MAX_TOPIC];
 
@@ -81,20 +128,63 @@ uint ownTopicId[MAX_TOPIC];
 // =============================================
 HB_mqtt::HB_mqtt(void)
 {
-    mqmsg.all = 0;
-    mqmsg.len = 0;
-    MsgID = 1;
-    MsgID_cnt = 0;
-    MsgID_err_cnt = 0;
+    this->mqmsg.all = 0;
+    this->mqmsg.len = 0;
+    this->MsgID = 1;
+    this->MsgID_cnt = 0;
+    this->MsgID_err_cnt = 0;
     for (uchar i=0; i<MAX_TOPIC; i++)
     {
-        valid[i].all = 0;
+        this->valid[i].all = 0;
         ownTopicId[i] = 0;
-        if ((ownTopicName[i]) && (ownTopicName[i][0]))
+    }
+}
+// =============================================
+// Copy topic from progmem
+// =============================================
+uchar copy_topic(uchar i, char* buf)
+{
+    uint len;
+    if (i<MAX_TOPIC)
+    {
+        char* ptr = (char*) pgm_read_word(&ownTopicName[i]);
+        if (ptr)
         {
-            valid[i].topic_name = 1;
+            strcpy_P(buf, ptr);
+            len = strlen(buf);
+            if ((len) && (len < 0x40))
+            {
+                return len;
+            }
         }
     }
+    return 0;
+}
+
+// =============================================
+// Set flags for valid topics
+// =============================================
+uchar HB_mqtt::validate_topics(void)
+{
+    uchar res = 0;
+    char buf[0x80];
+#ifdef DEBUG
+    Serial.println(F("Topics:"));
+#endif
+    for (uchar i=0; i<MAX_TOPIC; i++)
+    {
+        if (copy_topic(i, buf))
+        {
+#ifdef DEBUG
+            Serial.print(i);
+            Serial.print(F(": topic_name="));
+            Serial.println(buf);
+#endif
+            this->valid[i].topic_name = 1;
+            res++;
+        }
+    }
+    return res;
 }
 
 // =============================================
@@ -171,9 +261,9 @@ void  HB_mqtt::get_MsgID(uchar msg_id)
 // =============================================
 char HB_mqtt::rd_msg(hb_msg_t* msg)
 {
-    static const char S_val[] PROGMEM = "val";
-    static const char S_atime[] PROGMEM = "atime";
-    static const char S_daysec[] PROGMEM = "daysec";
+    static const char S_val[] = "val";
+    static const char S_atime[] = "atime";
+    static const char S_daysec[] = "daysec";
     schar res = -2;
     uchar mt = msg->buf[0] & 0x0F;                      // MsgType is low nibble
     uint tid = 0x100*(uint)msg->buf[3] + msg->buf[4];   // TopicId
@@ -192,7 +282,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
                 if (res >= 0) // it is one of own topics
                 {
                     jsonBuf.clear();
-                    JsonObject& root = jsonBuf.parseObject(msg->buf+8);
+                    JsonObject& root = jsonBuf.parseObject(msg->buf+12);
                     if (root.success())
                     {
                         value[(uchar)res] = root[S_val];
@@ -204,7 +294,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
             else if (tid == 1) // it is pre-defined topic "time"
             {
                 jsonBuf.clear();
-                JsonObject& root = jsonBuf.parseObject(msg->buf+8);
+                JsonObject& root = jsonBuf.parseObject(msg->buf+12);
                 if (root.success())
                 {
                     if (coos.uptime < 0x10000000) // time never been updated
@@ -260,7 +350,7 @@ char HB_mqtt::rd_msg(hb_msg_t* msg)
                 {
                     if (ownTopicId[(uchar)res]) // ownTopicId was assigned
                     {
-                        make_msg_reg((uchar)res);  // broadcast it
+                        make_msg_register((uchar)res);  // broadcast it
                         blink(10);
                     }
                 }
@@ -318,21 +408,21 @@ void HB_mqtt::make_msg_header(uchar MsgType, uint tid)
     add_txmsg_uchar(&mqmsg, MsgID);                 // MsgId
     add_txmsg_uchar(&mqmsg, random(0x100));         // nonce
     add_txmsg_uchar(&mqmsg, 1);                     // DF = JSON
+    add_ts(&mqmsg);                                 // timestamp
  }
 
 // =============================================
-// Make a pseudo-MQTT-SN message REGISTER
+// Make a MQTT-SN message REGISTER
 // =============================================
-uchar HB_mqtt::make_msg_reg(uchar ti)
+uchar HB_mqtt::make_msg_register(uchar ti)
 {
     mqmsg.valid = 0;
+    char buf[0x40];
     if ((ti < MAX_TOPIC) && (valid[ti].topic_name))
     {
         make_msg_header(MT_REGISTER, ownTopicId[ti]);
-        if ((ownTopicName[ti]) && (ownTopicName[ti][0]))
-        {
-            add_txmsg_z_str(&mqmsg, (char*)ownTopicName[ti]);
-        }
+        copy_topic(ti, buf);    // topic name
+        add_txmsg_z_str(&mqmsg, buf);
         finish_txmsg(&mqmsg);
         mqmsg.encrypt = (allow.broadcast)? 0 : 1;   // can send unencrypted?
         mqmsg.hb = 0;
@@ -344,7 +434,7 @@ uchar HB_mqtt::make_msg_reg(uchar ti)
 }
 
 // =============================================
-// Make message PUBLISH
+// Make a MQTT-SN message PUBLISH
 // =============================================
 // if len=0 then treat buf as a text string
 uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
@@ -405,21 +495,19 @@ uchar HB_mqtt::make_msg_publish(uint tid, uchar* buf, uchar len)
 
 #ifdef BROADCAST_TOPIC_NAME
 // =============================================
-// Add topic name to the publishet message
+// Add topic name to the published message
 // =============================================
 uchar  HB_mqtt::add_tname(uchar idx, char* buf)
 {
-    uchar len = 0;
-    const char str[] PROGMEM = ", topic:";
-    if (ownTopicNameLen[idx])
+    char cmnt[] = ", topic:"; // 8 chars
+    strcpy(buf, cmnt);
+    uchar len = copy_topic(idx, buf + 8);
+    if (len)
     {
-        copy_buf((uchar*)str, (uchar*)buf, 8);
-        buf[8] = '"';
-        copy_buf((uchar*)ownTopicName[idx], (uchar*)(buf+9), ownTopicNameLen[idx]-1);
-        len = 8 + ownTopicNameLen[idx];
-         buf[len++] = '"';
+//        Serial.print(buf);
+        return len + 8;
     }
-    return len;
+    return 0;
 }
 #endif
 
@@ -428,12 +516,11 @@ uchar  HB_mqtt::add_tname(uchar idx, char* buf)
 // =============================================
 hb_tx_msg_t* HB_mqtt::publish_own_val(uint idx)
 {
-    uint len;
     uint tid = ownTopicId[idx]; // topic ID
     if (tid)
     {
         make_msg_header(MT_PUBLISH, tid);
-        len = sprintf(mbuf,"{val:");
+        uint len = sprintf(mbuf,"{val:");
         if (valid[idx].value)
         {
             dtostrf(value[idx], 4,2, mbuf+len);
@@ -448,6 +535,8 @@ hb_tx_msg_t* HB_mqtt::publish_own_val(uint idx)
         {
             len += sprintf(mbuf+len, "0}");
         }
+//        Serial.print(F(" mbuf="));
+//        Serial.println(mbuf);
         add_txmsg_z_str(&mqmsg, mbuf);              // add mbuf as a z-string to HBus message
         finish_txmsg(&mqmsg);                       // finish message to HBus
         mqmsg.encrypt = (allow.broadcast)? 0 : 1;   // can send unencrypted?
@@ -493,7 +582,7 @@ uchar HB_mqtt::init_topic_id(uint node_id)
             {
 //                Serial.print(", request");
                 valid[ti].topic = 0;
-                make_msg_reg(ti); // issue REGISTER with TopicId=0
+                make_msg_register(ti); // issue REGISTER with TopicId=0
                 state++;
             }
         }
@@ -507,7 +596,7 @@ uchar HB_mqtt::init_topic_id(uint node_id)
             EEPROM.write(addr, (uchar)(ownTopicId[ti] >> 8));
             EEPROM.write(addr+1, (uchar)ownTopicId[ti]);
             valid[ti].topic = 1;
-            make_msg_reg(ti);   // issue REGISTER with newly assigned ownTopicId - targeting gateways
+            make_msg_register(ti);   // issue REGISTER with newly assigned ownTopicId - targeting gateways
         }
         state = (++ti >= MAX_TOPIC) ? 99 : 0;  // next topic or finish
         break;

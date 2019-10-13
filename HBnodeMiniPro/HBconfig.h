@@ -56,26 +56,15 @@
 
 #define MAX_TX_BUF      0x50    // to save RAM, Tx buffer length might be shorter than MAX_BUF = 0x90
 
-#define MAX_TOPIC       8       // should be less than 16
+#define MAX_TOPIC       4       // should be not greater than 16
 
 #define BROADCAST_TOPIC_NAME    // add tname="topic_name" to PUBLISH message
+// #define DEBUG                   // enable debug prints
 
-#define TOPIC0  ""
-#define TOPIC1  ""
-#define TOPIC2  ""
-#define TOPIC3  ""
-#define TOPIC4  ""
-#define TOPIC5  ""
-#define TOPIC6  ""
-#define TOPIC7  ""
-
-#define TOPIC8  ""
-#define TOPIC9  ""
-#define TOPIC10  ""
-#define TOPIC11  ""
-#define TOPIC12  ""
-#define TOPIC13  ""
-#define TOPIC14  ""
-#define TOPIC15  ""
+// define topic names TOPIC0 ... TOPIC15
+#define TOPIC0  "test1"
+#define TOPIC1  "test2"
+#define TOPIC2  "test3"
+#define TOPIC3  "test4"
 
 #endif /* __HB_CONFIG_H */

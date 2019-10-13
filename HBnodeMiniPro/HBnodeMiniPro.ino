@@ -37,6 +37,24 @@
 //##############################################################################
 
 // ========================================
+// Debug - blink LED every sec
+// ========================================
+void coos_task_debug(void)
+{
+    COOS_DELAY(10000);
+    while(1)
+    {
+#ifdef DEBUG
+        Serial.print(F(" millis="));
+        Serial.println(millis());
+#endif
+        digitalWrite(LED,HIGH);
+        COOS_DELAY(20);
+        digitalWrite(LED,LOW);
+        COOS_DELAY(980);
+    }
+}
+// ========================================
 // Broadcast topic values
 // ========================================
 // if node has permanent ID (eg if node configured) then every 10 sec
@@ -63,9 +81,13 @@ void coos_task_broadcast(void)
         COOS_DELAY(10000);  // pause 10 sec
         if (HBcmd.own.ID < 0xF000) // if not a temporary ID
         {
-            if ((HBmqtt.valid[idx].value) && (ownTopicId[idx]))  // broadcast only valid values
+            if ((HBmqtt.valid[idx].value) && (HBmqtt.valid[idx].topic))  // broadcast only valid values
             {
-                HBmqtt.publish_own_val(idx);      // to HBus, also prepare MQTT message
+                HBmqtt.publish_own_val(idx);
+            }
+            if (++idx > MAX_TOPIC)
+            {
+                idx = 0;
             }
         }
     }
@@ -76,25 +98,21 @@ void coos_task_broadcast(void)
 // ========================================
 void print_hdr_txt(uint cnt, uint sd, uint ID)
 {
-    const char hdr[] PROGMEM =  "=== HBnode Mini Pro ===";
-    const char txt1[] PROGMEM = "Power-up cnt = ";
-    const char txt2[] PROGMEM = ", restored seed = ";
-    const char txt3[] PROGMEM = ", node ID = 0x";
-    const char txt4[] PROGMEM = ", cipher valid";
     Serial.println();
-    for (uchar i=0; i<strlen(hdr); i++)  {  Serial.print('=');  }
+    for (uchar i=0; i<23; i++)  {  Serial.print('=');  }
     Serial.println();
-    Serial.println(hdr);
-    for (uchar i=0; i<strlen(hdr); i++)  {  Serial.print('=');  }
+    Serial.println(F("=== HBnode Mini Pro ==="));
+    for (uchar i=0; i<23; i++)  {  Serial.print('=');  }
     Serial.println();
-    Serial.print(txt1);
+    Serial.print(F("Power-up_cnt="));
     Serial.print(cnt);
-    Serial.print(txt2);
+    Serial.print(F(", restored_seed="));
     Serial.print(sd);
-    Serial.print(txt3);
+    Serial.print(F(", node_ID=0x"));
     Serial.print(ID, HEX);
     if (HBcipher.valid)
-      Serial.print(txt4);
+      Serial.print(F(", cipher_valid"));
+    Serial.println();
 }
 
 // ========================================
@@ -126,12 +144,27 @@ void setup()
     HBcmd.read_security(HBcipher.valid);
 
     print_hdr_txt(pup_cnt, node_seed, HBcmd.own.ID);    // optional splash screen for debug
+    uchar tcnt = HBmqtt.validate_topics();
+
+#ifdef DEBUG
+    if (tcnt)
+    {
+        Serial.print((char*)" valid_topics=");
+        Serial.println(tcnt);
+    }
+    else
+    {
+        Serial.println((char*)" no_valid_topics");
+    }
+#endif
+
     wdt_enable(WDTO_120MS);                             // watchdog time-out 120 ms
 
     // register COOS tasks
     coos.register_task(coos_task_HBus_rxtx);            // HBus rx/tx task
     coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation
     coos.register_task(coos_task_broadcast);            // as a sample...
+//    coos.register_task(coos_task_debug);              // blink LED every sec
 
     // init registered tasks
     coos.start();

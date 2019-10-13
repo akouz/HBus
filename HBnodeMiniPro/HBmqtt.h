@@ -47,14 +47,14 @@ enum{
 //##############################################################################
 
 extern const char* const ownTopicName[];
-extern uint ownTopicId[];         
+extern uint ownTopicId[];
 
 //##############################################################################
 // Class
 //##############################################################################
 
 union mq_valid_uni{
-    uint all;
+    uchar all;
     struct{
         unsigned    value       : 1;
         unsigned    topic       : 1;
@@ -79,12 +79,13 @@ class HB_mqtt{
     hb_tx_msg_t  mqmsg;
     float       value[MAX_TOPIC];                       // topic values
     union mq_valid_uni   valid[MAX_TOPIC];              // set of flags
+    uchar       validate_topics(void);
     char        rd_msg(hb_msg_t* msg);
-    uchar       make_msg_reg(uchar ti);                 // make REGISTER message
+    uchar       make_msg_register(uchar ti);            // make REGISTER message
     uchar       make_msg_publish(uint tid, uchar* buf, uchar len); // make PUBLISH message
     hb_tx_msg_t*   publish_own_val(uint idx);             // make PUBLISH message for own value
     uchar       make_msg_err(char* txt, uint errcode);  // make PUBLISH message topic="err"
-    void        read_topic_id(void);                    // restorew TopicId from EEPROM
+    void        read_topic_id(void);                    // restore TopicId from EEPROM
     uchar       init_topic_id(uint node_id);            // after power-up call this function
                                                         // repeatedly until it returns OK
     void        add_signature(char* buf, uint* len);
@@ -107,6 +108,7 @@ class HB_mqtt{
 
 extern HB_mqtt HBmqtt;
 
+uchar copy_topic(uchar i, char* buf);
 
 
 #endif /* __HB_MQTT_H */

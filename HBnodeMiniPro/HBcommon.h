@@ -35,7 +35,7 @@
 #include <EEPROM.h>
 #include <stdio.h>
 #include <ArduinoJson.h>    // https://github.com/bblanchon/ArduinoJson   rev 5.13.4
-#include <coos.h>           // https://github.com/akouz/a_coos  rev 1.5
+#include <coos.h>           // https://github.com/akouz/a_coos  rev 1.6
 
 //##############################################################################
 // History
@@ -52,7 +52,7 @@
 // rev 1.1  -   10/09/2019, to save SRAM, hb_tx_msg_t used for tx messages
 // rev 1.2  -   01/10/2019, configurable params moved into HBconfig.h,
 //              PROGMEM used to minimise RAM
-// rev 1.3  -   09/10/2019, bug fix
+// rev 1.3  -   09/10/2019...13/10/2019, bug fixes
 
 //##############################################################################
 // Def
@@ -62,7 +62,7 @@ enum{
 
     // HBus revision
     HB_REV_MAJ      = 1,
-    HB_REV_MIN      = 2,
+    HB_REV_MIN      = 3,
 
 
     // misc
@@ -185,7 +185,6 @@ extern uint led_cnt;
 extern StaticJsonBuffer<128> jsonBuf;
 extern Coos <COOS_TASKS, 1> coos;    // 1.024 ms ticks
 
-extern const uchar node_descr[];
 
 //##############################################################################
 // Func

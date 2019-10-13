@@ -46,17 +46,6 @@ Coos <COOS_TASKS, 1> coos;  // declare cooperative operating system
 
 //uint tag[2];
 
-const uchar node_descr[] PROGMEM = {
-    HB_DEV_TYPE,
-    HB_DEV_MODEL,
-    HB_HW_REV_MAJ,
-    HB_HW_REV_MIN,
-    HB_BOOT_REV_MAJ,
-    HB_BOOT_REV_MIN,
-    HB_SKETCH_REV_MAJ,
-    HB_SKETCH_REV_MIN
-};
-
 //##############################################################################
 // Func
 //##############################################################################
@@ -76,6 +65,7 @@ void blink(uint dur) // 10ms ticks
 // ========================================
 uchar print_val(uchar val, uchar i)
 {
+#ifdef DEBUG
     if (val < 0x10)
         Serial.print(F("0"));
     Serial.print(val, HEX);
@@ -91,6 +81,9 @@ uchar print_val(uchar val, uchar i)
     {
         return 0;
     }
+#else
+    return 0;
+#endif
 }
 
 // =====================================
@@ -98,6 +91,7 @@ uchar print_val(uchar val, uchar i)
 // =====================================
 void printbuf(uchar* buf, uchar len)
 {
+#ifdef DEBUG
     if ((buf) && (len))
     {
         Serial.print(F(" printing buf, len="));
@@ -119,6 +113,7 @@ void printbuf(uchar* buf, uchar len)
         }
         Serial.println();
     }
+#endif
 }
 
 // ========================================
@@ -126,6 +121,7 @@ void printbuf(uchar* buf, uchar len)
 // ========================================
 void print_buf(const char* name, hb_msg_t* msg)
 {
+#ifdef DEBUG
     uchar nl = 1;
     Serial.println();
     Serial.print(name);
@@ -149,6 +145,7 @@ void print_buf(const char* name, hb_msg_t* msg)
     }
     if (nl == 0)
         Serial.println();
+#endif        
 }
 
 // =============================================
@@ -324,7 +321,6 @@ void add_ts(hb_tx_msg_t* txmsg)
         add_txmsg_uchar(txmsg, tmp.uch[3-i]);
     }
 }
-
 // =============================================
 // Finish Tx message
 // =============================================
