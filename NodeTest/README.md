@@ -25,7 +25,7 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
   * Node replied OK, reply code 0x85. Its ID now is set to 0x0021. It is a permanent ID.
 ![Pic2_3](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic2_3.png)
 
-If device has topics, it tries to retrieve topic IDs from the net. For every topic it broadcast REGISTER command with TopicID=0 and waits a reply. If nobody replies, node asssigns TopicID basing on its NodeID and then broadcasts the pair [TopicID, TopicName] by REGISTER command/
+If device has topics, it tries to retrieve topic IDs from the net. For every topic it broadcast REGISTER command with TopicID=0 and waits for reply. If nobody replies, node asssigns a TopicID based on its own NodeID and then broadcasts the pair [TopicID, TopicName] by REGISTER command/
 
 In the following sample node 0x021 requests TopicIDs for topics "test1", "test2", "test3", "test4". Nobody repies, therefore the node assignes TopicIDs as follows: "test1"=1056 (0x0420), "test2"=1057 (0x0421), "test3"=1058 (0x0422), "test4"=1059 (0x0423):
 ```
@@ -45,18 +45,18 @@ FF MQTT 2A 00 21 04 23 09 F3 01  00 00 10 C6 test4 -- <TopicId=1059>
 FF HBus 01 04 04 00 21 D7 BD 00  23 53 08 6F 
 FF HBus 81 04 04 00 21 D7 C3 00  00 00 1C 3A 02 01 00 01  00 01 01 00 01 03 
 ```
-  * Click to "Read Status" button.  NodeTest issues REV command to node 0x0021, code 0x02. Node 0x0021 replies its status, it has 4 topics with TopicID 1056, 1057, 1058, 1058, but those topic values are not valid and displayed as 0:
+  * Click to "Read Status" button.  NodeTest issues REV command to node 0x0021, code 0x02. Node 0x0021 replies its status, it has 4 topics with TopicIDs of 1056, 1057, 1058, 1058, but those topic values are not valid and displayed as 0:
 ```
 FF HBus 02 04 04 00 21 D8 82 00  23 53 09 43 
 FF HBus 82 04 04 00 21 D8 3D 01  00 00 1D 0E {tid:[1056,1057,1058,1059], val:[0,0,0,0]}
 ```
 
-  * Click to Description "Read" button.  NodeTest issies RD_DESCR command, code 0x08. Node replies zero length string.
+  * Click to Description "Read" button.  NodeTest issues RD_DESCR command, code 0x08. Node replies zero length string.
 ```  
 FF HBus 08 04 04 00 21 DD 08 00  23 53 0F 82 
 FF HBus 88 04 04 00 21 DD 54 00  00 00 23 49 
 ```
-  * Type "Demo_node" in the Description edit box. Click to Description "Write" button.  NodeTest issies WR_DESCR command, code 0x09. Node replies "OK".
+  * Type "Demo_node" in the Description edit box. Click to Description "Write" button.  NodeTest isuies WR_DESCR command, code 0x09. Node replies "OK".
 ```
 FF HBus 08 04 04 00 21 DE B6 01  23 53 10 78 09 44 65 6D  6F 5F 6E 6F 64 65 
 FF HBus 88 04 04 00 21 DE F3 00  00 00 24 3E 00 
@@ -77,7 +77,7 @@ FF MQTT 2C 04 04 04 21 00 E0 01  23 53 11 3F {val:12} -- <TopicId=1057>
 FF HBus 02 04 04 00 21 E1 F6 00  23 53 12 0A 
 FF HBus 82 04 04 00 21 E1 11 01  00 00 25 CF {tid:[1056,1057,1058,1059], val:[0,12.00,0,0]}
 ```  
-Topic 1057 has float type value 12.00, other topics do not have valid values and displayed as 0.
+Now topic 1057 has a valid value 12.00, other topics do not have valid values and displayed as 0.
   * After a while node 0x21 will broadcast topic 1057 with value 12.00. It will repeat the broadcast approximately every 40 sec.
 ```    
 FF MQTT 2C 00 21 04 21 0E 06 01  00 00 25 DF {val:12.00, topic:test2} -- <TopicId=1057>
