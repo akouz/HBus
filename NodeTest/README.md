@@ -45,7 +45,7 @@ FF MQTT 2A 00 21 04 23 09 F3 01  00 00 10 C6 test4 -- <TopicId=1059>
 FF HBus 01 04 04 00 21 D7 BD 00  23 53 08 6F 
 FF HBus 81 04 04 00 21 D7 C3 00  00 00 1C 3A 02 01 00 01  00 01 01 00 01 03 
 ```
-  * Click to "Read Status" button.  NodeTest issues REV command to node 0x0021, code 0x02. Node 0x0021 replies its status, it has 4 topics with TopicID 1056, 1057, 1058, 1058, but their values are not valid and displayed as 0:
+  * Click to "Read Status" button.  NodeTest issues REV command to node 0x0021, code 0x02. Node 0x0021 replies its status, it has 4 topics with TopicID 1056, 1057, 1058, 1058, but those topic values are not valid and displayed as 0:
 ```
 FF HBus 02 04 04 00 21 D8 82 00  23 53 09 43 
 FF HBus 82 04 04 00 21 D8 3D 01  00 00 1D 0E {tid:[1056,1057,1058,1059], val:[0,0,0,0]}
