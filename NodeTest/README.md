@@ -27,7 +27,7 @@ NodeTest.exe is a Windows application to test and to configure HBus nodes. NodeT
 
 If device has topics, it tries to retrieve topic IDs from the net. For every topic it broadcast REGISTER command with TopicID=0 and waits a reply. If nobody replies, node asssigns TopicID basing on its NodeID and then broadcasts the pair [TopicID, TopicName] by REGISTER command/
 
-In the following sample node 0x021 requests TopicIDs for topics "test1", "test2", "test3", "test4". Nobody repies, therefore the node assignes TopicIDs as follows: "test1"=1056 (0x0420), "test2"=1057 (0x0421), "test3"=1058 (0x0422), "test3"=1059 (0x0423):
+In the following sample node 0x021 requests TopicIDs for topics "test1", "test2", "test3", "test4". Nobody repies, therefore the node assignes TopicIDs as follows: "test1"=1056 (0x0420), "test2"=1057 (0x0421), "test3"=1058 (0x0422), "test4"=1059 (0x0423):
 ```
 FF MQTT 1A 00 21 00 00 02 AC 01  00 00 10 C2 test1 -- <TopicId=?>
 FF MQTT DA 00 21 04 20 03 93 01  00 00 10 C3 test1 -- <TopicId=1056>
