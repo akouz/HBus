@@ -51,14 +51,22 @@ FF HBus 02 04 04 00 21 D8 82 00  23 53 09 43
 FF HBus 82 04 04 00 21 D8 3D 01  00 00 1D 0E {tid:[1056,1057,1058,1059], val:[0,0,0,0]}
 ```
 
-  
-  * NodeTest issues STATUS command, code 0x02. Node replies list of topics and list of topic values. 
-  * NodeTest issues BEEP command, code 0x07, with parameter 0x02. Node blinks its LED for 2 seconds.
-  * NodeTest issies RD_DESCR command, code 0x08. Node replies zero length string.
-  * NodeTest issies WR_DESCR command, code 0x09, with text string "Demo node", string length 9 bytes. Node replied OK.
-  * NodeTest issies RD_DESCR command, code 0x08. Node replies with string "Demo node".
-![Pic3_1](https://github.com/akouz/HBus/blob/master/NodeTest/Doc/pic3_1.png)
-  
+  * Click to Description "Read" button.  NodeTest issies RD_DESCR command, code 0x08. Node replies zero length string.
+```  
+FF HBus 08 04 04 00 21 DD 08 00  23 53 0F 82 
+FF HBus 88 04 04 00 21 DD 54 00  00 00 23 49 
+```
+  * Type "Demo_node" in the Description edit box. Click to Description "Write" button.  NodeTest issies WR_DESCR command, code 0x09. Node replies "OK".
+```
+FF HBus 08 04 04 00 21 DE B6 01  23 53 10 78 09 44 65 6D  6F 5F 6E 6F 64 65 
+FF HBus 88 04 04 00 21 DE F3 00  00 00 24 3E 00 
+```
+  * Click to Description "Read" button again.  Node replies description string.
+```
+FF HBus 08 04 04 00 21 DF 55 00  23 53 10 D5 
+FF HBus 88 04 04 00 21 DF 0F 00  00 00 24 9B 09 Demo_node
+```
+
 ## 4. MQTT mode
   * Double click to NodeTest list box to clear it.
   * Select MQTT tab and issue MQTT message. Issuing node ID 0xB055, eg it is NodeTest. Topic 101=0x65, value 12.3.
