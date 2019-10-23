@@ -30,16 +30,25 @@
 // Def
 //##############################################################################
 
-#ifndef BUILTIN_LED
-  #define BUILTIN_LED   13
-#endif
+// #define DEBUG                    // enable debug prints
 
-#define LED             BUILTIN_LED
+#define TIME_ZONE      (10*60)      // +10 hr, Australian East Coast time zone
 
-// -----------------------------------
+#define COOS_TASKS      4           // number of COOS tasks, keep it low to save RAM
+
+#define MAX_TX_BUF      0x50        // to save RAM, Tx buffer length might be shorter than MAX_BUF = 0x90
+
+#define BROADCAST_TOPIC_NAME        // add tname="topic_name" to PUBLISH message
+
+#define DEVICE_ID       0x021       // optional, alternatively it can be asasigned by NodeTest
+                                    // it must be in the range 1...0x07FF
+#define DEVICE_DESCRIPTION  "Demo_node"     // description is optional, alternatively it can be
+                                            // assigned by NodeTest, it must be less than 64 chars
+#define USE_DEFAULT_EE_KEY          // if not, EEPROM Key should be assigned by NodeTest
+
+// ------------------
 // Device descriptor for REV command
-// -----------------------------------
-// must be 8 bytes long
+// ------------------
 #define HB_DEV_TYPE         2  // device type
 #define HB_DEV_MODEL        1  // device model
 #define HB_HW_REV_MAJ       0  // h/w rev major
@@ -49,22 +58,15 @@
 #define HB_SKETCH_REV_MAJ   1  // sketch rev major
 #define HB_SKETCH_REV_MIN   0  // sketch rev minor
 
-
-#define TIME_ZONE      (10*60)  // +10 hr, Australian East Coast time zone
-
-#define COOS_TASKS      4       // number of COOS tasks, keep it low to save RAM
-
-#define MAX_TX_BUF      0x50    // to save RAM, Tx buffer length might be shorter than MAX_BUF = 0x90
-
+// ------------------
+// Topics
+// ------------------
 #define MAX_TOPIC       4       // should be not greater than 16
-
-#define BROADCAST_TOPIC_NAME    // add tname="topic_name" to PUBLISH message
-// #define DEBUG                   // enable debug prints
-
-// define topic names TOPIC0 ... TOPIC15
 #define TOPIC0  "test1"
 #define TOPIC1  "test2"
 #define TOPIC2  "test3"
 #define TOPIC3  "test4"
+
+
 
 #endif /* __HB_CONFIG_H */

@@ -145,7 +145,7 @@ void print_buf(const char* name, hb_msg_t* msg)
     }
     if (nl == 0)
         Serial.println();
-#endif        
+#endif
 }
 
 // =============================================

@@ -59,8 +59,13 @@ HB_cmd::HB_cmd(void)
 // =====================================
 void HB_cmd::read_own_ID(void)
 {
-    this->own.id[1] = EEPROM.read(EE_OWN_ID);
-    this->own.id[0] = EEPROM.read(EE_OWN_ID + 1);
+#ifdef DEVICE_ID
+    this->own.id[0] = (uchar)DEVICE_ID;
+    this->own.id[1] = (uchar)(DEVICE_ID >> 8);
+#else
+    this->own.id[0] = EEPROM.read(EE_OWN_ID + 1);   // LSB
+    this->own.id[1] = EEPROM.read(EE_OWN_ID);       // MSB
+#endif
 }
 
 // =====================================
@@ -224,7 +229,7 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
             buf[0] = 0;
             for (uchar i=0; i< MAX_TOPIC; i++)
             {
-                if (HBmqtt.valid[i].topic_name)
+                if (HBmqtt.flag[i].topic_name)
                 {
                     if (buf[0])
                     {
@@ -241,21 +246,13 @@ uchar HB_cmd::rply_status(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
             buf[0] = 0;
             for (uchar i=0; i<MAX_TOPIC; i++)
             {
-                if (HBmqtt.valid[i].topic_name)
+                if (HBmqtt.flag[i].topic_name)
                 {
                     if (buf[0])
                     {
                         add_txmsg_uchar(rply, uchar(',')); // add comma between items
                     }
-                    if (HBmqtt.valid[i].value)
-                    {
-                        dtostrf(HBmqtt.value[i], 4,2, buf);
-                    }
-                    else
-                    {
-                        buf[0] = '0';
-                        buf[1] = 0;
-                    }
+                    HBmqtt.print_own_val(i, buf);
                     add_txmsg_z_str(rply, buf);
                 }
             }
@@ -449,6 +446,10 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
     // ----------------------
     if ((rdwr) && (rxmsg->len > 12))
     {
+#ifdef DEVICE_DESCRIPTION
+        add_txmsg_uchar(rply,  ERR);    // description is fixed by "config.h"
+        return READY;
+#else
         if ((rxmsg->encrypt) || (this->allow.wrdescr))
         {
             len = rxmsg->buf[12];
@@ -468,6 +469,7 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
             }
             return READY;
         }
+#endif
     }
     // ----------------------
     // read
@@ -478,14 +480,23 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
         {
             add_txmsg_uchar(rply,  OK);
             add_ts(rply);   // timestamp
+#ifdef DEVICE_DESCRIPTION
+            char descr[] = DEVICE_DESCRIPTION;
+            len = sizeof(descr);
+#else
             len = EEPROM.read(EE_DESCR);
+#endif
             len = (len < 64)? len : 0;
             add_txmsg_uchar(rply,  len);
             if (len)
             {
                 for (uchar i=0; i<len; i++)
                 {
+#ifdef DEVICE_DESCRIPTION
+                    add_txmsg_uchar(rply,  descr[i]);
+#else
                     add_txmsg_uchar(rply,  EEPROM.read(EE_DESCR+1+i));
+#endif
                 }
             }
             return READY;
@@ -515,8 +526,8 @@ uchar HB_cmd::rply_security(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
             {
                 EEPROM.write(EE_SECURITY, rxmsg->buf[12]);
                 EEPROM.write(EE_SECURITY+1, rxmsg->buf[13]);
-                EEPROM.write(EE_SECURITY_INV, ~rxmsg->buf[12]);
-                EEPROM.write(EE_SECURITY_INV+1, ~rxmsg->buf[13]);
+                EEPROM.write(EE_SECURITY_INV, (uchar)(~rxmsg->buf[12]));
+                EEPROM.write(EE_SECURITY_INV+1, (uchar)(~rxmsg->buf[13]));
             }
             // store EEPROM key
             if (rxmsg->len > 20) // new cipher supplied
@@ -625,7 +636,7 @@ uchar  HB_cmd::rply_topic(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
         copy_msg_hdr(rxmsg, 0, 6, rply);        // header
         add_txmsg_uchar(rply, random(0x100));   // nonce
         uchar ti = rxmsg->buf[7];               // get topic index
-        if (HBmqtt.valid[ti].topic_name)
+        if (HBmqtt.flag[ti].topic_name)
         {
             add_txmsg_uchar(rply, OK);
             add_ts(rply);                       // timestamp

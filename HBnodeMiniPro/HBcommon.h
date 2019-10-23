@@ -53,16 +53,22 @@
 // rev 1.2  -   01/10/2019, configurable params moved into HBconfig.h,
 //              PROGMEM used to minimise RAM
 // rev 1.3  -   09/10/2019...13/10/2019, bug fixes
+// rev 1.4  -   16/10/2019, reduce RAM usage
 
 //##############################################################################
 // Def
 //##############################################################################
 
+#ifndef BUILTIN_LED
+  #define BUILTIN_LED   13
+#endif
+#define LED             BUILTIN_LED
+
 enum{
 
     // HBus revision
     HB_REV_MAJ      = 1,
-    HB_REV_MIN      = 3,
+    HB_REV_MIN      = 4,
 
 
     // misc
@@ -99,6 +105,7 @@ enum{
     ERR_OVERFLOW    = 0xE4,
     ERR_SECURITY    = 0xE5,
     ERR_TMOUT       = 0xE6,
+    ERR_TYPE        = 0xE7,
 
     // settings
     MAX_BUF         = 0x90,

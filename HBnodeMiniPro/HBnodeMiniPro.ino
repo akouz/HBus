@@ -57,9 +57,9 @@ void coos_task_debug(void)
 // ========================================
 // Broadcast topic values
 // ========================================
-// if node has permanent ID (eg if node configured) then every 10 sec
+// if node has permanent ID (eg if node configured) then every minute
 // check next topic and broadcast its value if value is valid
-void coos_task_broadcast(void)
+void coos_task_broadcast_val(void)
 {
     static uchar idx = 0;    // topic index
     static uchar topic_id_refresh = 250;
@@ -78,10 +78,11 @@ void coos_task_broadcast(void)
                 COOS_DELAY(500);
             }
         }
-        COOS_DELAY(10000);  // pause 10 sec
+        COOS_DELAY(30000);  // pause 30 sec
+        COOS_DELAY(30000);  // pause 30 sec
         if (HBcmd.own.ID < 0xF000) // if not a temporary ID
         {
-            if ((HBmqtt.valid[idx].value) && (HBmqtt.valid[idx].topic))  // broadcast only valid values
+            if ((HBmqtt.flag[idx].val_type) && (HBmqtt.flag[idx].topic))  // broadcast only valid values
             {
                 HBmqtt.publish_own_val(idx);
             }
@@ -98,6 +99,11 @@ void coos_task_broadcast(void)
 // ========================================
 void print_hdr_txt(uint cnt, uint sd, uint ID)
 {
+    while (Serial.available())
+    {
+        uchar rxchar = (uchar)Serial.read();
+        delay(1);
+    }
     Serial.println();
     for (uchar i=0; i<23; i++)  {  Serial.print('=');  }
     Serial.println();
@@ -125,7 +131,7 @@ void setup()
     pup_cnt = 0x100*EEPROM.read(EE_PUP_CNT) + EEPROM.read(EE_PUP_CNT+1);  // number of power-ups
     node_seed = 0x100*EEPROM.read(EE_SEED) + EEPROM.read(EE_SEED+1);
     pup_cnt = (pup_cnt >= 0xFFFE) ? 1 : (pup_cnt+1);
-    if (pup_cnt < (node_seed | 0xDEAD)) // EEPROM endurance 100k write cycles
+    if (pup_cnt < (node_seed | 0xDEAD))         // EEPROM endurance 100k write cycles
     {
         EEPROM.write(EE_PUP_CNT, (uchar)(pup_cnt >> 8));
         EEPROM.write(EE_PUP_CNT+1, (uchar)pup_cnt);
@@ -143,10 +149,11 @@ void setup()
     HBcipher.get_EE_key();
     HBcmd.read_security(HBcipher.valid);
 
-    print_hdr_txt(pup_cnt, node_seed, HBcmd.own.ID);    // optional splash screen for debug
-    uchar tcnt = HBmqtt.validate_topics();
-
 #ifdef DEBUG
+    delay(random(100));
+    print_hdr_txt(pup_cnt, node_seed, HBcmd.own.ID);    // optional splash screen for debug
+
+    uchar tcnt = HBmqtt.validate_topics();
     if (tcnt)
     {
         Serial.print((char*)" valid_topics=");
@@ -156,6 +163,8 @@ void setup()
     {
         Serial.println((char*)" no_valid_topics");
     }
+#else
+    HBmqtt.validate_topics();
 #endif
 
     wdt_enable(WDTO_120MS);                             // watchdog time-out 120 ms
@@ -163,8 +172,7 @@ void setup()
     // register COOS tasks
     coos.register_task(coos_task_HBus_rxtx);            // HBus rx/tx task
     coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation
-    coos.register_task(coos_task_broadcast);            // as a sample...
-//    coos.register_task(coos_task_debug);              // blink LED every sec
+    coos.register_task(coos_task_broadcast_val);        // as a sample, broadcast own values every min
 
     // init registered tasks
     coos.start();

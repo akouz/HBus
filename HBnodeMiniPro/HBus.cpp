@@ -13,7 +13,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -61,8 +61,8 @@ void  finish_tx(hb_tx_msg_t* msg)
         msg->busy = 0;
         msg->valid = 0;
         Serial.flush();
-    }        
-} 
+    }
+}
 // =============================================================================
 // HBus task: receieve and decode messages, send HBus reply or prompt MQTT data
 // =============================================================================
@@ -86,27 +86,27 @@ void coos_task_HBus_rxtx(void)
         while (Serial.available())
         {
             hb_pause_cnt = 0;
-            val = Serial.read();  
+            val = Serial.read();
             if ((HBcmd.ignore_traffic == 0) && (val >= 0))
             {
                 // --------------------------------------
                 // if message completed and crc matched
                 // --------------------------------------
                 rxmsg = HBrxtx.rx((uchar)val);
-                if (rxmsg) 
+                if (rxmsg)
                 {
-                    if (HBrxtx.flag.seed == 0) 
-                    {   
-                        HBrxtx.flag.seed = 1; 
+                    if (HBrxtx.flag.seed == 0)
+                    {
+                        HBrxtx.flag.seed = 1;
                         node_seed = (uint)millis(); // randomise
                         if (pup_cnt < (node_seed | 0xF00D))  // EEPROM endurance 100k write cycles
-                        {  
+                        {
                             EEPROM.write(EE_SEED, (uchar)(node_seed >> 8));
                             EEPROM.write(EE_SEED+1, (uchar)node_seed);
                         }
-                    }                    
+                    }
                     // --------------------------------
-                    // process HBus message    
+                    // process HBus message
                     // --------------------------------
                     if (rxmsg->hb)
                     {
@@ -116,11 +116,10 @@ void coos_task_HBus_rxtx(void)
                         // --------------------------
                         if ((txmsg) && (txmsg->encrypt)) // if message to be encrypted
                         {
-                            // Serial.print(" encrypt HB ");
                             HBcipher.encrypt(txmsg->buf, txmsg->len);
                         }
                         HBrxtx.rtr_cnt = 0;
-                        while (txmsg)  
+                        while (txmsg)
                         {
                             digitalWrite(LED, HIGH);
                             // -----------------
@@ -131,19 +130,18 @@ void coos_task_HBus_rxtx(void)
                             clr_rx();
                             if ((HBrxtx.rtr_cnt++ > 2) || (txmsg->len < 8))
                             {
-//                                Serial.println(" abort1");
                                 finish_tx(txmsg); // bad message
-                                txmsg = NULL;                                
+                                txmsg = NULL;
                             }
                             // -----------------
                             // transmit
-                            // -----------------                            
-                            if (txmsg)                             
+                            // -----------------
+                            if (txmsg)
                             {
-                                // ------------                            
+                                // ------------
                                 // ensure bus is not busy
-                                // ------------                            
-                                tmout = 0; 
+                                // ------------
+                                tmout = 0;
                                 HBrxtx.priority = 0xFF;
                                 while (hb_pause_cnt < 2)
                                 {
@@ -151,64 +149,46 @@ void coos_task_HBus_rxtx(void)
                                     clr_rx();           // receiver must be empty
                                     if (++tmout > 200)  // time-out 200 ms
                                     {
-//                                        Serial.println(" abort2");
                                         finish_tx(txmsg);
-                                        txmsg = NULL;                                
+                                        txmsg = NULL;
                                         break;
-                                    }      
+                                    }
                                 }
                                 // ------------
-                                // transmit and check echo                            
-                                // ------------                            
-                                if ((txmsg) && (hb_pause_cnt >= 2)) 
+                                // transmit and check echo
+                                // ------------
+                                if ((txmsg) && (hb_pause_cnt >= 2))
                                 {
                                     res = HBrxtx.start_tx(txmsg);
                                     if (OK == res)
                                     {
                                         res = NOT_READY;
-                                        tmout = 0; 
+                                        tmout = 0;
                                         while (NOT_READY == res)
                                         {
                                             COOS_DELAY(1);
                                             res = HBrxtx.tx(&hb_pause_cnt);
                                             if (++tmout > 200)  // time-out 200 ms
                                             {
-//                                                Serial.println(" abort3");
                                                 finish_tx(txmsg);
-                                                txmsg = NULL;                                
+                                                txmsg = NULL;
                                                 break;
-                                            }      
-                                        } 
+                                            }
+                                        }
                                         if (READY == res)
                                         {
-                                            // Serial.println(" OK");
                                             finish_tx(txmsg); // success
-                                            txmsg = NULL;                                
+                                            txmsg = NULL;
                                         }
                                         else    // echo mismatch
                                         {
-                                            //Serial.println(" echo");
                                             Serial.end();
                                             COOS_DELAY(random(10));
-                                            Serial.begin(19200);                                            
+                                            Serial.begin(19200);
                                             COOS_DELAY(2);
-                                        }                                                                           
+                                        }
                                     } // if tx started
-                                    else
-                                    {
-//                                        Serial.print(" start_tx err=");
-//                                        Serial.println(res);
-                                    }
-                                } // if pause on the bus                                 
-                                else
-                                {
-                                    if (txmsg == NULL)
-                                    {
-//                                        Serial.print(" txmsg=NULL,");
-                                    } 
-                                    //Serial.print(" hb_pause_cnt=");
-                                    //Serial.println(hb_pause_cnt);
-                                }
+                                } // if pause on the bus
                             } // if txmsg
                         } // while txmsg
                         digitalWrite(LED, LOW);
@@ -220,13 +200,12 @@ void coos_task_HBus_rxtx(void)
                     {
                         HBmqtt.rd_msg(rxmsg);           // if topic is in the GW own topic list - process it
                         rxmsg->busy = 0;
-                    }       
+                    }
                 } // if rxmsg
-            }    
+            }
         } // while Serial.available
-        //digitalWrite(LED,HIGH);
         // -----------------------------------------------
-        // Broadcast MQTT-SN messages to the bus 
+        // Broadcast MQTT-SN messages to the bus
         // -----------------------------------------------
         if (HBmqtt.mqmsg.valid)
         {
@@ -234,7 +213,6 @@ void coos_task_HBus_rxtx(void)
             txmsg->busy = 1;
             if (txmsg->encrypt) // if message to be encrypted
             {
-                //Serial.print(" encrypt MQ ");
                 HBcipher.encrypt(txmsg->buf, txmsg->len);
             }
             HBrxtx.rtr_cnt = 0;
@@ -242,12 +220,12 @@ void coos_task_HBus_rxtx(void)
             {
                 if (HBrxtx.rtr_cnt++ > 2)
                 {
-                    finish_tx(txmsg);                                 
-                    txmsg = NULL;                                
+                    finish_tx(txmsg);
+                    txmsg = NULL;
                 }
                 if (txmsg)
                 {
-                    tmout = 0; 
+                    tmout = 0;
                     HBrxtx.priority = 0xFF;
                     while (hb_pause_cnt < 2)
                     {
@@ -256,45 +234,45 @@ void coos_task_HBus_rxtx(void)
                         if (++tmout > 200)  // time-out 200 ms
                         {
                             finish_tx(txmsg);
-                            txmsg = NULL;                                
+                            txmsg = NULL;
                             break;
-                        }      
+                        }
                     }
-                    if ((txmsg) && (hb_pause_cnt >= 2)) 
+                    if ((txmsg) && (hb_pause_cnt >= 2))
                     {
                         if (OK == HBrxtx.start_tx(txmsg))
                         {
                             res = NOT_READY;
-                            tmout = 0; 
+                            tmout = 0;
                             while (NOT_READY == res)
                             {
                                 COOS_DELAY(1);
                                 res = HBrxtx.tx(&hb_pause_cnt);
-                                if (++tmout > 200) 
+                                if (++tmout > 200)
                                 {
                                     finish_tx(txmsg);
-                                    txmsg = NULL;                                
-                                    break;                                    
+                                    txmsg = NULL;
+                                    break;
                                 }
-                            } 
+                            }
                             if (READY == res)
                             {
                                 finish_tx(txmsg); // success
-                                txmsg = NULL;                                
+                                txmsg = NULL;
                             }
                             else    // echo mismatch
                             {
                                 Serial.end();
                                 COOS_DELAY(random(10));
-                                Serial.begin(19200);                                            
+                                Serial.begin(19200);
                                 COOS_DELAY(2);
-                            }                                                                           
+                            }
                         } // if tx started
-                    }     
+                    }
                 }
             }  // while txmsg
             HBmqtt.mqmsg.busy = 0;   // ensure
-            HBmqtt.mqmsg.valid = 0;         
+            HBmqtt.mqmsg.valid = 0;
         } // if mqmsg.valid
     }
 }
@@ -311,7 +289,7 @@ void coos_task_tick1ms(void)
         if (hb_pause_cnt < 200)
         {
             hb_pause_cnt++;
-        } 
+        }
         if (++cnt >= 10)
         {
             cnt = 0;
