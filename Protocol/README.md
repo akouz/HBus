@@ -906,7 +906,7 @@ Reply from Node B to Node A if topic index is out of list:
 # MQTT-SN mode (broadcast messages)
 
 ## Message structure
-In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://mqtt.org/documentation). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
+In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://www.steves-internet-guide.com/mqtt-sn/). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
 
 Message structure is as follows:
 
