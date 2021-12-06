@@ -21,6 +21,9 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ * 
+ * Bug fix:
+ * 5/12/21 - void HB_cipher::get_EE_key(void), #ifdef USE_DEFAULT_EE_KEY  this->key.uch[] changed to  this->key.ulo[]
  */
 
 //##############################################################################
@@ -82,10 +85,10 @@ HB_cipher::HB_cipher(void)
 void HB_cipher::get_EE_key(void)
 {
 #ifdef USE_DEFAULT_EE_KEY
-    this->key.uch[0] = EE_KEY1;
-    this->key.uch[1] = EE_KEY2;
-    this->key.uch[2] = EE_KEY3;
-    this->key.uch[3] = EE_KEY4;
+    this->key.ulo[0] = EE_KEY1;
+    this->key.ulo[1] = EE_KEY2;
+    this->key.ulo[2] = EE_KEY3;
+    this->key.ulo[3] = EE_KEY4;
     this->valid = 1;
 #else
     uchar all0 = 0;
