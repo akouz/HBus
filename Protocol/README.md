@@ -503,7 +503,7 @@ If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID 
 
 ## [6] BOOT
 
-Request from Node A to Node B. Node B should write the received chunk of code into its EEPROM at specified address. 
+Request from Node A to Node B. Node B should write the received chunk of code into its EEPROM at specified address. If Len=0 then Node B must validate its EEPROM, copy valide code from EEPROM into its flash and then restart.
 
 <table>
 <thead><tr>
