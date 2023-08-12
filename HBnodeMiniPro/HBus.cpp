@@ -1,7 +1,6 @@
 /*
  * File     HBus.cpp
- * Target   Arduino
-
+ 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -95,14 +94,15 @@ void coos_task_HBus_rxtx(void)
                 rxmsg = HBrxtx.rx((uchar)val);
                 if (rxmsg)
                 {
-                    if (HBrxtx.flag.seed == 0)
+                    if (HBrxtx.flag.seed == 0) // first received message
                     {
                         HBrxtx.flag.seed = 1;
                         node_seed = (uint)millis(); // randomise
                         if (pup_cnt < (node_seed | 0xF00D))  // EEPROM endurance 100k write cycles
                         {
-                            EEPROM.write(EE_SEED, (uchar)(node_seed >> 8));
-                            EEPROM.write(EE_SEED+1, (uchar)node_seed);
+                            //EEPROM.write(EE_SEED, (uchar)(node_seed >> 8));
+                            //EEPROM.write(EE_SEED+1, (uchar)node_seed);
+                            EEPROM.put(EE_SEED, node_seed);
                         }
                     }
                     // --------------------------------

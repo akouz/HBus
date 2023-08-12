@@ -1,7 +1,6 @@
 /*
  * File     HBus.h
- * Target   Arduino
-
+ 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

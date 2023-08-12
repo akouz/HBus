@@ -1,8 +1,7 @@
 /*
  * File     HBcommon.h
- * Target   Arduino
-
- * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
+ 
+ * (c) 2023 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,6 +53,8 @@
 //              PROGMEM used to minimise RAM
 // rev 1.3  -   09/10/2019...13/10/2019, bug fixes
 // rev 1.4  -   16/10/2019, reduce RAM usage
+// rev 1.5  -   Aug 2023, debugged for Arduino IDE 1.8.16: changed crc_add_uchar(),
+//              add_txmsg_uchar() and HB_cmd::rply_descr() 
 
 //##############################################################################
 // Def
@@ -68,7 +69,7 @@ enum{
 
     // HBus revision
     HB_REV_MAJ      = 1,
-    HB_REV_MIN      = 4,
+    HB_REV_MIN      = 5,
 
 
     // misc
@@ -207,7 +208,7 @@ void copy_buf(uchar* src, uchar* dst, uchar len);
 void rev_4_bytes(uchar* buf);
 
 void shift_buf(uchar* buf, uchar pos, uchar len);
-void crc_add_uchar(uchar b, uint* crc);
+uint crc_add_uchar(uchar b, uint crcx);
 uint calc_crc(uchar* buf, uchar len);
 void crc_to_msg(hb_msg_t* msg);
 

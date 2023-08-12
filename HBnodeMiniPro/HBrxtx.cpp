@@ -1,8 +1,7 @@
 /*
  * File     HBrxtx.cpp
  * Rev      1.0 dated 20/12/2018
- * Target   Arduino
-
+ 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -162,13 +161,14 @@ uchar Hb_rxtx::add_rx_uchar(uchar c, hb_msg_t* dest)
 // =============================================
 uchar Hb_rxtx::check_crc(hb_msg_t* msg)
 {
-    uint crc, calc;
+    msgcrc = 0;
+    calccrc = 0xF1F0;
     if ((msg) && (msg->len >= 2))
     {
         msg->len -= 2;
-        crc = 0x100*(uint)msg->buf[msg->len] + msg->buf[msg->len+1]; // supplied CRC
-        calc = calc_crc(msg->buf, msg->len);
-        if (crc == calc)
+        msgcrc = 0x100*(uint)msg->buf[msg->len] + msg->buf[msg->len+1]; // supplied CRC
+        calccrc = calc_crc(msg->buf, msg->len);
+        if (msgcrc == calccrc)
         {
             return OK;
         }
@@ -183,7 +183,7 @@ hb_msg_t* Hb_rxtx::rx(uchar c)
 {
     if (rxmsg.busy == 0)
     {
-        if (READY == add_rx_uchar(c, &rxmsg))
+        if (READY == add_rx_uchar(c, &rxmsg))        
         {
             if (this->rxmsg.encrypt)                  // if message encrypted
             {
@@ -191,6 +191,7 @@ hb_msg_t* Hb_rxtx::rx(uchar c)
             }
             if ((flag.no_crc) || (OK == check_crc(&rxmsg)))  // if crc matches
             {
+                // blink(5);   // blink 50 ms
                 rxmsg.busy = 1;
                 return &rxmsg;
             }
@@ -198,6 +199,12 @@ hb_msg_t* Hb_rxtx::rx(uchar c)
             {
                 rxmsg.len = 0;     // reset output buffer
                 rxmsg.all = 0;
+#ifdef DEBUG                
+                Serial.print(F(" Err: msgcrc="));
+                Serial.print(msgcrc, HEX);
+                Serial.print(F(", calccrc="));
+                Serial.println(calccrc, HEX);
+#endif                
             }
         }
     }

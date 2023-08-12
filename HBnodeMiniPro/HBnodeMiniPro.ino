@@ -1,6 +1,6 @@
 /*
- * Sketch    HBnodeMiniPro.ino - HBus rev 2 implementation for Arduino Pro Mini
- * Target    Arduino Pro Mini
+ * Sketch    HBnodeMiniPro.ino - HBus rev 2 implementation
+ * Target    Arduino Pro Mini, Arduino Uno, Arduino Nano, etc
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
@@ -44,6 +44,9 @@ void coos_task_debug(void)
     COOS_DELAY(10000);
     while(1)
     {
+        blink(5);   // blink 50 ms
+        COOS_DELAY(1000);
+/*
 #ifdef DEBUG
         Serial.print(F(" millis="));
         Serial.println(millis());
@@ -52,6 +55,7 @@ void coos_task_debug(void)
         COOS_DELAY(20);
         digitalWrite(LED,LOW);
         COOS_DELAY(980);
+*/        
     }
 }
 // ========================================
@@ -173,6 +177,7 @@ void setup()
     coos.register_task(coos_task_HBus_rxtx);            // HBus rx/tx task
     coos.register_task(coos_task_tick1ms);              // reqired for proper HBus operation
     coos.register_task(coos_task_broadcast_val);        // as a sample, broadcast own values every min
+    // coos.register_task(coos_task_debug);
 
     // init registered tasks
     coos.start();

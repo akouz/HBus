@@ -1,9 +1,7 @@
 /*
  * File     common.cpp
- * Rev      1.1 dated 14/03/2019
- * Target   Arduino
-
- * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
+ 
+ * (c) 2023 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -147,7 +145,6 @@ void print_buf(const char* name, hb_msg_t* msg)
         Serial.println();
 #endif
 }
-
 // =============================================
 // Copy buffer
 // =============================================
@@ -174,7 +171,6 @@ void rev_4_bytes(uchar* buf)
     buf[1] = buf[2];
     buf[2] = tmp;
 }
-
 // =============================================
 // Shift buffer down
 // =============================================
@@ -191,13 +187,14 @@ void shift_buf(uchar* buf, uchar pos, uchar len)
 // =============================================
 // Add uchar value to crc
 // =============================================
-void crc_add_uchar(uchar b, uint* crc)
+uint crc_add_uchar(uchar b, uint crcx)
 {
-    *crc ^= (b << 8);
+    crcx ^= (uint)b << 8;
     for (uchar j=0; j<8; j++)
     {
-        *crc = (*crc & 0x8000)? 0xFFFF & ((*crc << 1) ^ 0x1021) : 0xFFFF & (*crc << 1);
+        crcx = (crcx & 0x8000)? (0xFFFF & ((crcx << 1) ^ 0x1021)) : (0xFFFF & (crcx << 1));
     }
+    return crcx;
 }
 // =============================================
  // Calculate CRC
@@ -212,15 +209,15 @@ void crc_add_uchar(uchar b, uint* crc)
  */
 uint calc_crc(uchar* buf, uchar len)
 {
-    uint crc = 0xFFFF;
-    if (buf)
+    uint crcx = 0xFFFF;
+    if ((buf) && (len))
     {
         for (uchar i=0; i<len; i++)
         {
-            crc_add_uchar(buf[i], &crc);
+            crcx = crc_add_uchar(buf[i], crcx);
         }
     }
-    return crc;
+    return crcx;
 }
 // =============================================
 // Append txmsg with calculated crc
@@ -233,7 +230,6 @@ void crc_to_msg(hb_tx_msg_t* msg)
         msg->buf[msg->len++] = (uchar)msg->crc;
     }
 }
-
 // =============================================
 // Reset Tx buffer and start a new message
 // =============================================
@@ -260,7 +256,7 @@ uchar add_txmsg_uchar(hb_tx_msg_t* txmsg, uchar c)
     {
         return ERR;
     }
-    crc_add_uchar(c, &txmsg->crc);   // calculate crc
+    txmsg->crc = crc_add_uchar(c, txmsg->crc);   // calculate crc
     txmsg->buf[txmsg->len++] = c;
     return OK;
 }

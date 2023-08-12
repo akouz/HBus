@@ -1,6 +1,5 @@
 /*
  * file     HBmqtt.h
- * Target   Arduino
 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *

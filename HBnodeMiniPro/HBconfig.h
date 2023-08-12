@@ -1,7 +1,6 @@
 /*
  * File     HBcommon.h
- * Target   Arduino
-
+ 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,7 +29,7 @@
 // Def
 //##############################################################################
 
-// #define DEBUG                    // enable debug prints
+#define DEBUG                    // enable debug prints
 
 #define TIME_ZONE      (10*60)      // +10 hr, Australian East Coast time zone
 
@@ -42,8 +41,8 @@
 
 #define DEVICE_ID       0x021       // optional, alternatively it can be asasigned by NodeTest
                                     // it must be in the range 1...0x07FF
-#define DEVICE_DESCRIPTION  "Demo_node"     // description is optional, alternatively it can be
-                                            // assigned by NodeTest, it must be less than 64 chars
+#define DEVICE_DESCRIPTION  "Demo_node"     // fixed description is optional; if not defined then description can be
+                                            // assigned by NodeTest; description must be less than 64 chars
 #define USE_DEFAULT_EE_KEY          // if not, EEPROM Key should be assigned by NodeTest
 
 // ------------------

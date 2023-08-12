@@ -1,7 +1,6 @@
 /*
  * File     HBrxtx.h
- * Target   Arduino
-
+ 
  * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -78,6 +77,8 @@ class Hb_rxtx{
     uchar       echolen;
     uchar       start;  
     uint        txcrc;
+    uint        msgcrc;
+    uint        calccrc;
     uchar       add_rx_uchar(uchar c, hb_msg_t* dest);
     uchar       check_crc(hb_msg_t* msg);
 };

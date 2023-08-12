@@ -1,8 +1,7 @@
 /*
  * File     HBcmd.cpp
- * Target   Arduino
-
- * (c) 2019 Alex Kouznetsov,  https://github.com/akouz/hbus
+ 
+ * (c) 2023 Alex Kouznetsov,  https://github.com/akouz/hbus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +35,10 @@
 //##############################################################################
 
 HB_cmd HBcmd;
+
+#ifdef DEVICE_DESCRIPTION
+    const char fixed_descr[] = DEVICE_DESCRIPTION;
+#endif
 
 //##############################################################################
 // Func
@@ -447,7 +450,7 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
     if ((rdwr) && (rxmsg->len > 12))
     {
 #ifdef DEVICE_DESCRIPTION
-        add_txmsg_uchar(rply,  ERR);    // description is fixed by "config.h"
+        add_txmsg_uchar(rply,  ERR);    // cannot write, description is fixed, it is defined in "HBconfig.h"
         return READY;
 #else
         if ((rxmsg->encrypt) || (this->allow.wrdescr))
@@ -481,8 +484,7 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
             add_txmsg_uchar(rply,  OK);
             add_ts(rply);   // timestamp
 #ifdef DEVICE_DESCRIPTION
-            char descr[] = DEVICE_DESCRIPTION;
-            len = sizeof(descr);
+            len = sizeof(fixed_descr);
 #else
             len = EEPROM.read(EE_DESCR);
 #endif
@@ -493,9 +495,9 @@ uchar HB_cmd::rply_descr(hb_msg_t* rxmsg, hb_tx_msg_t* rply)
                 for (uchar i=0; i<len; i++)
                 {
 #ifdef DEVICE_DESCRIPTION
-                    add_txmsg_uchar(rply,  descr[i]);
+                    add_txmsg_uchar(rply, fixed_descr[i]);
 #else
-                    add_txmsg_uchar(rply,  EEPROM.read(EE_DESCR+1+i));
+                    add_txmsg_uchar(rply, EEPROM.read(EE_DESCR+1+i));
 #endif
                 }
             }
