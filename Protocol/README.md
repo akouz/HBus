@@ -152,7 +152,7 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>6</td> 	
 <td>BOOT</td> 	
 <td>Node</td> 	
-<td>Send chunk of code to seleted node</td> 	
+<td>Send chunk of code to secleted node</td> 	
 </tr><tr>
 <td>7</td> 	
 <td>BEEP</td> 	
@@ -503,7 +503,7 @@ If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID 
 
 ## [6] BOOT
 
-Request from Node A to Node B
+Request from Node A to Node B. Node B should write the received chunk of code into its EEPROM at specified address. 
 
 <table>
 <thead><tr>
@@ -514,6 +514,8 @@ Request from Node A to Node B
 <th>[6]</th>
 <th>[7]</th>
 <th>[8:11]</th>
+<th>[12:13]</th>
+<th>[14:N]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x06</td>
@@ -521,8 +523,10 @@ Request from Node A to Node B
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
-<td>Pause</td>
+<td>Len</td>
 <th>TS</th>
+<th>Addr</th>
+<th>Code</th>
 </tr></tbody></table>
  
 Reply from Node B to Node A
@@ -546,10 +550,6 @@ Reply from Node B to Node A
 <td>OkErr</td>
 <th>TS</th>
 </tr></tbody></table>
-
-After sending reply the addressed node resets and starts its bootloader.
-
-After receiving reply 0x86 other nodes must go into standby mode for Pause seconds. During that interval they should ignore all bus traffic and should not talk to the bus. 
 
 ## [7] BEEP
 
