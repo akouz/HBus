@@ -151,8 +151,8 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 </tr><tr>
 <td>6</td> 	
 <td>BOOT</td> 	
-<td>All nodes</td> 	
-<td>Reset selected node and put it into boot mode, other nodes go into standby mode</td> 	
+<td>Node</td> 	
+<td>Send chunk of code to seleted node</td> 	
 </tr><tr>
 <td>7</td> 	
 <td>BEEP</td> 	
