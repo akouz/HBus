@@ -152,7 +152,7 @@ Big endian used, eg MSB byte sent first, LSB byte sent last.
 <td>6</td> 	
 <td>BOOT</td> 	
 <td>Node</td> 	
-<td>Send chunk of code to secleted node</td> 	
+<td>Send chunk of code to selected node</td> 	
 </tr><tr>
 <td>7</td> 	
 <td>BEEP</td> 	
