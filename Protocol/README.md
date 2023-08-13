@@ -503,7 +503,7 @@ If OkErr = 0 then NodeB_ID is the New_ID, otherwise NodeB_ID is the old node ID 
 
 ## [6] BOOT
 
-Request from Node A to Node B. Node B should write the received chunk of code into its EEPROM at specified address. If Len=0 then Node B must validate its EEPROM, copy valide code from EEPROM into its flash and then restart.
+Request from Node A to Node B. Node B should write the received chunk of code into its EEPROM at specified address. Field Code holds binary data in the same format as [Intel HEX](https://en.wikipedia.org/wiki/Intel_HEX) without colon char.  
 
 <table>
 <thead><tr>
@@ -514,8 +514,7 @@ Request from Node A to Node B. Node B should write the received chunk of code in
 <th>[6]</th>
 <th>[7]</th>
 <th>[8:11]</th>
-<th>[12:13]</th>
-<th>[14:N]</th>
+<th>[12:N]</th>
 </tr></thead>
 <tbody><tr>
 <td>0x06</td>
@@ -523,9 +522,8 @@ Request from Node A to Node B. Node B should write the received chunk of code in
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
-<td>Len</td>
+<td>0</td>
 <th>TS</th>
-<th>Addr</th>
 <th>Code</th>
 </tr></tbody></table>
  
