@@ -904,7 +904,7 @@ Reply from Node B to Node A if topic index is out of list:
 # MQTT-SN mode (broadcast messages)
 
 ## Message structure
-In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](http://www.steves-internet-guide.com/mqtt-sn/). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
+In that mode messages are made similar to [MQTT for Sensor Networks – MQTT-SN](https://www.oasis-open.org/committees/document.php?document_id=66091&wg_abbrev=mqtt). However, HBus does not require MQTT broker. In a network segment all local messages are available for all nodes. It is up to node to select messages of interest from the stream.  
 
 Message structure is as follows:
 
@@ -930,7 +930,7 @@ Message structure is as follows:
 <td>Data</td>
 </tr></tbody></table>
 
-  * MsgType - four msb bits are random; four lsb bits of that byte is message type as per [MQTT-SN](http://mqtt.org/documentation):
+  * MsgType - four msb bits are random; four lsb bits of that byte is message type as per [MQTT-SN](https://www.oasis-open.org/committees/document.php?document_id=66091&wg_abbrev=mqtt):
     * 0x0A - REGISTER
     * 0x0C - PUBLISH
   * NodeId - ID of the broadcasting node; used for debug and monitoring.
