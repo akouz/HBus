@@ -8,7 +8,9 @@
     
 ## Introduction
 
-HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transceiver. Once configured, HBus system is self-contained, eg it can operate without any host or server, like KNX, C-Bus or Velbus. 
+HBus is a wired home automation interface. Nodes made as simple and as cheap as possible. Minimum requirement - Arduino Pro Mini (Atmega 328P) with 78L05 regulator and a CAN transceiver. Alternatevily, dedicated [HBbus modules](https://github.com/akouz/HBnode/tree/main) can be used, [HBnode Pro Mini](https://github.com/akouz/HBnode/tree/main/AVR64DD32/Hardware/Pro_mini) or [HBnode Nano](https://github.com/akouz/HBnode/tree/main/AVR64DD32/Hardware/Nano); those module can update their firmware via HBus. 
+
+Once configured, HBus system is self-contained, eg it can operate without any host or server, like KNX, C-Bus or Velbus. 
 
 ## Basics
 
