@@ -55,14 +55,22 @@ type
   THbMsg = record
     pri       : byte;      // priority (prefix)
     s         : string;    // data
+    sent      : string;    // unencoded data
     mqtt      : boolean;   // HBus/MQTT
     encrypted : boolean;
     err       : boolean;
     valid     : boolean;
     postpone  : byte;      // 10 ms ticks
   end;
+  THbMsgP     = ^THbMsg;
 
-type
+  THbRx = record
+    Gate      : boolean; // message gate
+    GateTmout : integer;
+    Esc       : boolean; // ESC flag
+    Last      : char;    // last received char outside gate
+    LastValid : boolean;
+  end;
 
   // =====================================  
   { THbRxtx }
@@ -70,15 +78,17 @@ type
 
   THbRxtx = class(TStringList)
   private
-    Fcnt : integer;
-    FGate: boolean;           // message gate
-    FGateTmout : integer;
-    FEsc:  boolean;           // ESC flag
-    FLast: char;              // last received char outside gate
-    FLastValid : boolean;
+    FHbRx : THbRx;
+    //FHbRx.Gate: boolean;           // message gate
+    //FHbRx.GateTmout : integer;
+    //FHbRx.Esc:  boolean;           // ESC flag
+    //FHbRx.Last: char;              // last received char outside gate
+    //FHbRx.LastValid : boolean;
     FRxMsg:   THbMsg;         // decoded message
     Fexpected: string;        // string to send before encoding
     Fsent: string;            // last sent string, encoded
+    FHbEcho:   string;        // last received HBus echo
+    FOkErr : integer;         // from last received HBus echo
     FTxBusy:   boolean;       // transmitter is busy
     Fpri:     integer;        // message priority
     FTxTmout: integer;        // time-out
@@ -112,9 +122,12 @@ type
     TxStatus : integer;
     MsgID : byte;
     LastCrc : array [0..1] of word;
-    Reply : string;         // when a reply received
     Cipher : THbCipher;
-    property Gate : boolean read FGate;
+    property HbEcho : string read FHbEcho;
+    property OkErr : integer read FOkErr;
+    property TxTmout : integer read FTxTmout;
+    property Gate : boolean read FHbRx.gate;
+    property TxBusy : boolean read FTxBusy;
     function Rx: THbMsg;    // get received string and remove it from the list
     function Tx(msg: THbMsg) : string; // transmit if not busy
     procedure FlushRx;
@@ -124,10 +137,14 @@ type
     destructor Destroy; override;
   end;
 
+var
+  HBrxtx : THbRxtx;
+  TxMsg, RxMsg : THbMsg;
 
 //##############################################################################
 implementation
 //##############################################################################
+
 
 { THbRxtx }
 
@@ -158,18 +175,18 @@ end;
 // =====================================
 procedure THbRxtx.FAddDebugStr(c : char);
 begin
-  if ((c >= ' ') and (ord(c) < $7F)) then
+  if (c >= ' ') then
     FStr := FStr + c
-  else begin
+  else  begin // non-printable
     FStr := Fstr + '[' + IntToHex(ord(c),2)+']';
   end;
   if (FStr <> '') then begin
     if (ord(c) = 10) then begin
        DbgList.Add(FStr);
        FStr := '';
-       FStr_tmout := 0;
     end;
   end;
+  FStr_tmout := 0;
 end;
 
  // =====================================  
@@ -182,26 +199,25 @@ begin
   // --------------------
   // char after ESC
   // --------------------
-  if FEsc then begin // previous char was ESC
-    FEsc := False;
+  if FHbRx.Esc then begin // previous char was ESC
+    FHbRx.Esc := False;
     case Ord(c) of
       // --------------
       _ESC_START_HB.._ESC_START_MQE: // beginning of a frame
       begin
         if FStr <> '' then begin
-          DbgList.Add(FStr);
           FStr := '';
           FStr_tmout := 0;
         end;
-        if FLastValid then
-          FRxMsg.pri := byte(FLast)
+        if FHbRx.LastValid then
+          FRxMsg.pri := byte(FHbRx.Last)
         else
           Inc(ErrCnt);
-        FLastValid := false;
-        if FGate then
+        FHbRx.LastValid := false;
+        if FHbRx.Gate then
           Inc(ErrCnt);  // START without STOP
-        FGate := True;
-        FGateTmout := 0;
+        FHbRx.Gate := True;
+        FHbRx.GateTmout := 0;
         FRxMsg.s := '';
         if ((Ord(c) = _ESC_START_HB) or (Ord(c) = _ESC_START_HBE)) then
            FRxMsg.mqtt := false
@@ -215,7 +231,7 @@ begin
       // --------------
       _ESC_END: // end of a frame
       begin
-        if not FGate then
+        if not FHbRx.Gate then
           Inc(ErrCnt)   // STOP without START
         else
         begin
@@ -224,14 +240,14 @@ begin
           else
             Result := FRxMsg.s; // message completed
           FRxMsg.s := '';
-          FGate  := False;
+          FHbRx.Gate  := False;
         end;
-        FLastValid := false;
+        FHbRx.LastValid := false;
       end;
       // --------------
       _ESC_ESC: // insert ESC
       begin
-        if not FGate then
+        if not FHbRx.Gate then
           Inc(ErrCnt)
         else
           FRxMsg.s := FRxMsg.s + char(_ESC);
@@ -239,7 +255,7 @@ begin
       // --------------
       _ESC_2ESC: // insert two ESC
       begin
-        if not FGate then
+        if not FHbRx.Gate then
           Inc(ErrCnt)
         else  begin
           FRxMsg.s := FRxMsg.s + char(_ESC) + char(_ESC);
@@ -248,8 +264,8 @@ begin
       // --------------
       else begin
         Inc(ErrCnt);  // any other char after ESC is an error
-        FLastValid := true;
-        FLast := c;
+        FHbRx.LastValid := true;
+        FHbRx.Last := c;
       end;
     end;
     // --------------------
@@ -257,16 +273,16 @@ begin
     // --------------------
   end  else  begin
     if c = char(_ESC) then
-      FEsc := True  // consider next char
+      FHbRx.Esc := True  // consider next char
     else  begin
-      if not Fgate then begin // char outside gate
-        if FLastValid then
-          FAddDebugStr(FLast); // most likely it is a debug message from node
+      if not FHbRx.Gate then begin // char outside gate
+        if FHbRx.LastValid then
+          FAddDebugStr(FHbRx.Last); // most likely it is a debug message from node
       end else begin
         FRxMsg.s := FRxMsg.s + c;
       end;
-      FLastValid := true;
-      FLast := c;
+      FHbRx.LastValid := true;
+      FHbRx.Last := c;
     end;
   end; // case
 end;
@@ -388,6 +404,8 @@ begin
       NoRx := False;
       if FCheckCrc(s) then begin   // if crc matches
         if (Fexpected <> '') and (s = Fexpected) then  begin // it is echo
+          FHbEcho := s;
+          FOkErr := ord(s[8]);
           TxStatus := 2;
           Fexpected := '';
           Fsent  := '';
@@ -501,18 +519,22 @@ end;
 function THbRxtx.Tx(msg: THbMsg): string;
 var s : string;
 begin
-  result := '';
+  result := 'Tx error';
   if (ComPort.Connected and PortOk) then begin
     try
+      FOkErr := -1;
       if not FTxBusy then begin
         if msg.mqtt then
           s := FEncodeMQ(msg.s)
         else
           s := FEncodeHB(msg.s);
         if (s <> '') then begin
+          if not msg.mqtt then begin
+            FHbEcho := '';
+          end;
           ComPort.WriteStr(s);
           TxStatus := 1;
-          result := s;
+          result := '';
         end;
       end;
     except
@@ -530,8 +552,8 @@ end;
 procedure THbRxtx.FlushRx;
 begin
   ErrCnt := 0;
-  FEsc   := False;
-  FGate  := False;
+  FHbRx.Esc := False;
+  FHbRx.Gate  := False;
   Clear;
 end;
 
@@ -572,23 +594,19 @@ begin
         end;
       end;
       // Rx
-      if (FGateTmout < 1000) then
-         inc(FGateTmout);
-      if (FGateTmout > 20) then // after 200 ms
-        FGate := false;         // gate is expired
+      if (FHbRx.GateTmout < 1000) then
+         inc(FHbRx.GateTmout);
+      if (FHbRx.GateTmout > 20) then // after 200 ms
+        FHbRx.Gate := false;         // gate is expired
       len := ComPort.InputCount;
       if len > 0 then begin
          ComPort.ReadStr(s, len);
          FDecode(s);
       end;
       // Debug
-      if (FStr <> '') or (FLastValid) then begin
+      if (FStr <> '') or (FHbRx.LastValid) then begin
         inc(FStr_tmout);
         if FStr_tmout > 100 then begin
-          if FLastValid then
-             FAddDebugStr(FLast);
-          DbgList.Add(FStr);
-          FLastValid := false;
           FStr := '';
           FStr_tmout := 0;
         end;
@@ -638,7 +656,7 @@ begin
   FDampCnt := 0;
   FDampStr := '';
   FDampHex := '';
-  FLastValid := false;
+  FHbRx.LastValid := false;
 end;
 
  // =====================================  

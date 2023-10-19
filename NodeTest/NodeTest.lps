@@ -4,12 +4,12 @@
     <PathDelim Value="\"/>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="19">
+    <Units Count="12">
       <Unit0>
         <Filename Value="NodeTest.lpr"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="49" Y="9"/>
+        <CursorPos Y="20"/>
         <UsageCount Value="200"/>
       </Unit0>
       <Unit1>
@@ -19,8 +19,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="505"/>
-        <CursorPos X="75" Y="521"/>
+        <TopLine Value="1206"/>
+        <CursorPos X="68" Y="1059"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -35,244 +35,191 @@
       <Unit3>
         <Filename Value="HBcipherU.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="119"/>
-        <CursorPos X="85" Y="58"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="104"/>
+        <CursorPos X="51" Y="114"/>
         <UsageCount Value="201"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="HBrxtxU.pas"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="376"/>
-        <CursorPos X="108" Y="392"/>
-        <UsageCount Value="103"/>
+        <Filename Value="HBbootU.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="64" Y="13"/>
+        <UsageCount Value="127"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
+        <Filename Value="HBrxtxU.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="390"/>
+        <CursorPos Y="409"/>
+        <UsageCount Value="103"/>
+        <Loaded Value="True"/>
+      </Unit5>
+      <Unit6>
         <Filename Value="C:\Tools\Lazarus\components\Cportlaz_v1.0.0\CPort.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1913"/>
         <CursorPos Y="1934"/>
-        <UsageCount Value="8"/>
-      </Unit5>
-      <Unit6>
+        <UsageCount Value="6"/>
+      </Unit6>
+      <Unit7>
         <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32listsl.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="126"/>
         <CursorPos Y="149"/>
-        <UsageCount Value="1"/>
-      </Unit6>
-      <Unit7>
-        <Filename Value="HBcmdU.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="384"/>
-        <CursorPos X="24" Y="406"/>
-        <UsageCount Value="100"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="9"/>
       </Unit7>
       <Unit8>
+        <Filename Value="HBcmdU.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="86"/>
+        <CursorPos Y="122"/>
+        <UsageCount Value="100"/>
+        <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="HButilsU.pas"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="42"/>
+        <CursorPos X="43" Y="61"/>
+        <UsageCount Value="91"/>
+        <Loaded Value="True"/>
+      </Unit9>
+      <Unit10>
         <Filename Value="C:\Tools\Lazarus\lcl\customtimer.pas"/>
         <UnitName Value="CustomTimer"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="130"/>
+        <TopLine Value="133"/>
         <CursorPos Y="151"/>
-        <UsageCount Value="4"/>
-      </Unit8>
-      <Unit9>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\control.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="2709"/>
-        <CursorPos Y="2728"/>
-        <UsageCount Value="2"/>
-      </Unit9>
-      <Unit10>
-        <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32object.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="338"/>
-        <CursorPos Y="359"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="10"/>
       </Unit10>
       <Unit11>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\application.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="1379"/>
-        <CursorPos Y="1402"/>
-        <UsageCount Value="4"/>
-      </Unit11>
-      <Unit12>
-        <Filename Value="C:\Tools\Lazarus\components\lazutils\winlazutf8.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="194"/>
-        <CursorPos X="57" Y="214"/>
-        <UsageCount Value="4"/>
-      </Unit12>
-      <Unit13>
-        <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32memostrings.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="255"/>
-        <CursorPos X="97" Y="272"/>
-        <UsageCount Value="4"/>
-      </Unit13>
-      <Unit14>
         <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32callback.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="2842"/>
-        <CursorPos Y="2879"/>
-        <UsageCount Value="4"/>
-      </Unit14>
-      <Unit15>
-        <Filename Value="C:\Tools\Lazarus\lcl\interfaces\win32\win32wsstdctrls.pp"/>
-        <UnitName Value="Win32WSStdCtrls"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="1610"/>
-        <CursorPos Y="1631"/>
-        <UsageCount Value="4"/>
-      </Unit15>
-      <Unit16>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\buttoncontrol.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="3"/>
-        <CursorPos Y="21"/>
-        <UsageCount Value="2"/>
-      </Unit16>
-      <Unit17>
-        <Filename Value="C:\Tools\Lazarus\lcl\include\buttons.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="152"/>
-        <CursorPos Y="170"/>
-        <UsageCount Value="2"/>
-      </Unit17>
-      <Unit18>
-        <Filename Value="HButilsU.pas"/>
-        <EditorIndex Value="4"/>
-        <TopLine Value="79"/>
-        <CursorPos X="21" Y="83"/>
-        <UsageCount Value="26"/>
-        <Loaded Value="True"/>
-      </Unit18>
+        <TopLine Value="2813"/>
+        <CursorPos Y="2848"/>
+        <UsageCount Value="8"/>
+      </Unit11>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
-        <Filename Value="main.pas"/>
-        <Caret Line="503" TopLine="480"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="308" Column="63" TopLine="293"/>
       </Position1>
       <Position2>
-        <Filename Value="main.pas"/>
-        <Caret Line="526" TopLine="509"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="290" TopLine="272"/>
       </Position2>
       <Position3>
-        <Filename Value="main.pas"/>
-        <Caret Line="528" TopLine="509"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="37" Column="5" TopLine="26"/>
       </Position3>
       <Position4>
-        <Filename Value="main.pas"/>
-        <Caret Line="502" TopLine="485"/>
+        <Filename Value="HButilsU.pas"/>
+        <Caret Line="42" Column="10" TopLine="35"/>
       </Position4>
       <Position5>
-        <Filename Value="main.pas"/>
-        <Caret Line="504" TopLine="485"/>
+        <Filename Value="HButilsU.pas"/>
+        <Caret Line="38" Column="22" TopLine="19"/>
       </Position5>
       <Position6>
-        <Filename Value="main.pas"/>
-        <Caret Line="505" TopLine="485"/>
+        <Filename Value="HButilsU.pas"/>
+        <Caret Line="54" Column="22" TopLine="35"/>
       </Position6>
       <Position7>
         <Filename Value="main.pas"/>
-        <Caret Line="526" TopLine="509"/>
+        <Caret Line="1059" Column="58" TopLine="1044"/>
       </Position7>
       <Position8>
-        <Filename Value="main.pas"/>
-        <Caret Line="504" Column="95" TopLine="487"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="401" Column="38" TopLine="372"/>
       </Position8>
       <Position9>
         <Filename Value="main.pas"/>
-        <Caret Line="461" Column="12" TopLine="446"/>
+        <Caret Line="1054" Column="17" TopLine="1044"/>
       </Position9>
       <Position10>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="61" Column="105" TopLine="49"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="399" Column="39" TopLine="371"/>
       </Position10>
       <Position11>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="44" Column="40" TopLine="26"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="1066" Column="18" TopLine="1044"/>
       </Position11>
       <Position12>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="45" Column="40" TopLine="26"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="316" Column="22" TopLine="298"/>
       </Position12>
       <Position13>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="63" Column="28" TopLine="48"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="784" Column="16" TopLine="754"/>
       </Position13>
       <Position14>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="205" Column="5" TopLine="183"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="829" Column="16" TopLine="799"/>
       </Position14>
       <Position15>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="211" TopLine="183"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="853" Column="22" TopLine="823"/>
       </Position15>
       <Position16>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="179" TopLine="161"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="855" Column="21" TopLine="825"/>
       </Position16>
       <Position17>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="272" TopLine="255"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="871" Column="19" TopLine="841"/>
       </Position17>
       <Position18>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="387" TopLine="369"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="924" Column="22" TopLine="894"/>
       </Position18>
       <Position19>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="384" TopLine="369"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="926" Column="21" TopLine="896"/>
       </Position19>
       <Position20>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="44" Column="40" TopLine="26"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="966" Column="14" TopLine="937"/>
       </Position20>
       <Position21>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="45" Column="40" TopLine="26"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="1017" Column="16" TopLine="993"/>
       </Position21>
       <Position22>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="59" Column="14" TopLine="30"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="1036" Column="16" TopLine="1018"/>
       </Position22>
       <Position23>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="130" Column="110" TopLine="120"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="1068" Column="73" TopLine="1049"/>
       </Position23>
       <Position24>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="211" Column="18" TopLine="195"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="1060" Column="42" TopLine="1049"/>
       </Position24>
       <Position25>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="213" Column="18" TopLine="195"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="1059" Column="68" TopLine="1049"/>
       </Position25>
       <Position26>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="222" Column="21" TopLine="207"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="363" Column="42" TopLine="20"/>
       </Position26>
       <Position27>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="223" Column="44" TopLine="207"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="40" Column="23" TopLine="21"/>
       </Position27>
       <Position28>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="225" Column="29" TopLine="207"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="34" Column="24" TopLine="22"/>
       </Position28>
       <Position29>
-        <Filename Value="HBrxtxU.pas"/>
-        <Caret Line="178" Column="26" TopLine="171"/>
+        <Filename Value="HBbootU.pas"/>
+        <Caret Line="40" Column="48" TopLine="21"/>
       </Position29>
-      <Position30>
-        <Filename Value="main.pas"/>
-        <Caret Line="68" Column="112" TopLine="60"/>
-      </Position30>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
@@ -289,5 +236,29 @@
         <Line Value="1398"/>
       </Item1>
     </BreakPoints>
+    <Watches Count="6">
+      <Item1>
+        <Expression Value="HBrxtx.HbEcho"/>
+        <DisplayStyle Value="wdfMemDump"/>
+      </Item1>
+      <Item2>
+        <Expression Value="HBrxtx"/>
+      </Item2>
+      <Item3>
+        <Expression Value="s"/>
+        <DisplayStyle Value="wdfMemDump"/>
+      </Item3>
+      <Item4>
+        <Expression Value="self.pos"/>
+        <DisplayStyle Value="wdfHex"/>
+      </Item4>
+      <Item5>
+        <Expression Value="result"/>
+      </Item5>
+      <Item6>
+        <Expression Value="ss"/>
+        <DisplayStyle Value="wdfMemDump"/>
+      </Item6>
+    </Watches>
   </Debugging>
 </CONFIG>

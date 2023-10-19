@@ -48,13 +48,13 @@ THbCipher = class(TStringList)
 private
   v : array [0..1] of longword;
   sum : longword;
-  procedure longword_to_buf(val : longword; buf : byte_p);
-  function strbuf_to_longword(s : string) : longword;
-  function longword_to_strbuf(val : longword) : string;
-  procedure set_lfsr(val : longword_p);
-  function encrypt8(s : string; kp : longword_p; rnds : byte) : string;
-  function decrypt8(s : string; kp : longword_p; rnds : byte) : string;
-  function Gamma : byte;
+  procedure FLongwordToBuf(val : longword; buf : byte_p);
+  function FStrBufToLongword(s : string) : longword;
+  function FLongwordToStrBuf(val : longword) : string;
+  procedure FSetLFSR(val : longword_p);
+  function FEncrypt8(s : string; kp : longword_p; rnds : byte) : string;
+  function FDecrypt8(s : string; kp : longword_p; rnds : byte) : string;
+  function FGamma : byte;
 public
   Key   : array [0..3] of longword;
   EENotes : string;
@@ -87,7 +87,7 @@ implementation
 // =====================================
 // Convert longword to buffer
 // =====================================
-procedure THbCipher.longword_to_buf(val : longword; buf : byte_p);
+procedure THbCipher.FLongwordToBuf(val : longword; buf : byte_p);
 begin
   (buf+3)^ := byte(val shr 24);
   (buf+2)^ := byte(val shr 16);
@@ -99,17 +99,28 @@ end;
 // Convert string buffer to longword
 // =====================================
 // string buff is little endian
-function THbCipher.strbuf_to_longword(s : string) : longword;
+function THbCipher.FStrBufToLongword(s : string) : longword;
 begin
-  result := ord(s[1]) + $100*ord(s[2]);
-  result := result + $10000*ord(s[3]) + $1000000*ord(s[4]);
+  result := 0;
+  if length(s) > 0 then begin
+    result := ord(s[1]);
+    if length(s) > 1 then begin
+      result := result + $100*ord(s[2]);
+      if length(s) > 2 then begin
+        result := result + $10000*ord(s[3]);
+        if length(s) > 3 then begin
+          result := result + $1000000*ord(s[4]);
+        end;
+      end;
+    end;
+  end;
 end;
 
 // =====================================
 // Convert longword to buffer
 // =====================================
 // string buff is little endian
-function THbCipher.longword_to_strbuf(val : longword) : string;
+function THbCipher.FLongwordToStrBuf(val : longword) : string;
 begin
   result := '' + char(val) + char(val shr 8);
   result := result + char(val shr 16) + char(val shr 24);
@@ -118,38 +129,38 @@ end;
 // =====================================
 // XTEA encryption - block of 8 bytes
 // =====================================
-function THbCipher.encrypt8(s : string; kp : longword_p; rnds : byte) : string;
+function THbCipher.FEncrypt8(s : string; kp : longword_p; rnds : byte) : string;
 var i : byte;
 begin
-  v[0] := strbuf_to_longword(copy(s,1,4));
-  v[1] := strbuf_to_longword(copy(s,5,4));
+  v[0] := FStrBufToLongword(copy(s,1,4));
+  v[1] := FStrBufToLongword(copy(s,5,4));
   sum := 0;
   for i:=1 to rnds do begin
     v[0] := v[0] + ((((v[1] shl 4) xor (v[1] shr 5)) + v[1]) xor (sum + (kp + (sum and 3))^));
     sum := sum + DELTA;
     v[1] := v[1] + ((((v[0] shl 4) xor (v[0] shr 5)) + v[0]) xor (sum + (kp + ((sum shr 11) and 3))^));
     if (i = 3) then
-       set_lfsr(v);   // use partially encrypted buffer as LFSR seed
+       FSetLFSR(v);   // use partially encrypted buffer as LFSR seed
   end;
-  result := longword_to_strbuf(v[0]) + longword_to_strbuf(v[1]);
+  result := FLongwordToStrBuf(v[0]) + FLongwordToStrBuf(v[1]);
 end;
 // =====================================
 // XTEA decryption - block of 8 bytes
 // =====================================
-function THbCipher.decrypt8(s : string; kp : longword_p; rnds : byte) : string;
+function THbCipher.FDecrypt8(s : string; kp : longword_p; rnds : byte) : string;
 var i : byte;
 begin
-  v[0] := strbuf_to_longword(copy(s,1,4));
-  v[1] := strbuf_to_longword(copy(s,5,4));
+  v[0] := FStrBufToLongword(copy(s,1,4));
+  v[1] := FStrBufToLongword(copy(s,5,4));
   sum := DELTA*rnds;
   for i:=1 to rnds do begin
     v[1] := v[1] - ((((v[0] shl 4) xor (v[0] shr 5)) + v[0]) xor (sum + (kp + ((sum shr 11) and 3))^));
     sum := sum - DELTA;
     v[0] := v[0] - ((((v[1] shl 4) xor (v[1] shr 5)) + v[1]) xor (sum + (kp + (sum and 3))^));
     if (i = rnds-3) then
-       set_lfsr(v);   // use partially decrypted buffer as LFSR seed
+       FSetLFSR(v);   // use partially decrypted buffer as LFSR seed
   end;
-  result := longword_to_strbuf(v[0]) + longword_to_strbuf(v[1]);
+  result := FLongwordToStrBuf(v[0]) + FLongwordToStrBuf(v[1]);
 end;
 
 // =====================================
@@ -159,20 +170,20 @@ procedure THbCipher.Calc_Key;
 var i : integer;
     s : string;
 begin
-  s := longword_to_strbuf(EEkey[0]) + longword_to_strbuf(EEkey[1]);
-  s := encrypt8(s, FlashKey, 13);
-  Key[0] := strbuf_to_longword(copy(s,1,4));
-  Key[1] := strbuf_to_longword(copy(s,5,4));
-  s := longword_to_strbuf(EEkey[2]) + longword_to_strbuf(EEkey[3]);
-  s := encrypt8(s, FlashKey, 17);
-  Key[2] := strbuf_to_longword(copy(s,1,4));
-  Key[3] := strbuf_to_longword(copy(s,5,4));
+  s := FLongwordToStrBuf(EEkey[0]) + FLongwordToStrBuf(EEkey[1]);
+  s := FEncrypt8(s, FlashKey, 13);
+  Key[0] := FStrBufToLongword(copy(s,1,4));
+  Key[1] := FStrBufToLongword(copy(s,5,4));
+  s := FLongwordToStrBuf(EEkey[2]) + FLongwordToStrBuf(EEkey[3]);
+  s := FEncrypt8(s, FlashKey, 17);
+  Key[2] := FStrBufToLongword(copy(s,1,4));
+  Key[3] := FStrBufToLongword(copy(s,5,4));
 end;
 
 // =====================================
 // Set initial LFSR state
 // =====================================
-procedure THbCipher.set_lfsr(val : longword_p);
+procedure THbCipher.FSetLFSR(val : longword_p);
 begin
   LFSR := (val[0] xor val[1]) or $40;
   gfetch := word(val[0] shr 5) or $20;
@@ -181,7 +192,7 @@ end;
 // =====================================
 // Get stream cipher gamma
 // =====================================
-function THbCipher.Gamma : byte;
+function THbCipher.FGamma : byte;
 var xval : longword;
     buf : array [0..3] of byte;
 begin
@@ -197,7 +208,7 @@ begin
     gfetch := (gfetch shl 1) xor LFSR16
   else
     gfetch := (gfetch shl 1) or 1;  // rotate with inversion
-  longword_to_buf(LFSR, buf);
+  FLongwordToBuf(LFSR, buf);
   case (gfetch and 7) of
     0: result := (buf[2] shr 3) or ((not buf[0]) and $E0);
     1: result := buf[1] xor buf[3];
@@ -220,10 +231,10 @@ var i : integer;
     b : byte;
 begin
   kp := @Key[0];
-  result := encrypt8(s, kp, Rounds); // first 8 bytes encrypted by XTEA
+  result := FEncrypt8(s, kp, Rounds); // first 8 bytes encrypted by XTEA
   for i:=9 to length(s) do begin
     b := ord(s[i]);
-    b := b xor gamma; // the rest encrypted by LFSR
+    b := b xor FGamma; // the rest encrypted by LFSR
     result := result + char(b);
   end;
 end;
@@ -237,10 +248,10 @@ var i : integer;
     b : byte;
 begin
   kp := @Key[0];
-  result := decrypt8(s, kp, Rounds); // first 8 bytes decrypted by XTEA
+  result := FDecrypt8(s, kp, Rounds); // first 8 bytes decrypted by XTEA
   for i:=9 to length(s) do begin
     b := ord(s[i]);
-    b := b xor gamma; // the rest encrypted by LFSR
+    b := b xor FGamma; // the rest encrypted by LFSR
     result := result + char(b);
   end;
 end;

@@ -31,8 +31,9 @@ interface
 //##############################################################################
 
 uses
-  Classes, SysUtils, FileUtil, CPort, Forms, Controls, Graphics, Dialogs, md5, sha1,
-  ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, Clipbrd, HBrxtxU, HBcmdU;
+  Classes, SysUtils, FileUtil, CPort, Forms, Controls, Graphics, Dialogs,
+  sha1,ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, Clipbrd,
+  HBrxtxU, HBcmdU, HButilsU, HBbootU;
 
 type
 
@@ -62,9 +63,9 @@ type
     BtnSaveSecurity : TButton;
     BtnCreateKey : TButton;
     BtnEECreate : TButton;
+    CBping1: TCheckBox;
     CbPorts : TComboBox;
     CbDamp : TCheckBox;
-    CbStatusRpt : TCheckBox;
     CBcipherM : TCheckBox;
     CBcipherH : TCheckBox;
     CBrev : TCheckBox;
@@ -83,9 +84,9 @@ type
     CBbroadcast : TCheckBox;
     CbEEcipher : TCheckBox;
     CbTs : TCheckBox;
+    CbSetSecurity: TCheckBox;
     EdEENotes : TEdit;
     EdGroup : TEdit;
-    EdBootPause : TEdit;
     EdDuration : TEdit;
     EdDescr : TEdit;
     EdCustomCmd : TEdit;
@@ -117,10 +118,10 @@ type
     GbFlashKey : TGroupBox;
     GBSecurity : TGroupBox;
     GBDescription : TGroupBox;
-    GBunencrypted : TGroupBox;
     Label1 : TLabel;
     Label10 : TLabel;
     Label11 : TLabel;
+    LblCrc: TLabel;
     LblKey1 : TLabel;
     Label2 : TLabel;
     Label3 : TLabel;
@@ -142,16 +143,22 @@ type
     LblLFSR2 : TLabel;
     LblLFSR3 : TLabel;
     OpenCipher : TOpenDialog;
+    OpenSketch: TOpenDialog;
     PageControl1 : TPageControl;
     Panel1 : TPanel;
     Panel2 : TPanel;
     Panel3 : TPanel;
+    PnlSecurityM: TPanel;
+    PnlSecurityH: TPanel;
+    RbName: TRadioButton;
+    RbLocation: TRadioButton;
+    RbDescr: TRadioButton;
     SaveCipher : TSaveDialog;
-    TabSheet1 : TTabSheet;
+    TsCipher : TTabSheet;
     Timer1ms : TTimer;
     Timer1sec : TTimer;
     TsHBus : TTabSheet;
-    TabSheet2 : TTabSheet;
+    TsMQTT : TTabSheet;
     Timer10ms : TTimer;
     procedure BtnBeepClick(Sender : TObject);
     procedure BtnBootClick(Sender : TObject);
@@ -178,6 +185,8 @@ type
     procedure BtnWrSecurityClick(Sender : TObject);
     procedure CBcipherHChange(Sender : TObject);
     procedure CBcipherMChange(Sender : TObject);
+    procedure CBping1Click(Sender: TObject);
+    procedure CBpingChange(Sender: TObject);
     procedure CbPortsChange(Sender : TObject);
     procedure EdCipNotesDblClick(Sender : TObject);
     procedure EdEENotesDblClick(Sender : TObject);
@@ -200,12 +209,14 @@ type
   private
     { private declarations }
     ComPortStr : string;
+    BootFn : string;
     NodeID : word;
     NewID : word;
     millis : longword;
     WasConnected : boolean;
-    function CB_to_security : word;
-    procedure security_to_CB(val : word);
+    function FCbToSecurity : word;
+    function FRbChecked : byte;
+    procedure FSecurityToCb(val : word);
   public
     { public declarations }
     function StrToHex(s : string; txt_i : byte) : string;
@@ -214,11 +225,8 @@ type
   end;
 
 var
-  Ready : boolean = false;
-  Form1 : TForm1;
-  HB : THbRxtx;
-  HBcmd : THbCmd;
-  TxMsg, RxMsg : THbMsg;
+  Ready  : boolean = false;
+  Form1  : TForm1;
 
 //##############################################################################
 implementation
@@ -299,7 +307,15 @@ end;
 procedure TForm1.Timer10msTimer(Sender : TObject);
 begin
   HBcmd.Tick10ms;
-  HB.Tick10ms;
+  HBrxtx.Tick10ms;
+  HBboot.Tick10ms;
+  if not BtnBoot.Enabled then begin
+    if HBboot.State = 0 then begin
+       BtnBoot.Enabled := true;
+       if HBboot.ErrStr <> '' then
+          ShowMessage(HBboot.ErrStr);
+    end;
+  end;
 end;
 
 // =====================================================
@@ -312,42 +328,42 @@ var i, cnt : integer;
     s : string;
 begin
   inc(millis);
-  if HB.ComPort.Connected then begin
+  if HBrxtx.ComPort.Connected then begin
      try
-        rx := HB.Rx;
+        rx := HBrxtx.Rx;
         // debug messages
-        cnt := HB.DbgList.Count;
+        cnt := HBrxtx.DbgList.Count;
         if (cnt > 0) then begin
           s := '';
           if CbTs.Checked then
             s := ' -- <'+IntToStr(millis)+' ms>';
           for i:=0 to cnt-1 do begin
-            LB.Items.Add(' - dbg: '+HB.DbgList.Strings[i]+s);
+            LB.Items.Add(' - dbg: '+HBrxtx.DbgList.Strings[i]+s);
             s := '';
           end;
           for i:=0 to cnt-1 do
-            HB.DbgList.Delete(cnt-1-i);
+            HBrxtx.DbgList.Delete(cnt-1-i);
         end;
         // dump
-        cnt := HB.DampList.Count;
+        cnt := HBrxtx.DampList.Count;
         if (cnt > 0) then begin
           s := '';
           if CbTs.Checked then
             s := ' -- <'+IntToStr(millis)+' ms>';
           if CbDamp.Checked then begin
             for i:=0 to cnt-1 do begin
-              LB.Items.Add(' --- bus: '+HB.DampList.Strings[i]+s);
+              LB.Items.Add(' --- bus: '+HBrxtx.DampList.Strings[i]+s);
               s := '';
             end;
           end;
           for i:=0 to cnt-1 do
-            HB.DampList.Delete(cnt-1-i);
+            HBrxtx.DampList.Delete(cnt-1-i);
         end;
         // received
         if rx.valid then begin
           if not rx.err then begin
             if (rx.mqtt) then begin
-              msg_id := HB.MsgID;   // received
+              msg_id := HBrxtx.MsgID;   // received
               if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $F0) and (msg_id < $10)) then begin
                  HBcmd.MsgID := msg_id +1;
                  if (HBcmd.MsgID > $FE) or (HBcmd.MsgID = 0) then
@@ -359,12 +375,12 @@ begin
           PrintHbMsg(rx);
           rx.valid := false;
         end;
-        if HB.TxStatus = 2 then
-           HB.TxStatus := 0;
+        if HBrxtx.TxStatus = 2 then
+           HBrxtx.TxStatus := 0;
     except
-      if HB.ComPort.Connected then
-        HB.ComPort.Connected := false;
-      HB.PortOk := false;
+      if HBrxtx.ComPort.Connected then
+        HBrxtx.ComPort.Connected := false;
+      HBrxtx.PortOk := false;
     end;
   end;
 end;
@@ -374,26 +390,24 @@ end;
 // =====================================================
 procedure TForm1.Timer1secTimer(Sender : TObject);
 begin
-  if (not HB.ComPort.Connected) and (not WasConnected) then begin
+  if (not HBrxtx.ComPort.Connected) and (not WasConnected) then begin
     Label2DblClick(Sender);
     CbPortsChange(Sender);
   end;
-  WasConnected := HB.ComPort.Connected;
-  if CbStatusRpt.Checked then
-     BtnStatusClick(Sender);
+  WasConnected := HBrxtx.ComPort.Connected;
 end;
 
 // =====================================================
 // Convert security checkboxes to word
 // =====================================================
-function TForm1.CB_to_security : word;
+function TForm1.FCbToSecurity : word;
 var res : word;
 begin
   res := 0;
   if  CBrev.Checked then         res := res or 1;
   if  CBstatus.Checked then      res := res or 2;
   if  CBcollect.Checked then     res := res or 4;
-  if  CBping.Checked then        res := res or 8;
+  if  (CBping.Checked) or (CBping1.Checked) then        res := res or 8;
   if  CBboot.Checked then        res := res or $10;
   if  CBrddescr.Checked then     res := res or $20;
   if  CBwrdescr.Checked then     res := res or $40;
@@ -408,14 +422,27 @@ begin
 end;
 
 // =====================================================
+// Convert radiobuttons
+// =====================================================
+function TForm1.FRbChecked: byte;
+begin
+  result := 0;
+  if RbLocation.Checked then
+    result := 2
+  else if RbDescr.Checked then
+    result := 4;
+end;
+
+// =====================================================
 // Convert word to security checkboxes
 // =====================================================
-procedure TForm1.security_to_CB(val : word);
+procedure TForm1.FSecurityToCb(val : word);
 begin
   CBrev.Checked          := (val and 1) <> 0;
   CBstatus.Checked       := (val and 2) <> 0;
   CBcollect.Checked      := (val and 4) <> 0;
   CBping.Checked         := (val and 8) <> 0;
+  CBping1.Checked        := CBping.Checked;
   CBboot.Checked         := (val and $10) <> 0;
   CBrddescr.Checked      := (val and $20) <> 0;
   CBwrdescr.Checked      := (val and $40) <> 0;
@@ -473,8 +500,8 @@ begin
       else
         s := ' Error--> HBus ';
       s := s + StrToHex(msg.s, 0); // binary
-      s := s + ', crc=' + IntToHex(HB.LastCrc[0],4);
-      s := s + '/' + IntToHex(HB.LastCrc[1],4);
+      s := s + ', crc=' + IntToHex(HBrxtx.LastCrc[0],4);
+      s := s + '/' + IntToHex(HBrxtx.LastCrc[1],4);
     end else begin
       // ---------------------------
       // HBus message
@@ -488,7 +515,7 @@ begin
         else if (cmd = $A) or (cmd = $8A) then // custom cmd and reply
           s := s + StrToHex(msg.s, 12)
         else if (cmd = $8B) then begin         // topic
-          if (OkErr = 0) then begin
+          if (OkErr < $80) then begin
             if (length(msg.s) >= 14) then begin
               NewTopicId := $100*ord(msg.s[13]) + ord(msg.s[14]);
               s := s + StrToHex(msg.s, 14);
@@ -500,9 +527,11 @@ begin
           end;
         end else begin
           s := s + StrToHex(msg.s, 0); // binary
-          if (cmd = $89) and (OkErr = 0) then begin // read secirity
+          if (cmd = $89) and (OkErr < $80) then begin // read secirity
             SecSet := $100*ord(msg.s[13]) + ord(msg.s[14]);
-            security_to_CB(SecSet); // tick checkboxes
+            FSecurityToCb(SecSet); // tick checkboxes
+            if (OkErr = 1) then // OK1, EEPROM cipher is valid
+              CbEEcipher.Checked:=false; // then do not send cipher, it will be ignored anyway
           end;
         end;
       // ---------------------------
@@ -535,12 +564,11 @@ end;
 function TForm1.num_str_c2pas(s : string) : string;
 var ss : string;
 begin
-  s := AnsiLowerCase(Trim(s));
-  result := s;
-  if length(s)>2 then begin
-    ss := copy(s, 1, 2);
+  result := AnsiLowerCase(Trim(s));
+  if length(result)>2 then begin
+    ss := copy(result, 1, 2);
     if ss = '0x' then begin
-      result := '$'+copy(s,3,length(s)-2);
+      result := '$'+copy(result, 3, length(result)-2);
     end;
   end;
 end;
@@ -556,23 +584,26 @@ begin
   ComPortStr := AnsiUpperCase(ini.ReadString('Config','Port','COM1'));
   NodeID := ini.ReadInteger('Config','ID',$FFFF);
   val := ini.ReadInteger('Config','Security',$FFFF);
-  security_to_CB(val);
+  FSecurityToCb(val);
   EdTopic.Text := ini.ReadString('MQTT','topic','101');
   EdTopicVal.Text := ini.ReadString('MQTT','val','12.3');
   CBcipherM.Checked := ini.ReadInteger('MQTT','cipher', 0) <> 0;
   CBcipherH.Checked := ini.ReadInteger('HBus','cipher', 0) <> 0;
+  BootFn := ini.ReadString('Sketch','FileName','');
   ini.Free;
   EdNode.Text := '0x' + IntToHex(NodeID,3);
   EdNewID.Text := EdNode.Text;
   Label2DblClick(Sender); // select COM port
-  HB := THbRxtx.Create(ComPortStr);
-  if HB.ComPort.Connected then
+  HBrxtx := THbRxtx.Create(ComPortStr);
+  if HBrxtx.ComPort.Connected then
     Label3.Caption:='Connected'
   else
     Label3.Caption:='Disonnected';
   HBcmd := THbCmd.Create;
   EdCipNotesDblClick(Sender);
   EdEENotesDblClick(Sender);
+
+  HBboot := THbBoot.Create;
 
   EdOwnId.Text := '0x'+IntToHex(HBcmd.OwnID,3);
   EdOwnIdDblClick(Sender);
@@ -592,7 +623,7 @@ var ini : TIniFile;
 begin
   EdRoundsDblClick(Sender); // save cipher changes
   ini := TIniFile.Create('NodeTest.ini');
-  if HB.ComPort.Connected then
+  if HBrxtx.ComPort.Connected then
     ini.WriteString('Config','Port',AnsiUpperCase(ComPortStr));
   ini.WriteInteger('Config','ID',NodeID);
   ini.WriteString('MQTT','topic',EdTopic.Text);
@@ -601,9 +632,11 @@ begin
   ini.WriteInteger('MQTT','cipher', val);
   if CBcipherH.Checked then val := 1 else val := 0;
   ini.WriteInteger('HBus','cipher', val);
+  ini.WriteString('Sketch','FileName',BootFn);
   ini.Free;
-  HB.Free;
+  HBrxtx.Free;
   HBcmd.Free;
+  HBboot.Free;
 end;
 
 // =====================================================
@@ -612,26 +645,26 @@ end;
 procedure TForm1.CbPortsChange(Sender : TObject);
 begin
   ComPortStr := CbPorts.Text;
-  if HB.ComPort.Connected then begin
-    HB.FlushTx;
-    HB.ComPort.Close;
+  if HBrxtx.ComPort.Connected then begin
+    HBrxtx.FlushTx;
+    HBrxtx.ComPort.Close;
   end;
   Label3.Caption:='Disonnected';
   if Trim(ComPortStr) <> '' then begin
-    HB.ComPort.Port := ComPortStr;
+    HBrxtx.ComPort.Port := ComPortStr;
     try
-      HB.PortOk := true;
-      HB.ComPort.Open;
-      if HB.ComPort.Connected then
+      HBrxtx.PortOk := true;
+      HBrxtx.ComPort.Open;
+      if HBrxtx.ComPort.Connected then
         Label3.Caption:='Connected';
     except
-      if HB.ComPort.Connected then
-        HB.ComPort.Connected := false;
-      HB.PortOk := false;
+      if HBrxtx.ComPort.Connected then
+        HBrxtx.ComPort.Connected := false;
+      HBrxtx.PortOk := false;
     end;
   end;
-  HB.FlushRx;
-  HB.FlushTx;
+  HBrxtx.FlushRx;
+  HBrxtx.FlushTx;
 end;
 
 // =====================================================
@@ -640,22 +673,22 @@ end;
 procedure TForm1.EdRoundsDblClick(Sender : TObject);
 var s : string;
 begin
-  HB.cipher.Notes := EdCipNotes.Text;
+  HBrxtx.cipher.Notes := EdCipNotes.Text;
   s := num_str_c2pas(EdKey1.Text);
-  HB.Cipher.FlashKey[0] := StrToIntDef(s, $60F3C66D);
+  HBrxtx.Cipher.FlashKey[0] := StrToIntDefLW(s, $60F3C66D);
   s := num_str_c2pas(EdKey2.Text);
-  HB.Cipher.FlashKey[1] := StrToIntDef(s, $5DF53900);
+  HBrxtx.Cipher.FlashKey[1] := StrToIntDefLW(s, $5DF53900);
   s := num_str_c2pas(EdKey3.Text);
-  HB.Cipher.FlashKey[2] := StrToIntDef(s, $4F533EB6);
+  HBrxtx.Cipher.FlashKey[2] := StrToIntDefLW(s, $4F533EB6);
   s := num_str_c2pas(EdKey4.Text);
-  HB.Cipher.FlashKey[3] := StrToIntDef(s, $E42B2A61);
+  HBrxtx.Cipher.FlashKey[3] := StrToIntDefLW(s, $E42B2A61);
   s := num_str_c2pas(EdLFSR1.Text);
-  HB.Cipher.LFSR1 := StrToIntDef(s, $1EDC6F41);
+  HBrxtx.Cipher.LFSR1 := StrToIntDefLW(s, $1EDC6F41);
   s := num_str_c2pas(EdLFSR2.Text);
-  HB.Cipher.LFSR2 := StrToIntDef(s, $04C11DB7);
+  HBrxtx.Cipher.LFSR2 := StrToIntDefLW(s, $04C11DB7);
   s := num_str_c2pas(EdLFSR16.Text);
-  HB.Cipher.LFSR16 := StrToIntDef(s, $755B);
-  HB.Cipher.Rounds := StrToIntDef(EdRounds.Text, 6);
+  HBrxtx.Cipher.LFSR16 := StrToIntDefLW(s, $755B);
+  HBrxtx.Cipher.Rounds := StrToIntDefLW(EdRounds.Text, 6);
 end;
 
 // =====================================================
@@ -670,8 +703,8 @@ end;
 // Debug cipher
 // =====================================================
 procedure TForm1.Panel1DblClick(Sender : TObject);
-var i : integer;
-    s, ss : string;
+//var i : integer;
+//    s, ss : string;
 begin
 {
   s := '';
@@ -680,7 +713,7 @@ begin
   for i:=8 to 31 do
     s := s + '1';
   LB.Items.Add(s);
-  s := HB.Cipher.encrypt(s);
+  s := HBrxtx.Cipher.encrypt(s);
   ss := '';
   for i:=1 to length(s)-1 do begin
     ss := ss + IntToHex(ord(s[i]),2) + ' ';
@@ -688,7 +721,7 @@ begin
       ss := ss + ' ';
   end;
   LB.Items.Add(ss);
-  ss := HB.Cipher.decrypt(s);
+  ss := HBrxtx.Cipher.decrypt(s);
   LB.Items.Add(ss);
 }
 end;
@@ -698,15 +731,15 @@ end;
 // =====================================================
 procedure TForm1.EdCipNotesDblClick(Sender : TObject);
 begin
-  EdCipNotes.Text := HB.Cipher.Notes;
-  EdKey1.Text:='0x'+IntToHex(HB.Cipher.FlashKey[0],8);
-  EdKey2.Text:='0x'+IntToHex(HB.Cipher.FlashKey[1],8);
-  EdKey3.Text:='0x'+IntToHex(HB.Cipher.FlashKey[2],8);
-  EdKey4.Text:='0x'+IntToHex(HB.Cipher.FlashKey[3],8);
-  EdRounds.Text:=IntToStr(HB.Cipher.Rounds);
-  EdLFSR1.Text:='0x'+IntToHex(HB.Cipher.LFSR1,8);
-  EdLFSR2.Text:='0x'+IntToHex(HB.Cipher.LFSR2,8);
-  EdLFSR16.Text:='0x'+IntToHex(HB.Cipher.LFSR16,4);
+  EdCipNotes.Text := HBrxtx.Cipher.Notes;
+  EdKey1.Text:='0x'+IntToHex(HBrxtx.Cipher.FlashKey[0],8);
+  EdKey2.Text:='0x'+IntToHex(HBrxtx.Cipher.FlashKey[1],8);
+  EdKey3.Text:='0x'+IntToHex(HBrxtx.Cipher.FlashKey[2],8);
+  EdKey4.Text:='0x'+IntToHex(HBrxtx.Cipher.FlashKey[3],8);
+  EdRounds.Text:=IntToStr(HBrxtx.Cipher.Rounds);
+  EdLFSR1.Text:='0x'+IntToHex(HBrxtx.Cipher.LFSR1,8);
+  EdLFSR2.Text:='0x'+IntToHex(HBrxtx.Cipher.LFSR2,8);
+  EdLFSR16.Text:='0x'+IntToHex(HBrxtx.Cipher.LFSR16,4);
 end;
 
 // =====================================================
@@ -714,11 +747,11 @@ end;
 // =====================================================
 procedure TForm1.EdEENotesDblClick(Sender : TObject);
 begin
-  EdEENotes.Text := HB.Cipher.EENotes;
-  EdKey5.Text:='0x'+IntToHex(HB.Cipher.EEKey[0],8);
-  EdKey6.Text:='0x'+IntToHex(HB.Cipher.EEKey[1],8);
-  EdKey7.Text:='0x'+IntToHex(HB.Cipher.EEKey[2],8);
-  EdKey8.Text:='0x'+IntToHex(HB.Cipher.EEKey[3],8);
+  EdEENotes.Text := HBrxtx.Cipher.EENotes;
+  EdKey5.Text:='0x'+IntToHex(HBrxtx.Cipher.EEKey[0],8);
+  EdKey6.Text:='0x'+IntToHex(HBrxtx.Cipher.EEKey[1],8);
+  EdKey7.Text:='0x'+IntToHex(HBrxtx.Cipher.EEKey[2],8);
+  EdKey8.Text:='0x'+IntToHex(HBrxtx.Cipher.EEKey[3],8);
 end;
 
 // =====================================================
@@ -727,15 +760,15 @@ end;
 procedure TForm1.EdKey5DblClick(Sender : TObject);
 var s : string;
 begin
-  HB.Cipher.EENotes := EdEENotes.Text;
+  HBrxtx.Cipher.EENotes := EdEENotes.Text;
   s := num_str_c2pas(EdKey5.Text);
-  HB.Cipher.EEKey[0] := StrToIntDef(s, $4c25dc00);
+  HBrxtx.Cipher.EEKey[0] := StrToIntDefLW(s, $4c25dc00);
   s := num_str_c2pas(EdKey6.Text);
-  HB.Cipher.EEKey[1] := StrToIntDef(s, $bcb2e7dc);
+  HBrxtx.Cipher.EEKey[1] := StrToIntDefLW(s, $bcb2e7dc);
   s := num_str_c2pas(EdKey7.Text);
-  HB.Cipher.EEKey[2] := StrToIntDef(s, $89eb06ab);
+  HBrxtx.Cipher.EEKey[2] := StrToIntDefLW(s, $89eb06ab);
   s := num_str_c2pas(EdKey8.Text);
-  HB.Cipher.EEKey[3] := StrToIntDef(s, $15227cb7);
+  HBrxtx.Cipher.EEKey[3] := StrToIntDefLW(s, $15227cb7);
 end;
 
 // =====================================================
@@ -746,7 +779,9 @@ var s : string;
 begin
   HBcmd.Flush;
   TxMsg := HBcmd.CmdRev(NodeID);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -767,7 +802,7 @@ begin
       end;
       RenameFile(SaveCipher.FileName, SaveCipher.FileName+'~');
     end;
-    HB.Cipher.SaveEECip(SaveCipher.FileName);
+    HBrxtx.Cipher.SaveEECip(SaveCipher.FileName);
     EdEENotesDblClick(Sender);
   end;
 end;
@@ -780,16 +815,18 @@ var s : string;
     grp, slots : integer;
 begin
   HBcmd.Flush;
-  grp := StrToIntDef(EdGroup.Text,1);
+  grp := StrToIntDefLW(EdGroup.Text,1);
   EdGroup.Text := IntToStr(grp);
-  slots := StrToIntDef(EdSlots.Text,32);
+  slots := StrToIntDefLW(EdSlots.Text,32);
   if (slots < 8) then
     slots := 8;
   if (slots > 255) then
     slots := 255;
   EdSlots.Text := IntToStr(slots);
   TxMsg := HBcmd.CmdCollect(grp, slots);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -798,8 +835,8 @@ end;
 // =====================================================
 procedure TForm1.BtnCreateKeyClick(Sender : TObject);
 var s1, s2, ss : string;
-    i : integer;
 begin
+  s1 := ''; s2 := '';
   if InputQuery('Create KEY from a passphrase', 'Enter a passphrase', TRUE, s1) then begin
     if InputQuery('Create KEY from a passphrase', 'Enter the same passphrase again', TRUE, s2) then begin
        if s1 = s2 then begin
@@ -829,7 +866,9 @@ begin
   HBcmd.Flush;
   TxMsg := HBcmd.CmdCustom(NodeID, EdCustomCmd.Text);
   if TxMsg.valid then begin
-    s := HB.Tx(TxMsg);
+    s := HBrxtx.Tx(TxMsg);
+    if s<>'' then
+       ShowMessage(s);
     inc(HBcmd.MsgId);
   end;
 end;
@@ -842,9 +881,9 @@ begin
   OpenCipher.Filter := 'EEPROM cipher files|*.ecip|All files|*.*';
   OpenCipher.InitialDir := ExtractFilePath(Application.ExeName);
   if OpenCipher.Execute then begin
-    HB.Cipher.ReadEECip(OpenCipher.FileName);
+    HBrxtx.Cipher.ReadEECip(OpenCipher.FileName);
     EdEENotesDblClick(Sender);
-    HB.Cipher.Calc_Key;
+    HBrxtx.Cipher.Calc_Key;
   end;
 end;
 
@@ -856,9 +895,9 @@ begin
   OpenCipher.Filter := 'Flash cipher files|*.fcip|All files|*.*';
   OpenCipher.InitialDir := ExtractFilePath(Application.ExeName);
   if OpenCipher.Execute then begin
-    HB.Cipher.ReadFlashCip(OpenCipher.FileName);
+    HBrxtx.Cipher.ReadFlashCip(OpenCipher.FileName);
     EdCipNotesDblClick(Sender);
-    HB.Cipher.Calc_Key;
+    HBrxtx.Cipher.Calc_Key;
   end;
 end;
 
@@ -867,8 +906,8 @@ end;
 // =====================================================
 procedure TForm1.BtnEECreateClick(Sender : TObject);
 var s1, s2, ss : string;
-    i : integer;
 begin
+  s1 := ''; s2 := '';
   if InputQuery('Create KEY from a passphrase', 'Enter a passphrase', TRUE, s1) then begin
     if InputQuery('Create KEY from a passphrase', 'Enter the same passphrase again', TRUE, s2) then begin
        if s1 = s2 then begin
@@ -944,7 +983,7 @@ begin
       end;
       RenameFile(SaveCipher.FileName, SaveCipher.FileName+'~');
     end;
-    HB.Cipher.SaveFlashCip(SaveCipher.FileName);
+    HBrxtx.Cipher.SaveFlashCip(SaveCipher.FileName);
     EdCipNotesDblClick(Sender);
   end;
 end;
@@ -957,7 +996,7 @@ var ini : TIniFile;
     val : word;
 begin
   ini := TIniFile.Create('NodeTest.ini');
-  val := CB_to_security;
+  val := FCbToSecurity;
   ini.WriteInteger('Config','Security',val);
   ini.Free;
 end;
@@ -966,16 +1005,18 @@ end;
 // Send MQTT message PUBLISH
 // =====================================================
 procedure TForm1.BtnPublishClick(Sender : TObject);
-var topicId, msg_id : word;
+var topicId: word;
     s : string;
 begin
   HBcmd.Flush;
-  topicId := StrToIntDef(EdTopic.text,100);
+  topicId := StrToIntDefLW(EdTopic.text,100);
   EdTopic.text := IntToStr(topicId);
   TxMsg := HBcmd.Publish(topicId, HBcmd.MsgID, EdTopicVal.Text);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   inc(HBcmd.MsgId);
-  if HBcmd.MsgId >= $FFFE then
+  if HBcmd.MsgId >= $FE then
     HBcmd.MsgId := 1;
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
@@ -984,15 +1025,17 @@ end;
 // Send MQTT message REGISTER
 // =====================================================
 procedure TForm1.BtnRegisterClick(Sender : TObject);
-var topicId, msg_id : word;
+var topicId : word;
     s : string;
 begin
   HBcmd.Flush;
-  topicId := StrToIntDef(EdTopic1.text,100);
+  topicId := StrToIntDefLW(EdTopic1.text,100);
   TxMsg := HBcmd.Register(topicId, HBcmd.MsgID, EdTopicName.Text);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   inc(HBcmd.MsgId);
-  if HBcmd.MsgId >= $FFFE then
+  if HBcmd.MsgId >= $FE then
     HBcmd.MsgId := 1;
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
@@ -1002,15 +1045,26 @@ end;
 // Boot
 // =====================================================
 procedure TForm1.BtnBootClick(Sender : TObject);
-var pause : integer;
-    s : string;
+var s : string;
 begin
-  HBcmd.Flush;
-  pause := StrToIntDef(EdBootPause.Text, 10); // sec
-  EdBootPause.Text := IntToStr(pause);
-  TxMsg := HBcmd.CmdBoot(NodeID, pause);
-  s := HB.Tx(TxMsg);
-  EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
+  if BootFn <> '' then
+     OpenSketch.InitialDir:=ExtractFileDir(BootFn);
+  OpenSketch.FileName := ExtractFileName(BootFn);
+  if OpenSketch.Execute then begin
+    BootFn := OpenSketch.FileName;
+    s := HbBoot.ReadSketch(BootFn);
+    LblCrc.Visible:=true;;
+    LblCrc.Caption:='Addr max '+IntToHex(HbBoot.AddrMax,4) + ', crc '+IntToHex(HbBoot.BufCrc,4);
+    if s = '' then begin
+      // LB.Items.Add(' - dbg: Last chunk '+HexStr(HbBoot.LastChunk));
+      s := HbBoot.StartBatch(NodeID);
+      if s = '' then begin
+         LB.Items.Add(' - dbg: Loading sketch '+ ExtractFileName(BootFn));
+         BtnBoot.Enabled := false;
+      end;
+    end else
+      ShowMessage('ERROR: '+ s + ', operation aborted');
+  end;
 end;
 
 // =====================================================
@@ -1021,10 +1075,12 @@ var dur : integer;
     s : string;
 begin
   HBcmd.Flush;
-  dur := StrToIntDef(EdDuration.Text, 2); // sec
+  dur := StrToIntDefLW(EdDuration.Text, 2); // sec
   EdDuration.Text := IntToStr(dur);
   TxMsg := HBcmd.CmdBeep(NodeID, dur);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -1037,7 +1093,9 @@ begin
   HBcmd.Flush;
   EdNewIDDblClick(Sender);
   TxMsg := HBcmd.CmdSetID(NodeID, NewID);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -1049,10 +1107,12 @@ var pause : integer;
     s : string;
 begin
   HBcmd.Flush;
-  pause := StrToIntDef(EdPause.Text, 0); // sec
+  pause := StrToIntDefLW(EdPause.Text, 0); // sec
   EdPause.Text := IntToStr(pause);
   TxMsg := HBcmd.CmdPing(NodeID, pause);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -1063,8 +1123,10 @@ procedure TForm1.BtnRdDescrClick(Sender : TObject);
 var s : string;
 begin
   HBcmd.Flush;
-  TxMsg := HBcmd.CmdDescr(NodeID,'', false);
-  s := HB.Tx(TxMsg);
+  TxMsg := HBcmd.CmdDescr(NodeID,'', FRbChecked);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -1079,8 +1141,10 @@ begin
   if length(s) > 63 then
     s := copy(s,1,64);
   EdDescr.Text := s;
-  TxMsg := HBcmd.CmdDescr(NodeID, s, true);
-  s := HB.Tx(TxMsg);
+  TxMsg := HBcmd.CmdDescr(NodeID, s, FRbChecked or 1);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -1092,7 +1156,9 @@ var s : string;
 begin
   HBcmd.Flush;
   TxMsg := HBcmd.CmdSecurity(NodeID, '', false);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -1103,29 +1169,40 @@ procedure TForm1.BtnWrSecurityClick(Sender : TObject);
 var s : string;
     val, i : word;
 begin
-  val := CB_to_security;
+  val := FCbToSecurity;
   s := '' + char(byte(val >> 8)) + char(byte(val)); // security settings
   if CbEEcipher.Checked then begin
     for i:=0 to 3 do begin
-      s := s + char(byte(HB.Cipher.EEKey[i] >> 24));
-      s := s + char(byte(HB.Cipher.EEKey[i] >> 16));
-      s := s + char(byte(HB.Cipher.EEKey[i] >> 8));
-      s := s + char(byte(HB.Cipher.EEKey[i]));
+      s := s + char(byte(HBrxtx.Cipher.EEKey[i] >> 24));
+      s := s + char(byte(HBrxtx.Cipher.EEKey[i] >> 16));
+      s := s + char(byte(HBrxtx.Cipher.EEKey[i] >> 8));
+      s := s + char(byte(HBrxtx.Cipher.EEKey[i]));
     end;
   end;
   TxMsg := HBcmd.CmdSecurity(NodeID, s, true);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
-
 
 // =====================================================
 // Use cipher for HBus
 // =====================================================
 procedure TForm1.CBcipherHChange(Sender : TObject);
 begin
-  if Ready then
-    HB.EncryptHB := CBcipherH.Checked;
+  if Ready then begin
+    CBcipherM.Checked := CBcipherH.Checked;
+    HBrxtx.EncryptHB := CBcipherH.Checked;
+    HBrxtx.EncryptMQ := CBcipherH.Checked;
+    if CBcipherH.Checked then begin
+      PnlSecurityH.Color := clSkyBlue;
+      PnlSecurityM.Color := clSkyBlue;
+    end  else begin
+      PnlSecurityH.Color := clDefault;
+      PnlSecurityM.Color := clDefault;
+    end;
+  end;
 end;
 
 // =====================================================
@@ -1133,8 +1210,30 @@ end;
 // =====================================================
 procedure TForm1.CBcipherMChange(Sender : TObject);
 begin
-  if Ready then
-    HB.EncryptMQ := CBcipherM.Checked;
+  if Ready then begin
+    HBrxtx.EncryptHB := CBcipherH.Checked;
+    HBrxtx.EncryptMQ := CBcipherM.Checked;
+    CBcipherH.Checked := CBcipherM.Checked;
+    if CBcipherM.Checked then begin
+      PnlSecurityH.Color := clSkyBlue;
+      PnlSecurityM.Color := clSkyBlue;
+    end  else begin
+      PnlSecurityH.Color := clDefault;
+      PnlSecurityM.Color := clDefault;
+    end;
+  end;
+end;
+
+// =====================================================
+procedure TForm1.CBping1Click(Sender: TObject);
+begin
+  CBping.Checked := CBping1.Checked;
+end;
+
+// =====================================================
+procedure TForm1.CBpingChange(Sender: TObject);
+begin
+  CBping1.Checked := CBping.Checked;
 end;
 
 // =====================================================
@@ -1144,10 +1243,12 @@ procedure TForm1.BtnRdTopicClick(Sender : TObject);
 var ti : byte;
     s : string;
 begin
-  ti := StrToIntDef(EdTopicI.Text,0);
+  ti := StrToIntDefLW(EdTopicI.Text,0);
   HBcmd.Flush;
   TxMsg := HBcmd.CmdRdTopic(NodeID, ti);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdTopicI.Text := IntToStr(ti+1);
 end;
 
@@ -1159,7 +1260,9 @@ var s : string;
 begin
   HBcmd.Flush;
   TxMsg := HBcmd.CmdStatus(NodeID);
-  s := HB.Tx(TxMsg);
+  s := HBrxtx.Tx(TxMsg);
+  if s<>'' then
+    ShowMessage(s);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
@@ -1170,7 +1273,7 @@ procedure TForm1.EdNodeDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdNode.Text);
-  NodeID := StrToIntDef(s, $07FF);
+  NodeID := StrToIntDefLW(s, $07FF);
   EdNode.Text := '0x'+IntToHex(NodeID,3);
 end;
 
@@ -1181,7 +1284,7 @@ procedure TForm1.EdOwnIdDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdOwnId.Text);
-  HBcmd.OwnID := StrToIntDef(s, $07FF);
+  HBcmd.OwnID := StrToIntDefLW(s, $07FF);
   if (HBcmd.OwnID < 1) then
      HBcmd.OwnID := 1;
   if (HBcmd.OwnID > $07FF) then
@@ -1196,7 +1299,7 @@ procedure TForm1.EdMsgIdDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdMsgId.Text);
-  HBcmd.MsgID := StrToIntDef(s, 1);
+  HBcmd.MsgID := StrToIntDefLW(s, 1);
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2)
 end;
 
@@ -1207,7 +1310,7 @@ procedure TForm1.EdNewIDDblClick(Sender : TObject);
 var s : string;
 begin
   s := num_str_c2pas(EdNewId.Text);
-  NewID := StrToIntDef(s, $07FF);
+  NewID := StrToIntDefLW(s, $07FF);
   if (NewID = 0) then
      NewID := 1;
   if (NewID > $07FF) then

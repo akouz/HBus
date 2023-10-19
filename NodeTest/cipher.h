@@ -1,5 +1,5 @@
 /* Cipher codes for HBus, https://github.com/akouz/HBus
- * Generated on 2/08/2019 at 21:06:12 by NodeTest
+ * Generated on 18/09/2023 at 19:28:12 by NodeTest
  * Default cipher */
 enum{
   KEY1   = 0x60F3C66D,

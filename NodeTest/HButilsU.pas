@@ -34,6 +34,8 @@ interface
 uses
   Classes, SysUtils, IniFiles, Windows, lazutf8sysutils;
 
+function HexStr(ss : string) : string;
+function StrToIntDefLW(ss : string; def : longword) : longword;
 function GetLocalTimeZone: Integer;
 function DataTimeToEpoch2001(dt : TDateTime) : longword;
 function GetUTCtime: longword;
@@ -44,6 +46,60 @@ function Epoch2001ToLocalTime(e2001: longword): TDateTime;
 //##############################################################################
 implementation
 //##############################################################################
+
+// ===========================================
+// Hex string
+// ===========================================
+function HexStr(ss : string) : string;
+var i : integer;
+    c : char;
+begin
+  result := '';
+  for i:=1 to length(ss) do begin
+    c := ss[i];
+    result := result + IntToHex(ord(c),2) + ' ';
+  end;
+end;
+// ===========================================
+// String to longword
+// ===========================================
+function StrToIntDefLW(ss : string; def : longword) : longword;
+var s : string;
+    c : char;
+    i : integer;
+    val : longword;
+begin
+  result := def;
+  val := 0;
+  s := AnsiLowerCase(Trim(ss));
+  if length(s) > 0 then begin
+    // hex
+    if (s[1] = '$') then begin
+      if length(s) > 1 then begin
+         for i:=2 to length(s) do begin
+           c := s[i];
+           if (c in ['0'..'9']) then
+             val := $10*val + ord(c) - ord('0')
+           else if (c in ['a'..'f']) then
+             val := $10*val + ord(c) - ord('a') + $A
+           else
+             exit;
+         end;
+         result := val;
+      end;
+    // decimal
+    end else begin
+      for i:=1 to length(s) do begin
+        c := s[i];
+        if (c in ['0'..'9']) then
+          val := $10*val + ord(c) - ord('0')
+        else
+          exit;
+      end;
+      result := val;
+    end;
+  end;
+end;
 
 // ===========================================
 // Time zone
