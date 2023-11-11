@@ -167,8 +167,7 @@ end;
 // Calculate working key using flash key and EEPROM key
 // =====================================
 procedure THbCipher.Calc_Key;
-var i : integer;
-    s : string;
+var  s : string;
 begin
   s := FLongwordToStrBuf(EEkey[0]) + FLongwordToStrBuf(EEkey[1]);
   s := FEncrypt8(s, FlashKey, 13);

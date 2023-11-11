@@ -1046,6 +1046,7 @@ end;
 // =====================================================
 procedure TForm1.BtnBootClick(Sender : TObject);
 var s : string;
+    len : word;
 begin
   if BootFn <> '' then
      OpenSketch.InitialDir:=ExtractFileDir(BootFn);
@@ -1053,8 +1054,9 @@ begin
   if OpenSketch.Execute then begin
     BootFn := OpenSketch.FileName;
     s := HbBoot.ReadSketch(BootFn);
-    LblCrc.Visible:=true;;
-    LblCrc.Caption:='Addr max '+IntToHex(HbBoot.AddrMax,4) + ', crc '+IntToHex(HbBoot.BufCrc,4);
+    LblCrc.Visible:=true;
+    len := HbBoot.AddrMax - $3FF;
+    LblCrc.Caption:='Code length '+IntToHex(len,4) + ', crc '+IntToHex(HbBoot.BufCrc,4);
     if s = '' then begin
       // LB.Items.Add(' - dbg: Last chunk '+HexStr(HbBoot.LastChunk));
       s := HbBoot.StartBatch(NodeID);

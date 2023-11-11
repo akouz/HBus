@@ -92,7 +92,7 @@ begin
       for i:=1 to length(s) do begin
         c := s[i];
         if (c in ['0'..'9']) then
-          val := $10*val + ord(c) - ord('0')
+          val := 10*val + ord(c) - ord('0')
         else
           exit;
       end;

@@ -111,9 +111,14 @@ begin
        end;
     end;
   // --------------
-  3..50: if HBrxtx.OkErr = 0 then
+  3..50:
+    begin
+        if HBrxtx.OkErr = 0 then
             self.FState := 2
-         else if HBrxtx.OkErr > 0 then begin
+         else if HBrxtx.NoRply then begin
+           ErrStr := 'No reply, abort';
+           self.FState := 0; // abort
+         end else if HBrxtx.OkErr > 0 then begin
             if FRptCnt < 3 then begin
               inc(FRptCnt);
               res := HBrxtx.Tx(HBcmd.CmdBoot(self.FTargetID, FChunk));
@@ -129,6 +134,9 @@ begin
             end;
          end else
             inc(self.FState);
+    end;
+  // --------------
+  51: self.FState := 0; // time-out
   // --------------
   100: begin
     FChunk := FLastChunk;      // descriptor
@@ -144,7 +152,9 @@ begin
   // --------------
   101..150: if HBrxtx.OkErr = 0 then begin
       self.FState := 0;
-      // ErrStr := 'Bootloader finished OK';
+    end else if HBrxtx.NoRply then begin
+      ErrStr := 'No reply, abort';
+      self.FState := 0; // abort
     end else if HBrxtx.OkErr > 0 then begin
       if FRptCnt < 3 then begin
         inc(FRptCnt);
@@ -159,9 +169,10 @@ begin
       ErrStr := 'Communication error, give up after 3 repeats';
       self.FState := 0;  // abort
     end;
-  // --------------
   end else
     inc(self.FState);
+  // --------------
+  151: self.FState := 0; // time-out
   // --------------
   else
       self.FState := 0;

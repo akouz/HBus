@@ -84,15 +84,17 @@ type
     //FHbRx.Esc:  boolean;           // ESC flag
     //FHbRx.Last: char;              // last received char outside gate
     //FHbRx.LastValid : boolean;
-    FRxMsg:   THbMsg;         // decoded message
-    Fexpected: string;        // string to send before encoding
-    Fsent: string;            // last sent string, encoded
-    FHbEcho:   string;        // last received HBus echo
-    FOkErr : integer;         // from last received HBus echo
-    FTxBusy:   boolean;       // transmitter is busy
+    FRxMsg:   THbMsg;         // decoded Rx message
+    FSentRaw: string;         // string to send before encoding
+    FSentEnc: string;         // last sent string, encoded
     Fpri:     integer;        // message priority
     FTxTmout: integer;        // time-out
     FRtrCnt:  integer;        // retry count
+    FExpRply: string;         // first 5 bytes of expected HBus reply
+    FHbRply : string;         // received HBus reply, decoded
+    FOkErr : integer;         // from last received HBus reply
+    FRplyTmout: integer;      // time-out for expected reply
+    FTxBusy:   boolean;       // transmitter is busy
     FStr : string;
     FDampHex : string;
     FDampStr : string;
@@ -123,9 +125,8 @@ type
     MsgID : byte;
     LastCrc : array [0..1] of word;
     Cipher : THbCipher;
-    property HbEcho : string read FHbEcho;
+    NoRply : boolean;  // expected HBus reply did not arrive within timout
     property OkErr : integer read FOkErr;
-    property TxTmout : integer read FTxTmout;
     property Gate : boolean read FHbRx.gate;
     property TxBusy : boolean read FTxBusy;
     function Rx: THbMsg;    // get received string and remove it from the list
@@ -357,7 +358,6 @@ end;
  // ===========================================
 function THbRxtx.FEncode(ss: string): string;
 var
-  s:   string;
   i:   integer;
   c:   char;
   esc: boolean;
@@ -393,7 +393,7 @@ end;
  // =====================================  
 procedure THbRxtx.FDecode(ss: string);
 var
-  i, j: integer;
+  i: integer;
   c: char;
   s: string;
 begin
@@ -403,14 +403,27 @@ begin
     if (s <> '') then  begin
       NoRx := False;
       if FCheckCrc(s) then begin   // if crc matches
-        if (Fexpected <> '') and (s = Fexpected) then  begin // it is echo
-          FHbEcho := s;
-          FOkErr := ord(s[8]);
-          TxStatus := 2;
-          Fexpected := '';
-          Fsent  := '';
-          FTxTmout := 0;
-          FTxBusy  := False;
+        // -----------------------
+        // echo of transmitted message
+        // -----------------------
+        if (FSentEnc <> '') then begin
+          if (s = FSentRaw) then  begin // it is echo
+            FSentEnc  := '';
+            TxStatus := 2;
+            FTxTmout := 0;
+            FTxBusy  := False;
+            FRplyTmout := 50; // expect reply in 500 ms
+          end;
+        end;
+        // -----------------------
+        // reply from external node
+        // -----------------------
+        if (FExpRply <> '') then begin // if expecting reply
+          if (FExpRply = copy(s,1,5)) then begin  // reply matches
+            FExpRply := '';
+            FRplyTmout := 0;
+            FOkErr := ord(s[8]);
+          end;
         end;
         if FRxMsg.mqtt then
           Self.Add(char(FRxMsg.pri) + 'M' + s)   // mark MQTT message
@@ -457,23 +470,26 @@ end;
  // =====================================  
 function THbRxtx.FEncodeHB(ss: string): string;
 var s : string;
+    cmd : char;
 begin
   Result := '';
   if not FTxBusy then begin
-    Result    := '' + char(_PRI_LO) + char(_ESC);
-    Fexpected := ss;
+    Result   := '' + char(_PRI_LO) + char(_ESC);
+    FSentRaw := ss;
+    cmd := ss[1];
+    FExpRply := char($80 or ord(cmd)) + Copy(ss, 2, 4); // first 5 bytes of expected reply
     s := FAddCrc(ss);
     if (EncryptHB) then begin
       s := Cipher.encrypt(s);
       Result := Result + char(_ESC_START_HBE);
     end else
       Result := Result + char(_ESC_START_HB);
-    Result    := Result + FEncode(s);
-    Result    := Result + char(_ESC) + char(_ESC_END);
-    Fsent     := Result;
-    FTxBusy   := True;
-    FRtrCnt   := 0;
-    FTxTmout  := TX_TMOUT;
+    Result   := Result + FEncode(s);
+    Result   := Result + char(_ESC) + char(_ESC_END);
+    FSentEnc := Result;
+    FTxBusy  := True;
+    FRtrCnt  := 0;
+    FTxTmout := TX_TMOUT;
   end;
 end;
 // =====================================  
@@ -483,7 +499,7 @@ begin
   Result := '';
   if not FTxBusy then begin
     Result    := '' + char(_PRI_LO) + char(_ESC);
-    Fexpected := ss;
+    FSentRaw := ss;
     s := FAddCrc(ss);
     if (EncryptMQ) then begin
       s := Cipher.encrypt(s);
@@ -492,7 +508,7 @@ begin
       Result := Result + char(_ESC_START_MQ);
     Result    := Result + FEncode(s);
     Result    := Result + char(_ESC) + char(_ESC_END);
-    Fsent     := Result;
+    FSentEnc     := Result;
     FTxBusy   := True;
     FRtrCnt   := 0;
     FTxTmout  := TX_TMOUT;
@@ -505,7 +521,7 @@ end;
 function THbRxtx.FAddPriority(ss : string) : string;
 begin
   inc(Fpri);
-  result := copy(Fsent, 2, Length(Fsent)-1);
+  result := copy(ss, 2, Length(ss)-1);
   case Fpri of
     1: result := char(_PRI_MED) + result;
     else
@@ -523,6 +539,8 @@ begin
   if (ComPort.Connected and PortOk) then begin
     try
       FOkErr := -1;
+      Fpri := 0;
+      NoRply := false;
       if not FTxBusy then begin
         if msg.mqtt then
           s := FEncodeMQ(msg.s)
@@ -530,7 +548,7 @@ begin
           s := FEncodeHB(msg.s);
         if (s <> '') then begin
           if not msg.mqtt then begin
-            FHbEcho := '';
+            FHbRply := '';
           end;
           ComPort.WriteStr(s);
           TxStatus := 1;
@@ -562,11 +580,11 @@ end;
  // =====================================  
 procedure THbRxtx.FlushTx;
 begin
-  Fsent     := '';
-  Fexpected := '';
-  FTxTmout  := 0;
-  FTxBusy   := False;
-  TxStatus  := 0;
+  FSentEnc := '';
+  FSentRaw := '';
+  FTxTmout := 0;
+  FTxBusy  := False;
+  TxStatus := 0;
 end;
 
 // =====================================  
@@ -578,22 +596,32 @@ var len : integer;
 begin
   if ComPort.Connected and PortOk then begin
     try
+      // -----------------------
       // Tx
-      if (Fsent <> '') and (FTxTmout > 0) then  begin
+      // -----------------------
+      if (FSentEnc <> '') and (FTxTmout > 0) then  begin
         Dec(FTxTmout);
         if FTxTmout = 0 then begin
-          if FRtrCnt < 4 then begin
+          if FRtrCnt < 2 then begin
             Inc(FRtrCnt);
             FTxTmout := TX_TMOUT;
-            Fsent := FAddPriority(Fsent);
-            ComPort.WriteStr(Fsent);
+            FSentEnc := FAddPriority(FSentEnc);
+            ComPort.WriteStr(FSentEnc);
           end else  begin
             FlushTx;
             NoRx := True;
           end;
         end;
       end;
+      if (FExpRply <> '') and (FRplyTmout > 0) then  begin
+        Dec(FRplyTmout);
+        if (FRplyTmout = 0) then begin
+          NoRply := true;
+        end;
+      end;
+      // -----------------------
       // Rx
+      // -----------------------
       if (FHbRx.GateTmout < 1000) then
          inc(FHbRx.GateTmout);
       if (FHbRx.GateTmout > 20) then // after 200 ms
@@ -603,7 +631,9 @@ begin
          ComPort.ReadStr(s, len);
          FDecode(s);
       end;
+      // -----------------------
       // Debug
+      // -----------------------
       if (FStr <> '') or (FHbRx.LastValid) then begin
         inc(FStr_tmout);
         if FStr_tmout > 100 then begin
@@ -611,7 +641,9 @@ begin
           FStr_tmout := 0;
         end;
       end;
+      // -----------------------
       // Dump
+      // -----------------------
       inc(FDampPause);
       if (FDampPause > 100) and (FDampHex <> '') then begin
         FDampPause := 0;
