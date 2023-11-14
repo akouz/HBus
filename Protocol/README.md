@@ -811,7 +811,7 @@ Reply from Node B to Node A
 <th>[12:(12+X)]</th>
 </tr></thead>
 <tbody><tr>
-<td>0x89</td>
+<td>0x8A</td>
 <td>NodeA_ID</td>
 <td>NodeB_ID</td>
 <td>MsgId</td>
