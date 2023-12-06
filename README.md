@@ -16,7 +16,7 @@ Once configured, HBus system is self-contained, eg it can operate without any ho
 
   * Baud rate 19.2 kbps.
   * Communication by ordinary UARTs with CAN transceivers, dominant/recessive states. CAN protocol not used, CAN controllers not required.
-  * CSMA/CD (collision detection) allowed for cost sensitive implementations. CSMA/CA (collision avoidance) recommended, but is not mandatory. CSMA/CA employs an additional low-cost microcontroller. 
+  * CSMA/CD (collision detection) allowed for cost sensitive implementations. CSMA/CA (collision avoidance) recommended, but is not mandatory. Common Arduino modules require an additional low-cost microcontroller for CSMA/CA. [HBnode](https://github.com/akouz/HBnode) modules implement CSMA/CA without additional microcontrollers.  
   * Flow control by byte-stuffing.
   * Two modes of operation:
     * [Configuration:](https://github.com/akouz/HBus#hbus-mode-config-and-control-messages) point-to-point messages, master/slave communication model - "HBus mode".
