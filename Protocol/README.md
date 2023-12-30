@@ -685,7 +685,7 @@ Write description, request from Node A to Node B
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
-<td>1</td>
+<td>StrNoWr</td></td>
 <th>TS</th>
 <td>N</td>
 <td>Text</td>
