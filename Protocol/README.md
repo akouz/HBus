@@ -626,6 +626,7 @@ Read description, request from Node A to Node B
 </tr></tbody></table>
 
   * StrNoWr - string No in bits [3:1] and Read=0 in bit [0]
+
 String numbers:
   * 0 - name
   * 1 - location
@@ -633,6 +634,7 @@ String numbers:
   * 3 - project (read only)
   * 4 - sketch (read only)
   * 5 - h/w module (read only)
+
 Reply from Node B to Node A
 
 <table>
@@ -692,6 +694,7 @@ Write description, request from Node A to Node B
   * StrNoWr - string No in bits [2:1] and Write=1 in bit [0]
   * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
+
 String numbers:
   * 0 - name
   * 1 - location
