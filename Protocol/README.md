@@ -621,10 +621,18 @@ Read description, request from Node A to Node B
 <td>NodeB_ID</td>
 <td>MsgId</td>
 <td>Nonce</td>
-<td>0</td>
+<td>StrNoWr</td>
 <th>TS</th>
 </tr></tbody></table>
-  
+
+  * StrNoWr - string No in bits [3:1] and Read=0 in bit [0]
+String numbers:
+  * 0 - name
+  * 1 - location
+  * 2 - description
+  * 3 - project (read only)
+  * 4 - sketch (read only)
+  * 5 - h/w module (read only)
 Reply from Node B to Node A
 
 <table>
@@ -653,6 +661,7 @@ Reply from Node B to Node A
 
   * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
+  * if OK then OkErr fieild repeats StrNoWr field
 
 Write description, request from Node A to Node B
 
@@ -680,9 +689,14 @@ Write description, request from Node A to Node B
 <td>Text</td>
 </tr></tbody></table>
 
+  * StrNoWr - string No in bits [2:1] and Write=1 in bit [0]
   * N - length of text, typically up to 63 bytes 
   * Text - node description, UTF-8
-
+String numbers:
+  * 0 - name
+  * 1 - location
+  * 2 - description
+    
 Reply from Node B to Node A
 
 <table>
@@ -704,6 +718,8 @@ Reply from Node B to Node A
 <td>OkErr</td>
 <th>TS</th>
 </tr></tbody></table>
+
+If OK then OkErr fieild repeats StrNoWr field
 
 ## [9] SECURITY
 
