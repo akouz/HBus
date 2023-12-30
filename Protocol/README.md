@@ -230,6 +230,7 @@ Reply from Node B to Node A
 <td>[19]</td>
 <td>[20]</td>
 <td>[21]</td>
+<td>[22:25]</td>
 </tr></thead>
 <tbody><tr>
 <td>0x81</td>
@@ -249,11 +250,12 @@ Reply from Node B to Node A
 <td>SwRevMin</td>
 <td>HbusRevMaj</td>
 <td>HbusRevMin</td>
+<td>SwSignature</td>
 </tr></tbody></table>
 
 A sample of reply from node 0x0010 to node 0x0404
 ```
-81 04 04 00 10 D2 69 00  23 2C DC AE 02 01 01 00  00 01 01 0A 01 00 
+81 04 04 00 10 D2 69 00  23 2C DC AE 02 01 01 00  00 01 01 0A 01 00 7E 5C  B2 76
 ```
 Please note a 16 sec mismatch between TS of node 0x0404 (0x232CDC9E from NodeTest on PC) and TS of node 0x0010 (0x232CDCAE from HBus Gateway). Unfortunatelly PC time is not accurate. 
 
