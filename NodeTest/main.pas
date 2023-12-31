@@ -32,8 +32,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, CPort, Forms, Controls, Graphics, Dialogs,
-  sha1,ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, Clipbrd,
-  HBrxtxU, HBcmdU, HButilsU, HBbootU;
+  ExtCtrls, StdCtrls, ComCtrls, Registry, IniFiles, Clipbrd, Sha1,
+  HBrxtxU, HBcmdU, HButilsU, HBbootU, HBsysU;
 
 type
 
@@ -63,6 +63,9 @@ type
     BtnSaveSecurity : TButton;
     BtnCreateKey : TButton;
     BtnEECreate : TButton;
+    BtnExploreNet: TButton;
+    BtnList: TButton;
+    BtnReportNode: TButton;
     CBping1: TCheckBox;
     CbPorts : TComboBox;
     CbDamp : TCheckBox;
@@ -85,6 +88,8 @@ type
     CbEEcipher : TCheckBox;
     CbTs : TCheckBox;
     CbSetSecurity: TCheckBox;
+    CbCipherH2: TCheckBox;
+    CbNode: TComboBox;
     EdEENotes : TEdit;
     EdGroup : TEdit;
     EdDuration : TEdit;
@@ -118,9 +123,12 @@ type
     GbFlashKey : TGroupBox;
     GBSecurity : TGroupBox;
     GBDescription : TGroupBox;
+    GbNetwork: TGroupBox;
+    GbNode: TGroupBox;
     Label1 : TLabel;
     Label10 : TLabel;
     Label11 : TLabel;
+    Label12: TLabel;
     LblCrc: TLabel;
     LblKey1 : TLabel;
     Label2 : TLabel;
@@ -142,18 +150,23 @@ type
     LblLFSR1 : TLabel;
     LblLFSR2 : TLabel;
     LblLFSR3 : TLabel;
+    LB2: TListBox;
     OpenCipher : TOpenDialog;
     OpenSketch: TOpenDialog;
-    PageControl1 : TPageControl;
+    PgCtrl : TPageControl;
     Panel1 : TPanel;
     Panel2 : TPanel;
     Panel3 : TPanel;
     PnlSecurityM: TPanel;
     PnlSecurityH: TPanel;
+    RbModule: TRadioButton;
+    RbSketch: TRadioButton;
+    RbProject: TRadioButton;
     RbName: TRadioButton;
     RbLocation: TRadioButton;
     RbDescr: TRadioButton;
     SaveCipher : TSaveDialog;
+    TsSys: TTabSheet;
     TsCipher : TTabSheet;
     Timer1ms : TTimer;
     Timer1sec : TTimer;
@@ -162,10 +175,12 @@ type
     Timer10ms : TTimer;
     procedure BtnBeepClick(Sender : TObject);
     procedure BtnBootClick(Sender : TObject);
+    procedure BtnExploreNetClick(Sender: TObject);
     procedure BtnCollectClick(Sender : TObject);
     procedure BtnCreateKeyClick(Sender : TObject);
     procedure BtnCustomCmdClick(Sender : TObject);
     procedure BtnEECreateClick(Sender : TObject);
+    procedure BtnListClick(Sender: TObject);
     procedure BtnLoadEECipClick(Sender : TObject);
     procedure BtnLoadFlashCipClick(Sender : TObject);
     procedure BtnMakeCipClick(Sender : TObject);
@@ -176,6 +191,7 @@ type
     procedure BtnRdSecurityClick(Sender : TObject);
     procedure BtnRdTopicClick(Sender : TObject);
     procedure BtnRegisterClick(Sender : TObject);
+    procedure BtnReportNodeClick(Sender: TObject);
     procedure BtnRevClick(Sender : TObject);
     procedure BtnSaveEECipClick(Sender : TObject);
     procedure BtnSaveFlashCipClick(Sender : TObject);
@@ -185,6 +201,8 @@ type
     procedure BtnWrSecurityClick(Sender : TObject);
     procedure CBcipherHChange(Sender : TObject);
     procedure CBcipherMChange(Sender : TObject);
+    procedure CbCipherH2Change(Sender: TObject);
+    procedure CbNodeChange(Sender: TObject);
     procedure CBping1Click(Sender: TObject);
     procedure CBpingChange(Sender: TObject);
     procedure CbPortsChange(Sender : TObject);
@@ -193,16 +211,20 @@ type
     procedure EdKey5DblClick(Sender : TObject);
     procedure EdMsgIdDblClick(Sender : TObject);
     procedure EdNewIDDblClick(Sender : TObject);
+    procedure EdNodeChange(Sender: TObject);
     procedure EdNodeDblClick(Sender : TObject);
     procedure EdOwnIdDblClick(Sender : TObject);
     procedure EdRoundsDblClick(Sender : TObject);
     procedure FormCreate(Sender : TObject);
     procedure FormDestroy(Sender : TObject);
     procedure Label2DblClick(Sender : TObject);
+    procedure LB2DblClick(Sender: TObject);
     procedure LBDblClick(Sender : TObject);
     procedure LBKeyPress(Sender : TObject; var Key : char);
-    procedure PageControl1Exit(Sender : TObject);
+    procedure PgCtrlChange(Sender: TObject);
+    procedure PgCtrlExit(Sender : TObject);
     procedure Panel1DblClick(Sender : TObject);
+    procedure RbSketchChange(Sender: TObject);
     procedure Timer10msTimer(Sender : TObject);
     procedure Timer1msTimer(Sender : TObject);
     procedure Timer1secTimer(Sender : TObject);
@@ -281,6 +303,10 @@ procedure TForm1.LBDblClick(Sender : TObject);
 begin
   LB.Clear;
 end;
+procedure TForm1.LB2DblClick(Sender: TObject);
+begin
+  LB2.Clear;
+end;
 
 // =====================================================
 // Ctrl+C to copy selected text
@@ -302,13 +328,48 @@ begin
 end;
 
 // =====================================================
+// Page change
+// =====================================================
+procedure TForm1.PgCtrlChange(Sender: TObject);
+begin
+  If PgCtrl.ActivePage.Caption = 'Sys' then begin
+    LB.Visible := false;
+    LB2.Visible := true;
+  end else begin
+      LB.Visible := true;
+      LB2.Visible := false;
+  end;
+end;
+
+// =====================================================
 // 10 ms
 // =====================================================
 procedure TForm1.Timer10msTimer(Sender : TObject);
+var i, j : integer;
+    s : string;
 begin
   HBcmd.Tick10ms;
   HBrxtx.Tick10ms;
   HBboot.Tick10ms;
+  HBsys.Tick10ms;
+  if (not BtnExploreNet.Enabled) and (not HBsys.busy) then begin // explore batch finished
+     BtnListClick(Sender);
+     CbNode.Clear;
+     CbNode.ItemIndex := -1;
+     if HBsys.Count > 0 then begin
+       GbNode.Enabled := true;
+       j := 0;
+       for i:=0 to HBsys.Count-1 do begin
+         s := '0x'+IntToHex(THBnode(HBsys.Objects[i]).NodeID, 4);
+         CbNode.Items.Add(s);
+         if s = EdNode.Text then
+           j := i;
+       end;
+       CbNode.ItemIndex := j;
+     end;
+     CbNodeChange(Sender);
+  end;
+  BtnExploreNet.Enabled := not HBsys.busy;
   if not BtnBoot.Enabled then begin
     if HBboot.State = 0 then begin
        BtnBoot.Enabled := true;
@@ -362,6 +423,7 @@ begin
         // received
         if rx.valid then begin
           if not rx.err then begin
+            HBsys.Process(rx);          // process recived message, extract useful info
             if (rx.mqtt) then begin
               msg_id := HBrxtx.MsgID;   // received
               if (msg_id >= HBcmd.MsgId) or ((HBcmd.MsgId > $F0) and (msg_id < $10)) then begin
@@ -422,7 +484,7 @@ begin
 end;
 
 // =====================================================
-// Convert radiobuttons
+// Convert radiobuttons to param
 // =====================================================
 function TForm1.FRbChecked: byte;
 begin
@@ -430,7 +492,13 @@ begin
   if RbLocation.Checked then
     result := 2
   else if RbDescr.Checked then
-    result := 4;
+    result := 4
+  else if RbProject.Checked then
+    result := 6
+  else if RbSketch.Checked then
+    result := 8
+  else if RbModule.Checked then
+    result := 10;
 end;
 
 // =====================================================
@@ -579,10 +647,19 @@ end;
 procedure TForm1.FormCreate(Sender : TObject);
 var ini : TIniFile;
     val : word;
+    s : string;
 begin
   ini := TIniFile.Create('NodeTest.ini');
   ComPortStr := AnsiUpperCase(ini.ReadString('Config','Port','COM1'));
-  NodeID := ini.ReadInteger('Config','ID',$FFFF);
+  s := ini.ReadString('Config', 'NodeID', '0x0001');
+  self.NodeID := 1;
+  if length(s) > 3 then begin
+    s := '$' + copy(s, 3, length(s) - 2);
+    self.NodeID := StrToIntDef(s, 1);
+  end;
+  s := '0x' + IntToHex(self.NodeID, 4);
+  EdNode.Text := s;
+  EdNewID.Text := EdNode.Text;
   val := ini.ReadInteger('Config','Security',$FFFF);
   FSecurityToCb(val);
   EdTopic.Text := ini.ReadString('MQTT','topic','101');
@@ -591,8 +668,6 @@ begin
   CBcipherH.Checked := ini.ReadInteger('HBus','cipher', 0) <> 0;
   BootFn := ini.ReadString('Sketch','FileName','');
   ini.Free;
-  EdNode.Text := '0x' + IntToHex(NodeID,3);
-  EdNewID.Text := EdNode.Text;
   Label2DblClick(Sender); // select COM port
   HBrxtx := THbRxtx.Create(ComPortStr);
   if HBrxtx.ComPort.Connected then
@@ -604,6 +679,7 @@ begin
   EdEENotesDblClick(Sender);
 
   HBboot := THbBoot.Create;
+  HBsys := THBsys.Create;
 
   EdOwnId.Text := '0x'+IntToHex(HBcmd.OwnID,3);
   EdOwnIdDblClick(Sender);
@@ -612,6 +688,7 @@ begin
   Ready := true;
   CBcipherHChange(Sender);
   CBcipherMChange(Sender);
+  PgCtrlChange(Sender);
 end;
 
 // =====================================================
@@ -620,12 +697,14 @@ end;
 procedure TForm1.FormDestroy(Sender : TObject);
 var ini : TIniFile;
     val : word;
+    s : string;
 begin
   EdRoundsDblClick(Sender); // save cipher changes
   ini := TIniFile.Create('NodeTest.ini');
   if HBrxtx.ComPort.Connected then
     ini.WriteString('Config','Port',AnsiUpperCase(ComPortStr));
-  ini.WriteInteger('Config','ID',NodeID);
+  s := '0x'+IntToHex(self.NodeID, 4);
+  ini.WriteString('Config','NodeID', s);
   ini.WriteString('MQTT','topic',EdTopic.Text);
   ini.WriteString('MQTT','val',EdTopicVal.Text);
   if CBcipherM.Checked then val := 1 else val := 0;
@@ -637,6 +716,7 @@ begin
   HBrxtx.Free;
   HBcmd.Free;
   HBboot.Free;
+  HBsys.free;
 end;
 
 // =====================================================
@@ -694,7 +774,7 @@ end;
 // =====================================================
 // Exit from tab
 // =====================================================
-procedure TForm1.PageControl1Exit(Sender : TObject);
+procedure TForm1.PgCtrlExit(Sender : TObject);
 begin
   EdRoundsDblClick(Sender); // save changes
 end;
@@ -724,6 +804,17 @@ begin
   ss := HBrxtx.Cipher.decrypt(s);
   LB.Items.Add(ss);
 }
+end;
+
+// =====================================================
+// Radio button
+// =====================================================
+procedure TForm1.RbSketchChange(Sender: TObject);
+begin
+  if RbSketch.Checked or RbProject.Checked or RbModule.Checked then
+    BtnWrDescr.Enabled := false
+  else
+    BtnWrDescr.Enabled := true;
 end;
 
 // =====================================================
@@ -831,6 +922,16 @@ begin
 end;
 
 // =====================================================
+// Start batch exploring HBus networks
+// =====================================================
+procedure TForm1.BtnExploreNetClick(Sender: TObject);
+begin
+  HBsys.Clear;
+  BtnExploreNet.Enabled := not HBsys.StartHbusExplore; // disable while batch in progress
+  GbNode.Enabled := BtnExploreNet.Enabled;
+end;
+
+// =====================================================
 // Create key
 // =====================================================
 procedure TForm1.BtnCreateKeyClick(Sender : TObject);
@@ -926,6 +1027,22 @@ begin
          ShowMessage('Entered passphrases do not match, try again');
     end;
   end;
+end;
+
+// =====================================================
+// List collected nodes
+// =====================================================
+procedure TForm1.BtnListClick(Sender: TObject);
+var i : integer;
+begin
+  if HBsys.Count > 0 then begin
+    if LB2.Items.Count > 0 then
+      LB2.Items.Add('');
+    LB2.Items.Add('Collected nodes:');
+    for i:= 0 to HBsys.Count-1 do
+      LB2.Items.Add(HBsys.Strings[i]);
+  end else
+    LB2.Items.Add('No collected nodes');
 end;
 
 // =====================================================
@@ -1040,6 +1157,27 @@ begin
   EdMsgId.Text := '0x'+IntToHex(HBcmd.MsgID,2);
 end;
 
+// =====================================================
+// Report node
+// =====================================================
+procedure TForm1.BtnReportNodeClick(Sender: TObject);
+var NID : word;
+    s : string;
+    i : integer;
+begin
+  if length(CbNode.Text) > 3 then begin
+    s := '$' + copy(CbNode.Text, 3, length(CbNode.Text) - 2);
+    NID := StrToIntDef(s, 0);
+    HBsys.ReportNode(NID);
+    if LB2.Items.Count > 0 then
+      LB2.Items.Add('');
+    LB2.Items.Add('NodeID 0x' + IntToHex(NID,4) + ':');
+    for i:= 0 to HBsys.SL.Count-1 do
+      LB2.Items.Add(HBsys.SL.Strings[i]);
+  end else
+    LB2.Items.Add('Invalid NodeID');
+end;
+
 
 // =====================================================
 // Boot
@@ -1109,7 +1247,7 @@ var pause : integer;
     s : string;
 begin
   HBcmd.Flush;
-  pause := StrToIntDefLW(EdPause.Text, 0); // sec
+  pause := StrToIntDefLW(EdPause.Text, 1); // sec
   EdPause.Text := IntToStr(pause);
   TxMsg := HBcmd.CmdPing(NodeID, pause);
   s := HBrxtx.Tx(TxMsg);
@@ -1204,6 +1342,26 @@ begin
       PnlSecurityH.Color := clDefault;
       PnlSecurityM.Color := clDefault;
     end;
+    CBcipherH2.Checked := CBcipherH.Checked;
+  end;
+end;
+
+procedure TForm1.CbCipherH2Change(Sender: TObject);
+begin
+  if Ready then begin
+    CBcipherH.Checked := CBcipherH2.Checked;
+    CBcipherHChange(Sender);
+  end;
+end;
+
+// =====================================================
+// Select another node
+// =====================================================
+procedure TForm1.CbNodeChange(Sender: TObject);
+begin
+  if length(CbNode.Text) > 3 then begin
+     EdNode.Text := CbNode.text;
+     EdNodeDblClick(Sender);
   end;
 end;
 
@@ -1276,7 +1434,11 @@ var s : string;
 begin
   s := num_str_c2pas(EdNode.Text);
   NodeID := StrToIntDefLW(s, $07FF);
-  EdNode.Text := '0x'+IntToHex(NodeID,3);
+  s := '0x'+IntToHex(NodeID,4);
+  if EdNode.Text <> s then begin
+    EdNode.Text := s;
+    LblCrc.Visible:=false; // another node have another signature
+  end;
 end;
 
 // =====================================================
@@ -1318,6 +1480,11 @@ begin
   if (NewID > $07FF) then
      NewID := $07FF;
   EdNewID.Text := '0x'+IntToHex(NewID,4)
+end;
+
+procedure TForm1.EdNodeChange(Sender: TObject);
+begin
+
 end;
 
 end.

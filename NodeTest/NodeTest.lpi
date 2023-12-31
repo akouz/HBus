@@ -34,7 +34,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="6">
       <Unit0>
         <Filename Value="NodeTest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -58,6 +58,10 @@
         <Filename Value="HBbootU.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="HBsysU.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -87,7 +91,7 @@
     </Linking>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="6">
+    <Exceptions Count="8">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -106,6 +110,12 @@
       <Item6>
         <Name Value="EAccessViolation"/>
       </Item6>
+      <Item7>
+        <Name Value="RunError(201)"/>
+      </Item7>
+      <Item8>
+        <Name Value="ERangeError"/>
+      </Item8>
     </Exceptions>
   </Debugging>
 </CONFIG>

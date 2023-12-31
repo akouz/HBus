@@ -32,7 +32,7 @@ interface
 //##############################################################################
 
 uses
-  Classes, SysUtils, IniFiles;
+  Classes, SysUtils, IniFiles, HButilsU;
 
 const
   DELTA     = $9E3779B9;    // XTEA constant
@@ -260,15 +260,22 @@ end;
 // =====================================
 procedure THbCipher.ReadFlashCip(fn : string);
 var ini : TIniFile;
+    s : string;
 begin
   ini := TIniFile.Create(fn);
   Notes := ini.ReadString('Cipher', 'Notes', 'Default cipher');
-  FlashKey[0] := ini.ReadInteger('Cipher', 'Key1', $60F3C66D);
-  FlashKey[1] := ini.ReadInteger('Cipher', 'Key2', $5DF53900);
-  FlashKey[2] := ini.ReadInteger('Cipher', 'Key3', $4F533EB6);
-  FlashKey[3] := ini.ReadInteger('Cipher', 'Key4', $E42B2A61);
-  LFSR1 := ini.ReadInteger('Cipher', 'LFSR1', $1EDC6F41);
-  LFSR2 := ini.ReadInteger('Cipher', 'LFSR2', $04C11DB7);
+  s := ini.ReadString('Cipher', 'Key1', '$60F3C66D');
+  FlashKey[0] := StrToIntDefLW(s, $60F3C66D);
+  s := ini.ReadString('Cipher', 'Key2', '$5DF53900');
+  FlashKey[1] := StrToIntDefLW(s, $5DF53900);
+  s := ini.ReadString('Cipher', 'Key3', '$4F533EB6');
+  FlashKey[2] := StrToIntDefLW(s, $4F533EB6);
+  s := ini.ReadString('Cipher', 'Key4', '$E42B2A61');
+  FlashKey[3] := StrToIntDefLW(s, $E42B2A61);
+  s := ini.ReadString('Cipher', 'LFSR1', '$1EDC6F41');
+  LFSR1 := StrToIntDefLW(s, $1EDC6F41);
+  s := ini.ReadString('Cipher', 'LFSR2', '$04C11DB7');
+  LFSR2 := StrToIntDefLW(s, $04C11DB7);
   LFSR16 := ini.ReadInteger('Cipher', 'LFSR16', $755B);
   Rounds := ini.ReadInteger('Cipher', 'Rounds', 6);
   ini.Free;
@@ -279,13 +286,18 @@ end;
 // =====================================
 procedure THbCipher.ReadEECip(fn : string);
 var ini : TIniFile;
+    s : string;
 begin
   ini := TIniFile.Create(fn);
   EENotes := ini.ReadString('Cipher', 'EENotes', 'Default EEPROM key');
-  EEKey[0] := ini.ReadInteger('Cipher', 'EEKey1', $4c25dc00);
-  EEKey[1] := ini.ReadInteger('Cipher', 'EEKey2', $bcb2e7dc);
-  EEKey[2] := ini.ReadInteger('Cipher', 'EEKey3', $89eb06ab);
-  EEKey[3] := ini.ReadInteger('Cipher', 'EEKey4', $15227cb7);
+  s := ini.ReadString('Cipher', 'EEKey1', '$4c25dc00');
+  EEKey[0] := StrToIntDefLW(s, $4c25dc00);
+  s := ini.ReadString('Cipher', 'EEKey2', '$bcb2e7dc');
+  EEKey[1] := StrToIntDefLW(s, $bcb2e7dc);
+  s := ini.ReadString('Cipher', 'EEKey3', '$89eb06ab');
+  EEKey[2] := StrToIntDefLW(s, $89eb06ab);
+  s := ini.ReadString('Cipher', 'EEKey4', '$15227cb7');
+  EEKey[3] := StrToIntDefLW(s, $15227cb7);
   ini.Free;
 end;
 
