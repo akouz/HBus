@@ -5,7 +5,7 @@ rev 1.5, matching code:
   * WiFi Gateway sketch [WiFiGw.ino rev 1.10](https://github.com/akouz/HBus/tree/master/Devices/03_WiFi_Gateway/WiFiGw)
   * [Arduino firmware core rev 1.1](https://github.com/akouz/HBus/tree/master/HBnodeMiniPro)
 
-rev 1.6 differs by extended DESCR command; matching code:
+rev 1.6 differs by extended REV and DESCR commands; matching code:
   * [NodeTest rev 1.16](https://github.com/akouz/HBus/tree/master/NodeTest)
   * [HBnode_DD32 rev 1.1](https://github.com/akouz/HBnode/tree/main/AVR64DD32/Sketches/HBnode_DD32)
 
